@@ -1,32 +1,16 @@
-# Prerequisites
-*.d
+#
+# Specify intentionally untracked folders/files that Git should ignore.
+# More details on: https://git-scm.com/docs/gitignore
+#
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Default project build folders.
+/output/
 
-# Precompiled Headers
-*.gch
-*.pch
+# IDE specific folders.
+#   Eclipse
+/.settings/
+#   CLion
+/.idea/
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+# Generated project documentation.
+/docs/generated/

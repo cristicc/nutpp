@@ -1,0 +1,39 @@
+= nutpp
+
+ifdef::env-github[]
+:imagesdir: https://github.com/cristicc/nutpp/blob/master/docs
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+ifndef::env-github[]
+:imagesdir: ./docs
+endif::[]
+
+:toc:
+:toc-placement!:
+:sectnums:
+:sectanchors:
+:sectlinks:
+
+_nutpp_ is an utility web application written in C++ to be used by nutritionists
+to create nutrition plans.
+
+toc::[]
+
+IMPORTANT: This is currently a work in progress..
+
+== Purpose
+
+TODO
+
+== Build prerequisites
+
+TODO
+
+== Deployment and Configuration
+
+TODO
