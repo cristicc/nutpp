@@ -1,0 +1,63 @@
+Info
+====
+
+* Generează cu ușurință planuri nutriționale
+    Ca nutriționist, vei genera sau refolosi planuri nutriționale iar pacietul va primi pe email planul zilnic.
+
+* Bază de date cu nutrienți
+    Baza noastră de date conține peste 6000 alimente și adăugăm constant alimente noi. Aveți posibilitatea de a adăuga propriile alimente.
+
+* Anchetă nutrițională on-line
+    Pacientul poate completa un formular cu ancheta nutrițională înainte să vină la clinică sau în holul clinicii. Vei avea o analiză a pacientului înainte de vizita acestuia, iar vizita poate fi mult mai scurtă.
+
+* Feedback
+    Pacientul are posibilitatea să vă ofere feedback prin intermediul aplicației iar tu ai opțiunea să ajustezi dieta în timp real, fără să chemi pacientul la clinică.
+
+* Rezultate
+    Vei putea analiza ce dietă a avut succes mai mare pe baza feedback-ului primit de la pacient.
+
+
+Activitate fizica
+=================
+<select class="form-control ng-pristine ng-valid ng-touched" ng-model="patients.add_progress.activity">
+<option value="" disabled="" selected="" class="ng-binding">Alege o optiune</option>
+<option value="1" class="ng-binding">Sedentar</option>
+<option value="2" class="ng-binding">Activitate usoara (1-3 zile/saptamana)</option>
+<option value="3" class="ng-binding">Activitate medie (3-5 zile/saptamana)</option>
+<option value="4" class="ng-binding">Activitate intensa (7 zile/saptamana)</option>
+</select>
+
+
+Adauga plan
+===========
+ - calorii (kcal) + Proteine/Carbohidrati (%kcal sau g) -> calcul automat % lipide (100% - %p - %c)
+ 
+g prot = %kcal prot * cal / 100 / 4.1; %kcal prot = g prot * 100 * 4.1 / cal
+g carbo = %kcal carbo * cal / 4.1
+g lipide = %kcal carbo * cal / 9.3
+
+
+Exemplu: 1000kcal cal, 20% prot, 25% lipide, 55% carbo
+
+g prot = 20 * 1000 / 100 / 4.1 = round (48.78) = 49
+%kcal prot = 49 * 4.1 * 100 / 1000 = round (20.09) = 20
+
+
+Baza date alimente
+==================
+USDA
+Ministerul sanatatii
+Eticheta produsului
+Custom (my food)
+
+Cantintate aliment
+===================
+g, buc (ou), cana (x ml), container (x g), custom (x g)
+
+Adaugare alimente -> colorat cu rosu cand se depasesc limitele zilnice
+Adaugare zile -> posibilitate clonare zi, prima zi adaugata automat cu data de start a planului
+Trimitere plan pe mail -> view al totalurilor zilnice
+
+Cautare avansata alimente
+=========================
+Campuri de cautare dupa: nume, interval calorii, componente (intervale), tip aliment DB: standard (usda, ministerul sanatatii, etichete), custom (my food)

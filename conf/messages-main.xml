@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+
+<!--  Application -->
+<message id="app-title">connect 2</message>
+
+<!--  Header -->
+<message id="mainhdr-appname">connect 2</message>
+<message id="mainhdr-agentstatus">Agent Status</message>
+
+<!--  Main menu -->
+<message id="maintab-overview">Overview</message>
+<message id="maintab-config">Configuration</message>
+<message id="maintab-mainten">Maintenance</message>
+<message id="maintab-diagnosis">Diagnosis</message>
+<message id="maintab-logs">Logs</message>
+<message id="maintab-about">About</message>
+
+<!--  Overview submenu -->
+<message id="overviewtab-hardware">Hardware</message>
+<message id="overviewtab-hardware-info">The Hardware tab provides information about the connect 2 hardware status.</message>
+<message id="overviewtab-software">Software</message>
+<message id="overviewtab-software-info">The Software tab provides various version information.</message>
+<message id="overviewtab-network">Network</message>
+<message id="overviewtab-network-info">The Network tab provides information about all the network interfaces available on the system.</message>
+<message id="overviewtab-routes">Routes</message>
+<message id="overviewtab-routes-info">The Routes info tab provides information about all the network routes active on the system, being retrieved directly from the OS kernel.</message>
+<message id="overviewtab-agent">Axeda Agent</message>
+<message id="overviewtab-agent-info">The Axeda Agent tab provides various information about the Agent.</message>
+<message id="overviewtab-cert">Certificates</message>
+<message id="overviewtab-cert-info">The certificate tab provides various information about all certificates installed on the connect 2.</message>
+
+<!--  Configuration submenu -->
+<message id="configtab-extnet">External Network</message>
+<message id="configtab-extnet-info">The type of IP-Address assignment for the external network can be set (manual or automatic).
+    <br/>The external network is dedicated for the connection to the home server (Roche Axeda Enterprise server).</message>
+<message id="configtab-wirelessnet">Wireless Network</message>
+<message id="configtab-wirelessnet-info">The wireless network tab allows to configure all necessary parameter for WiFi connections.
+    <br/>The wireless network is dedicated for the connection to the home server (Roche Axeda Enterprise server).</message>
+<message id="configtab-mobilenet">Mobile Network</message>
+<message id="configtab-mobilenet-info">The mobile network tab allows to configure all necessary parameter for mobile (e.g. 3G) connections.
+    <br/>The mobile network is dedicated for the connection to the home server (Roche Axeda Enterprise server).</message>
+<message id="configtab-devnet">Device Network</message>
+<message id="configtab-devnet-info">The type of IP-Address assignment for the device network can be set (manual or automatic).
+    <br/>The device network is dedicated for the connection to supported systems (e.g. Integra 400 plus).
+    <br/>The DHCP Server is required simplify the access the connect 2 web interface.</message>
+<message id="configtab-homeserver">Home Server</message>
+<message id="configtab-homeserver-info">The Home Server identifies the Axeda Enterprise Server (ServiceLink environment).
+    <br/>Ensure to use the correct value before installing a connect 2.</message>
+<message id="configtab-proxy">Proxy</message>
+<message id="configtab-proxy-info">Depending on the customer infrastructure, proxy configuration must be made or not.
+    <br/>The necessary information must be provided by the customer. The settings affect the Axeda Agent connectivity going via the external network.</message>
+<message id="configtab-routes">Routes</message>
+<message id="configtab-routes-info">The Routes tab provides the capability to manually configure network routes. This is necessary for special network architectures, where the system cannot automatically detect the correct route.
+    <br/>Example:
+    <br/>The customer has a proxy server with an IP-Address the connect 2 uses for the device network. Without a static route, the system would forward all Axeda Agent traffic to the device network, where it would never reach the home server.
+    <br/>By setting a static route, the traffic can explicitly be routed via the external network.</message>
+<message id="configtab-hosts">Hosts</message>
+<message id="configtab-hosts-info">The Hosts tab provides the capability to manually configure URL / IPs for lookup, if no DNS Server is provided by the customer.
+    <br/>If a Roche B2B VPN is in place, this has to be configured here as well due to other IP-Addresses used by the Roche B2BVPN setup.</message>
+<message id="configtab-system">System</message>
+<message id="configtab-system-info">This tab offers the capability to manage various system settings.</message>
+
+<!--  Maintenance submenu -->
+<message id="maintentab-importcfg">Import Configuration</message>
+<message id="maintentab-importcfg-info">This tab offers the capability to load previously exported system configuration files from the same or other connect 2 systems.</message>
+<message id="maintentab-sysupd">System Update</message>
+<message id="maintentab-sysupd-info">This tab offers the capability to load system update files, which are provided by TeleService for manual installation.</message>
+
+<!--  Diagnosis submenu -->
+<message id="diagnosistab-conn">Connectivity</message>
+<message id="diagnosistab-conn-info">This tab offers the capabilities for advanced connectivity diagnosis.</message>
+<message id="diagnosistab-sys">System</message>
+<message id="diagnosistab-sys-info">This tab offers the capabilities for system diagnosis.</message>
+
+<!--  Logs submenu -->
+<message id="logstab-event">Event Log</message>
+<message id="logstab-event-info">This tab offers the capabilities to display and download the Event Log.</message>
+<message id="logstab-audit">Audit Log</message>
+<message id="logstab-audit-info">This tab offers the capabilities to view and download the Audit Log.</message>
+<message id="logstab-agent">Agent Log</message>
+<message id="logstab-agent-info">This tab offers the capabilities to download the Axeda Agent Log.</message>
+<message id="logstab-service">Service Logs</message>
+<message id="logstab-service-info">This tab offers the capabilities to download the logs of various system services.</message>
+<message id="logstab-level">Log Level</message>
+<message id="logstab-level-info">This tab offers the capabilities to configure the root log level for the event log.
+    <br/>Lowest level is "ERROR", highest level is "TRACE". Higher level include all logging from lower levels.</message>
+
+<!--  About submenu -->
+<message id="abouttab-version">Version Information</message>
+<message id="abouttab-version-info">This tab shows vendor and general version information.
+    <br/>See overview / software for detailed version description.</message>
+<message id="abouttab-license">License Information</message>
+<message id="abouttab-license-info">This tab shows general license information for connect 2 and embedded open source software.</message>
+
+<!--  Button bar -->
+<message id="startbut-info">Start the Axeda Agent.</message>
+<message id="stopbut-info">Stop the Axeda Agent.
+Note: If the agent is stopped for more than 3 minutes, connect 2 is rebooted.</message>
+<message id="rebootbut-info">Reboot connect 2.</message>
+<message id="exportbut-info">Download the current configuration to a file.</message>
+<message id="savebut-info">Apply the current configuration settings to connect 2.</message>
+<message id="refreshbut-info">Discard all changes and refresh all values from the system.</message>
+<message id="helpbut-info">Display the help page for the currently selected tab.</message>
+
+<!--  Dialog messages -->
+<message id="dialog-refresh-caption">Confirm refresh</message>
+<message id="dialog-refresh-text">Are you sure you want to reload the system settings?
+    <br/>Warning: All unsaved data will be lost!</message>
+<message id="dialog-reboot-caption">Confirm reboot</message>
+<message id="dialog-reboot-text">Are you sure you want to reboot the connect 2 device?
+    <br/>Warning: All unsaved data will be lost!<br/>
+    <br/>Please also note that in case you are connected through Axeda Service Link,
+    the current session will be terminated and you need to establish a new one!</message>
+<message id="dialog-restartagent-caption">Confirm agent restart</message>
+<message id="dialog-restartagent-text">The Axeda Agent must be restarted in order to make the configuration changes effective.<br/>
+    <br/>Do you want to restart it now?</message>
+
+<!--  Help box -->
+<message id="dialog-help-caption">Help</message>
+<message id="dialog-help-close">Close</message>
+
+<!-- Action messages -->
+<message id="msg-main-failedgetsysinfo">Failed to retrieve the system information.</message>
+
+</messages>

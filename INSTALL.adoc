@@ -1,0 +1,232 @@
+Build dependencies:
+
+* Cross-platform Make (CMake) v3.2+
+* GNU Make or equivalent
+* GCC or an alternative C++ compiler.
+* OpenSSL
+* Log4cplus v1.20.0+
+
+Optional:
+
+* Doxygen
+
+
+== 1.1 CMake ==
+
+ It is advisable the you use the latest version of CMake
+
+== 1.1.1 Windows ==
+
+ Go to https://cmake.org/download/ section Latest Release. Download and
+ install the Windows Win32 Installer, e.g. cmake-3.4.0-win32-x86.exe
+
+== 1.1.2 Linux (Ubuntu) ==
+
+ Usually the standard distributions offer older versions of CMake (e.g.
+ in Ubuntu 14.04 the CMake version is 2.8).
+
+ If you have installed an older version of CMake you need to remove it
+ first:
+
+    sudo apt-get purge cmake
+
+ Configure a new PPA repository:
+
+    sudo apt-get install software-properties-common
+    sudo add-apt-repository ppa:george-edison55/cmake-3.x
+    sudo apt-get update
+
+ Install cmake:
+
+    sudo apt-get install cmake
+
+== 1.2 OpenSSL ==
+
+== 1.2.1 Windows ==
+
+ Obtain pre-compiled Win32/64 libraries without external dependencies to
+ the Microsoft Visual Studio Runtime DLLs, except for the system
+ provided msvcrt.dll.
+
+ Go to https://indy.fulgan.com/SSL/ and download the latest archive
+ suitable for your distribution, e.g. openssl-1.0.2d-x64_86-win64.zip.
+ Unpack the archive in a thirdparty folder.
+
+== 1.2.2 Linux (Ubuntu) ==
+
+ Used the packages offered by the standard distribution. Please follow
+ the instructions from https://help.ubuntu.com/community/OpenSSL#Practical_OpenSSL_Usage
+
+== 1.3 Boost ==
+
+== 1.3.1 Windows ==
+
+ In order to obtain and build the Boost libraries, follow instructions from
+ http://www.boost.org/doc/libs/1_59_0/more/getting_started/windows.html
+
+ If you choose to perform a simplified build from source, as shown at
+ http://www.boost.org/doc/libs/1_59_0/more/getting_started/windows.html#simplified-build-from-source
+ please use the following commands:
+
+    bootstrap.bat
+    b2 toolset=msvc-12.0 variant=release address-model=64 threading=multi link=shared --abbreviate-paths install -j4
+
+== 1.3.2 Linux ==
+
+ In order to obtain and build the Boost libraries, follow instructions from
+ http://www.boost.org/doc/libs/1_59_0/more/getting_started/unix-variants.html
+
+ If you choose to perform a simplified build from source, follow the instructions from
+ http://www.boost.org/doc/libs/1_59_0/more/getting_started/unix-variants.html#easy-build-and-install
+
+== 1.4 Log4cplus ==
+
+== 1.4.1 Windows ==
+
+ Get the latest sources from http://sourceforge.net/projects/log4cplus/files/latest/download?source=files
+
+ Open the Visual Studio solution from the folder msvc10 and build the
+ log4cplus and log4cplusS projects.
+
+ Optionally you can copy the include folder from the sources and dll and
+ lib files from the build output path, e.g. msvc10\x64\bin.Release\, in
+ a separate thirdparty location.
+
+== 1.4.2 Linux ==
+
+ Get the latest sources from http://sourceforge.net/projects/log4cplus/files/latest/download?source=files
+
+    ./configure CXXFLAGS=-std=c++11
+    make
+    make install
+
+ Optionally you can set an install folder using the --prefix configure
+ option, e.g. --prefix=/home/nutpp/work/third-party/log4cplus-1.2.0-rc3_install
+
+== 1.5 RapidJSON ==
+
+ RapidJSON is a header only library. Obtain a copy of the library from
+ https://github.com/miloyip/rapidjson/archive/master.zip
+
+== 1.6 Doxygen ==
+
+== 1.6.1 Windows ==
+
+ Go to http://www.stack.nl/~dimitri/doxygen/download.html. Download and
+ install the Windows binary distribution, e.g. doxygen-1.8.10-setup.exe
+
+== 1.6.2 Linux (Ubuntu) ==
+
+ Install the doxygen package in the standard distribution:
+
+    sudo apt-get install doxygen
+
+
+== 2. BUILDING ==
+
+ This project uses the Cross-platform Make (CMake) build system.
+
+ In order to keep the source folder clean, you can create a separate
+ build folder and execute the cmake command in that folder.
+
+ If CMake does not find your installation of OpenSSL you need to set the
+ custom path to the OpenSSL installation folder using the variable
+ OPENSSL_ROOT_DIR.
+
+ If CMake does not find your installation of Boost you need to set the
+ custom path to the Boost installation include folder using the
+ variable BOOST_INCLUDEDIR.
+
+ If CMake does not find your installation of Log4cplus you need to set
+ the custom path to the Log4cplus installation folder using the
+ variable LOG4CPLUS_DIR.
+
+ If CMake does not find your copy of RapidJSON you need to set the
+ custom path to the RapidJSON source folder using the variable
+ RAPIDJSON_ROOT_DIR.
+
+ If you want to install the project in a custom folder you can use the
+ variable CMAKE_INSTALL_PREFIX:PATH
+
+ You can control the build type using the variable CMAKE_BUILD_TYPE.
+
+== 2.1 Make ==
+
+ Execute the cmake command in a separate folder and build the project
+ using a simple make command. By default the simple make command builds
+ the common project libraries, the core-agent component and all the
+ core-extensions.
+
+ Other possible make targets are:
+
+  -> check (E.g.: make check) - builds and executes all the unit tests
+            for of the common libraries, the core-agent component and
+            the core-extensions
+
+  -> core-agent (E.g.: make core-agent) - builds the core-agent
+            component and all its dependencies
+
+  -> core-agent-ut (E.g.: make core-agent-ut) - builds and executes all
+            the unit tests of the core-agent component
+
+  -> lib<NAME> (E.g.: make libconfig) - builds the common library with
+            the name <NAME>
+
+  -> lib<NAME>-ut (E.g.: make libconfig-ut) - builds and executes all
+            the unit tests of the common library with the name <NAME>
+
+  -> <TOOL_NAME> (E.g.: make platform-simulator) - builds the tool
+            component with the name <TOOL_NAME>
+
+  -> <TOOL_NAME>-ut (E.g.: make platform-simulator-ut) - builds and
+            executes all the unit tests of the tool component with the
+            name <TOOL_NAME>
+
+ Sample of a full cmake command for a make build:
+
+ cmake
+  -DBOOST_INCLUDEDIR="/home/nutpp/work/third-party/boost_1_59_0_install/include"
+  -DLOG4CPLUS_DIR="/home/nutpp/work/third-party/log4cplus-1.2.0-rc3_install"
+  -DRAPIDJSON_ROOT_DIR="/home/nutpp/work/third-party/rapidjson-master"
+  -DCMAKE_INSTALL_PREFIX:PATH="/opt/nutpp"
+  -DCMAKE_BUILD_TYPE=Release
+  ../nutpp
+
+== 2.2 Visual Studio 2013 ==
+
+ If you want to generate Visual Studio 2013 projects and solution you
+ must add -G"Visual Studio 12 2013 Win64" to your cmake command. After
+ you execute the cmake command execution in a separate build folder,
+ open the generated solution file and build the ALL_BUILD project.
+
+ TODO: add information about all the available build targets
+
+ Sample of a full cmake command for a Visual Studio 2013 build:
+
+ cmake -G"Visual Studio 12 2013 Win64"
+  -DOPENSSL_ROOT_DIR="d:\Work\C++\Third_Party\openssl"
+  -DBOOST_INCLUDEDIR="c:\Boost\include"
+  -DLOG4CPLUS_DIR="d:\Work\C++\Third_Party\log4cplus-1.1.3-rc4.install"
+  -DRAPIDJSON_ROOT_DIR="d:\Work\C++\Third_Party\rapidjson-master"
+  -DCMAKE_INSTALL_PREFIX:PATH="C:\nutpp"
+  -DCMAKE_BUILD_TYPE=Release
+  ..\nutpp
+
+== 2.3 Eclipse (Linux) ==
+
+ If you want to generate an Eclipse project you must add
+ -G"Eclipse CDT4 - Unix Makefiles" to your cmake command. After
+ you execute the cmake command execution in a separate build folder,
+ open and build the generated project file in Eclipse.
+
+ TODO: add information about all the available build targets
+
+ Sample of a full cmake command for Eclipse:
+
+ cmake -G"Eclipse CDT4 - Unix Makefiles"
+  -DBOOST_INCLUDEDIR="/home/nutpp/work/third-party/boost_1_59_0_install/include"
+  -DLOG4CPLUS_DIR="/home/nutpp/work/third-party/log4cplus-1.2.0-rc3_install"
+  -DRAPIDJSON_ROOT_DIR="/home/nutpp/work/third-party/rapidjson-master"
+  -DCMAKE_INSTALL_PREFIX:PATH="/opt/nutpp"
+  -DCMAKE_BUILD_TYPE=Release
+  ../nutpp

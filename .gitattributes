@@ -1,0 +1,11 @@
+#
+# Assign attributes to pathnames.
+# More details on: https://git-scm.com/docs/gitattributes
+#
+
+# Enable automatic end-of-line conversion and detect common whitespace issues.
+* text=auto whitespace=trailing-space,space-before-tab
+
+# Prevent normalization and ignore any whitespace issues.
+*.patch -text -whitespace
+*.diff -text -whitespace
