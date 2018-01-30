@@ -1,5 +1,5 @@
 = nutpp
-
+Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 ifdef::env-github[]
 :imagesdir: https://github.com/cristicc/nutpp/blob/master/docs
 :tip-caption: :bulb:
@@ -8,11 +8,9 @@ ifdef::env-github[]
 :caution-caption: :fire:
 :warning-caption: :warning:
 endif::[]
-
 ifndef::env-github[]
 :imagesdir: ./docs
 endif::[]
-
 :toc:
 :toc-placement!:
 :sectnums:
