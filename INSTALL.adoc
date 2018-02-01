@@ -11,7 +11,9 @@ endif::[]
 :sectnums:
 :sectanchors:
 :sectlinks:
-:DIST_DIR: ~/nutpp/output/dist
+:NUTPP_DIR: /home/guest/nutpp
+:OUT_DIR: {NUTPP_DIR}/output
+:DIST_DIR: {OUT_DIR}/dist
 
 == Intro
 
@@ -23,30 +25,24 @@ IMPORTANT: This is currently a work in progress..
 
 .Requirements
 
-* GCC or an alternative $$C++$$ compiler that supports C++14 (e.g. Clang)
+* GCC v5+ or an alternative compiler that supports C++14 (e.g. Clang)
 * GNU Make or The Microsoft Program Maintenance Utility (NMAKE.EXE)
 * CMake v3.5+
 * Log4cplus v1.21
 * Wt library 4.0.2
  - Boost
  - OpenSSL
+ - Sqlite
 * Doxygen (optional)
 
 
 == Install build dependencies
 
+The instructions bellow assume the _nutpp_ source code resides in `{NUTPP_DIR}`.
+
 === CMake
 
 It is advisable the you use the latest version of _CMake_.
-
-==== On Windows
-
-Download and install https://cmake.org/download/[cmake for Windows].
-Minimum required version is 3.5.
-
-[NOTE]
-Make sure the CMake binary folder has been properly configured in the PATH
-environment. E.g.: `C:\Program Files\CMake\bin`
 
 ==== On Linux
 
@@ -69,11 +65,28 @@ $ sudo apt-get update
 $ sudo apt-get install cmake
 --
 
+==== On Windows
+
+Download and install https://cmake.org/download/[cmake for Windows].
+Minimum required version is 3.5.
+
+[NOTE]
+Make sure the CMake binary folder has been properly configured in the PATH
+environment. E.g.: `C:\Program Files\CMake\bin`
+
 
 === Log4cplus
 
-Download the https://sourceforge.net/projects/log4cplus/files/log4cplus-stable/1.2.1/log4cplus-1.2.1.tar.xz/download[source code].
-Then proceed with the following commands:
+Download the http://downloads.sourceforge.net/project/log4cplus/log4cplus-stable/1.2.1/log4cplus-1.2.1.tar.xz[source code].
+Extract the content in `{OUT_DIR}`, then proceed with the following commands:
+
+==== On Linux
+
+[source,sh,subs="attributes+"]
+$ cd {OUT_DIR}/log4cplus-1.2.1
+$ ./configure CXXFLAGS=-std=c++14 --prefix={DIST_DIR}
+$ make -j $(nproc)
+$ make install
 
 ==== On Windows
 
@@ -81,16 +94,17 @@ Then proceed with the following commands:
 $ cd C:\nutpp\output\log4cplus-1.2.1\msvc10
 $ msbuild log4cplus.sln /target:log4cplus /p:Configuration=Release /p:PlatformToolset=v140
 
-==== On Linux
-
-[source,sh,subs="attributes+"]
-$ cd ~/nutpp/output/log4cplus-1.2.1
-$ ./configure CXXFLAGS=-std=c++14
-$ make -j $(nproc)
-$ make install DESTDIR={DIST_DIR}
-
 
 === OpenSSL
+
+==== On Linux
+
+Use the packages offered by the standard distribution.
+[source,sh]
+$ apt-get install openssl libssl-dev
+
+[NOTE]
+More details https://help.ubuntu.com/community/OpenSSL#Practical_OpenSSL_Usage[here].
 
 ==== On Windows
 
@@ -100,63 +114,65 @@ provided msvcrt.dll.
 
 Go to https://indy.fulgan.com/SSL/ and download the latest archive
 suitable for your distribution, e.g. openssl-1.0.2d-x64_86-win64.zip.
-Unpack the archive in a thirdparty folder.
-
-==== Linux (Ubuntu)
-
-Use the packages offered by the standard distribution.
-[source,sh]
-$ apt-get install openssl libssl-dev
-
-[NOTE]
-More details https://help.ubuntu.com/community/OpenSSL#Practical_OpenSSL_Usage[here].
+Unpack the archive in a third-party folder.
 
 
 === Boost
 
-Download the sources for version https://sourceforge.net/projects/boost/files/boost/1.64.0/boost_1_64_0.tar.bz2/download[1.64],
+The _Wt_ library depends on the following boost components: filesystem,
+program_options, system, thread, atomic, chrono, date_time.
+
+[NOTE]
+`atomic`, `chrono` and `date_time` are actually internal dependencies for `thread`.
+See `FindBoost.cmake` for details.
+
+Download the sources for version http://downloads.sourceforge.net/project/boost/boost/1.64.0/boost_1_64_0.tar.bz2[1.64],
 but it might also work with a newer version.
-Then proceed with the following commands:
+Extract the content in `{OUT_DIR}`, then proceed with the following commands:
+
+==== On Linux
+
+[source,sh,subs="attributes+"]
+$ cd {OUT_DIR}/boost_1_64_0
+$ ./bootstrap.sh --without-icu \
+    --without-libraries=container,context,coroutine,coroutine2,exception,graph,graph_parallel,iostreams,locale,log,math,mpi,python,random,regex,serialization,signals,test,timer,type_erasure,wave \
+    --prefix="{DIST_DIR}"
+$ ./b2 -j $(nproc) toolset=gcc cxxflags=-std=c++14 variant=release \
+    threading=multi link=shared runtime-link=shared --layout=system install
+
+[NOTE]
+For more details about obtaining and building the Boost libraries on Linux, follow
+http://www.boost.org/doc/libs/1_64_0/more/getting_started/unix-variants.html[the official instructions].
 
 ==== On Windows
 
-[source,sh]
-$ cd C:\nutpp\output\boost_1_64_0
-$ bootstrap.bat
-$ b2 install -j4 toolset=msvc-14.0 variant=release --prefix="C:\nutpp\output\dist\boost-1.64-shared" --build-dir="C:\nutpp\boost_1_64_0\build" architecture=x86 address-model=32 link=shared threading=multi runtime-link=shared --abbreviate-paths --build-type=complete stage
-$ rmdir /s /q build\ && rmdir /s /q stage\
+Same as building on Linux, just replace `bootstrap.sh` with `bootstrap.bat`.
 
 [NOTE]
 For more details about obtaining and building the Boost libraries on Windows, follow
 http://www.boost.org/doc/libs/1_64_0/more/getting_started/windows.html[the official instructions].
 
 
-==== On Linux
-
-[source,sh]
-$ cd ~/nutpp/output/boost_1_64_0
-
-[NOTE]
-For more details about obtaining and building the Boost libraries on Linux, follow
-http://www.boost.org/doc/libs/1_64_0/more/getting_started/unix-variants.html[the official instructions].
-
-
 === Wt library
 
 Download the https://github.com/emweb/wt/archive/4.0.2.tar.gz[source code].
 
-TODO: install boost, sqlite
-[source,sh]
-$ cd ~/nutpp/output/wt-4.0.2
-$ cmake -DCONNECTOR_HTTP=ON -DENABLE_SSL=ON -DENABLE_SQLITE=ON \
- -DCONNECTOR_FCGI=OFF -DENABLE_HARU=OFF -DENABLE_PANGO=OFF \
- -DENABLE_EXT=OFF -DENABLE_SQLITE=OFF -DENABLE_POSTGRES=OFF \
- -DENABLE_FIREBIRD=OFF -DENABLE_MYSQL=OFF -DENABLE_MSSQLSERVER=OFF \
- -DENABLE_QT4=OFF -DENABLE_LIBWTTEST=OFF -DENABLE_LIBWTDBO=OFF \
- -DENABLE_OPENGL=OFF -DINSTALL_EXTENSIONLESS_HEADERS=OFF \
- -DENABLE_UNWIND=OFF -DDEBUG=OFF
+[source,sh,subs="attributes+"]
+$ cd {OUT_DIR}/wt-4.0.2
+$ cmake \
+    -DCMAKE_PREFIX_PATH="{DIST_DIR}" \
+    -DCMAKE_INSTALL_PREFIX="{DIST_DIR}" \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_STANDARD=14 \
+    -DCONNECTOR_HTTP=ON -DENABLE_SSL=ON -DENABLE_LIBWTDBO=ON -DENABLE_SQLITE=ON \
+    -DCONNECTOR_FCGI=OFF -DENABLE_HARU=OFF -DENABLE_PANGO=OFF -DENABLE_EXT=OFF \
+    -DENABLE_POSTGRES=OFF -DENABLE_FIREBIRD=OFF -DENABLE_MYSQL=OFF \
+    -DENABLE_MSSQLSERVER=OFF -DENABLE_QT4=OFF -DENABLE_LIBWTTEST=OFF \
+    -DENABLE_OPENGL=OFF -DINSTALL_EXTENSIONLESS_HEADERS=OFF \
+    -DENABLE_UNWIND=OFF -DDEBUG=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF
+$ make -j $(nproc)
+$ make install
 
-=== RapidJSON
+=== RapidJSON (not used for the moment)
 
 _RapidJSON_ is a header only library. Obtain a copy of the library from
 https://github.com/miloyip/rapidjson/archive/master.zip
@@ -164,17 +180,17 @@ https://github.com/miloyip/rapidjson/archive/master.zip
 
 === Doxygen (optional)
 
-==== On Windows
-
-Download http://www.stack.nl/~dimitri/doxygen/download.html[doxygen sources]
-and follow the normal installation flow.
-
 ==== On Linux
 
 Install _doxygen_ package in the standard distribution:
 
 [source,sh]
 $ sudo apt-get install doxygen
+
+==== On Windows
+
+Download http://www.stack.nl/~dimitri/doxygen/download.html[doxygen sources]
+and follow the normal installation flow.
 
 
 == Build nutpp
@@ -186,36 +202,42 @@ build folder and execute the `cmake` command in that folder.
 
 Make sure to replace the `<BUILD_ARGS>` in the commands bellow with the
 appropriate paths on your system:
-[source,sh]
--DOPENSSL_ROOT_DIR="~/nutpp/output/dist"
--DBOOST_INCLUDEDIR="~/nutpp/output/boost_1_64_0/include"
--DLOG4CPLUS_DIR="~/nutpp/output/dist/usr/local"
--DRAPIDJSON_ROOT_DIR="~/nutpp/output/rapidjson-master"
--DCMAKE_INSTALL_PREFIX:PATH="~/nutpp/output/dist"
--DCMAKE_BUILD_TYPE=Release
+[source,sh,subs="attributes+"]
+-DCMAKE_PREFIX_PATH="{DIST_DIR}" \
+-DCMAKE_INSTALL_PREFIX="{DIST_DIR}" \
+-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 
+Create a build folder and enter it:
+[source,sh,subs="attributes+"]
+$ mkdir {OUT_DIR}/build
+$ cd {OUT_DIR}/build
 
 === Using CLI on Linux
 
-[source,sh]
-$ cmake -G "Unix Makefiles" <BUILD_ARGS> ../nutpp
+[source,sh,subs="attributes+"]
+$ cmake -G "Unix Makefiles" <BUILD_ARGS> {NUTPP_DIR}
 
 === Using CLI on Windows
 
-[source,sh]
-$ cmake -G "Unix Makefiles" <BUILD_ARGS> ../nutpp
+[source,sh,subs="attributes+"]
+$ cmake -G "Unix Makefiles" <BUILD_ARGS> {NUTPP_DIR}
 
 === Using Eclipse on Linux
 
-[source,sh]
-$ cmake -G "Eclipse CDT4 - Unix Makefiles" <BUILD_ARGS> ../nutpp
+[source,sh,subs="attributes+"]
+$ cmake -G "Eclipse CDT4 - Unix Makefiles" <BUILD_ARGS> {NUTPP_DIR}
 
 === Using Eclipse on Windows
 
-[source,sh]
-$ cmake -G "Eclipse CDT4 - NMake Makefiles" <BUILD_ARGS> ..\nutpp
+[source,sh,subs="attributes+"]
+$ cmake -G "Eclipse CDT4 - NMake Makefiles" <BUILD_ARGS> {NUTPP_DIR}
 
 === Using Visual Studio
 
-[source,sh]
-$ cmake -G "Visual Studio 12 2013 Win64" <BUILD_ARGS> ..\nutpp
+[source,sh,subs="attributes+"]
+$ cmake -G "Visual Studio 12 2013 Win64" <BUILD_ARGS> {NUTPP_DIR}
+
+
+== Create nutpp distributable
+
+TODO: stripping enabled in main cmake config

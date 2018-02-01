@@ -1,11 +1,11 @@
 ##
-# Locate Log4cplus includes and library.
+# Locate Wt includes and library.
 #
 # This module defines the following variables:
 #
-#    LOG4CPLUS_FOUND        - true if Log4cplus found.
-#    LOG4CPLUS_INCLUDE_DIR  - where to find logger.h, etc.
-#    LOG4CPLUS_LIBRARIES    - list of libraries when using Log4cplus.
+#    WT_FOUND        - true if Wt found.
+#    WT_INCLUDE_DIR  - where to find WApplication.h, etc.
+#    WT_LIBRARIES    - list of libraries when using Wt.
 #
 # Copyright (C) 2018  Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 #
@@ -25,20 +25,20 @@
 ##
 
 # Look for the header file.
-find_path(LOG4CPLUS_INCLUDE_DIR NAMES logger.h PATH_PREFIXES log4cplus)
+find_path(WT_INCLUDE_DIR NAMES WApplication.h PATH_PREFIXES Wt)
 
-# Look for the library.
-find_library(LOG4CPLUS_LIBRARY NAMES log4cplus)
+# Look for the libraries.
+find_library(WT_LIBRARY NAMES wt)
+find_library(WT_HTTP_LIBRARY NAMES wthttp)
 
-# Handle the QUIETLY and REQUIRED arguments and set LOG4CPLUS_FOUND to TRUE if
+# Handle the QUIETLY and REQUIRED arguments and set WT_FOUND to TRUE if
 # all listed variables are TRUE.
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Log4cplus DEFAULT_MSG
-    LOG4CPLUS_LIBRARY LOG4CPLUS_INCLUDE_DIR)
+find_package_handle_standard_args(Wt DEFAULT_MSG WT_LIBRARY WT_INCLUDE_DIR)
 
 # Copy the results to the output variables.
-if(LOG4CPLUS_FOUND)
-  set(LOG4CPLUS_LIBRARIES ${LOG4CPLUS_LIBRARY})
+if(WT_FOUND)
+  set(WT_LIBRARIES ${WT_LIBRARY} ${WT_HTTP_LIBRARY})
 endif()
 
-mark_as_advanced(LOG4CPLUS_INCLUDE_DIR LOG4CPLUS_LIBRARY)
+mark_as_advanced(WT_INCLUDE_DIR WT_LIBRARY WT_HTTP_LIBRARY)

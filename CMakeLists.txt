@@ -1,7 +1,7 @@
 #
-# Project Properties.
+# Nutpp - CMake build configuration.
 #
-cmake_minimum_required(VERSION 3.6.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 cmake_policy(VERSION 3.2)
 
 project(nutpp VERSION 1.0.0 LANGUAGES C CXX)
@@ -41,12 +41,12 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 endif()
 
 #
-# Debugging Options.
+# Debugging options.
 #
 set(CMAKE_VERBOSE_MAKEFILE 0)
 
 #
-# Project Search Paths.
+# Project search paths.
 #
 list(APPEND CMAKE_PREFIX_PATH
     "${PROJECT_SOURCE_DIR}"
@@ -57,30 +57,34 @@ list(APPEND CMAKE_PREFIX_PATH
 include_directories("${PROJECT_SOURCE_DIR}/src/include")
 
 #
-# Locate Project Prerequisites.
+# Locate project prerequisites.
 #
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 # Log4cplus.
 find_package(Log4cplus REQUIRED)
-include_directories(${LOG4CPLUS_INCLUDE_DIRS})
+include_directories(${LOG4CPLUS_INCLUDE_DIR})
+
+# Wt.
+find_package(Wt REQUIRED)
+include_directories(${WT_INCLUDE_DIR})
 
 #
-# Add Custom Build Targets.
+# Add src and custom targets.
 #
 add_subdirectory(src)
-add_custom_target(check COMMENT "Checking sources..")
-add_dependencies(check
-    all-libs-check
-)
+#add_custom_target(check COMMENT "Checking sources..")
+#add_dependencies(check
+#    all-libs-check
+#)
 
 #
-# Add Documentation Targets.
+# Add documentation targets.
 #
 include(DocumentationTargets)
 
 #
-# Add Packaging Support.
+# Add packaging support.
 #
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
 set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
@@ -106,17 +110,17 @@ else()
     set(CPACK_SOURCE_GENERATOR "7Z")
 endif()
 
-# Include/Exclude the top level directory in/from the package.
+# Include/exclude the top level directory in/from the package.
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 1)
 set(CPACK_COMPONENT_INCLUDE_TOPLEVEL_DIRECTORY 1)
 
-# Enable/Disable file stripping.
+# Enable/disable file stripping.
 if(UNIX)
-    set(CPACK_STRIP_FILES 0)
+    set(CPACK_STRIP_FILES 1)
     set(CPACK_SOURCE_STRIP_FILES 0)
 endif()
 
-# Enable/Disable component install for ARCHIVE generators.
+# Enable/disable component install for ARCHIVE generators.
 set(CPACK_ARCHIVE_COMPONENT_INSTALL 1)
 
 # Specify components grouping for multi-package component-aware generators.
@@ -125,7 +129,7 @@ set(CPACK_ARCHIVE_COMPONENT_INSTALL 1)
 # - IGNORE: creates one package per component
 set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)
 
-# Enable/Disable component aware generators to ignore component if one set.
+# Enable/disable component aware generators to ignore component if one set.
 set(CPACK_MONOLITHIC_INSTALL 0)
 
 # Add default packaging targets: package, package_source.

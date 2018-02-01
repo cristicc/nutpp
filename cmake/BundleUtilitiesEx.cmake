@@ -1,12 +1,12 @@
 ##
 # Contains utility functions to help assemble a standalone bundle application.
 #
-# The implementation is an extension of the standard module BundleUtilities
+# The implementation is an extension of the BundleUtilities CMake module
 # and allows the user to create a fully portable application by including all
 # the library dependencies, even those part of the system, in a single bundle
 # package.
 #
-# Copyright (C) 2018  Cristian Ciocaltea
+# Copyright (C) 2018  Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#
-# @author Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 ##
 
 #

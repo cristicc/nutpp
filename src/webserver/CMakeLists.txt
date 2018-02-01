@@ -14,11 +14,11 @@ target_link_libraries(${WEBSERVER_COMPONENT} ${COMPONENT_LIBS})
 
 # Prepare the start script.
 if(UNIX)
-    set(APP_START_SCRIPT "start-${WEBSERVER_COMPONENT}.sh")
-    configure_file("scripts/start-simulator.sh.in" "${APP_START_SCRIPT}" @ONLY)
+#    set(APP_START_SCRIPT "start-${WEBSERVER_COMPONENT}.sh")
+#    configure_file("scripts/start-simulator.sh.in" "${APP_START_SCRIPT}" @ONLY)
 else()
-    set(APP_START_SCRIPT "start-${WEBSERVER_COMPONENT}.bat")
-    configure_file("scripts/start-simulator.bat.in" "${APP_START_SCRIPT}" @ONLY)
+#    set(APP_START_SCRIPT "start-${WEBSERVER_COMPONENT}.bat")
+#    configure_file("scripts/start-simulator.bat.in" "${APP_START_SCRIPT}" @ONLY)
 endif()
 
 # Install component.
@@ -28,9 +28,9 @@ install(TARGETS ${WEBSERVER_COMPONENT} DESTINATION "${WEBSERVER_COMPONENT}/bin"
 install(DIRECTORY "../conf" DESTINATION "${WEBSERVER_COMPONENT}"
     COMPONENT ${WEBSERVER_COMPONENT})
 
-install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/${APP_START_SCRIPT}"
-    DESTINATION "."
-    COMPONENT ${WEBSERVER_COMPONENT})
+#install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/${APP_START_SCRIPT}"
+#    DESTINATION "."
+#    COMPONENT ${WEBSERVER_COMPONENT})
 
 # Install runtime.
 install(
