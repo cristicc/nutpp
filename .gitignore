@@ -3,9 +3,6 @@
 # More details on: https://git-scm.com/docs/gitignore
 #
 
-# Default project build folders.
-/output/
-
 # IDE specific folders.
 #   Eclipse
 /.settings/

@@ -4,7 +4,7 @@
 # This CMake package creates a Doxygen documentation target.
 #
 
-FIND_PACKAGE (Doxygen)
+FIND_PACKAGE (Doxygen QUIET)
 IF (DOXYGEN_FOUND)
     IF (EXISTS ${PROJECT_SOURCE_DIR}/Doxyfile)
         ADD_CUSTOM_TARGET(

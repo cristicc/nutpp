@@ -28,10 +28,10 @@ IMPORTANT: This is currently a work in progress..
 
 TODO
 
-== Build prerequisites
-
-TODO
-
 == Deployment and Configuration
+
+Please read the link:INSTALL.adoc[installation guide] for details about
+building and installing the application on the build platform. Additionally,
+if provides instructions on how to create a distributable package.
 
 TODO

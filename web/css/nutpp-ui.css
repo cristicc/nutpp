@@ -1,0 +1,444 @@
+/*
+ * General settings
+ */
+body {
+	min-width: 950px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11pt;
+	color: #000000;
+	background-color: #FAFAFA;
+}
+
+/*
+ * Main header & info
+ */
+.mainhdr, .maininfo {
+	color: #2F496F;
+	font-weight: bold;
+	font-size: 11pt;
+}
+
+.mainhdr {
+	margin: 12px 5px;
+	padding: 0px;
+	white-space: nowrap;
+}
+
+.mainhdr .leftinfo {
+	padding: 0px;
+	float: left;
+}
+.mainhdr .centerinfo {
+	width: 100%;
+	padding: 0px;
+	text-align: center;
+}
+.mainhdr .rightinfo {
+	padding: 0px;
+	float: right;
+}
+
+/*
+ * Menu
+ */
+.mainmenu {
+	margin: 0px 4px;
+	padding: 0px;
+}
+
+.maintab {
+	margin: 0px;
+	padding: 0px;
+	overflow: auto;
+}
+
+/*
+ * Buttons bar
+ */
+.buttonbar {
+	margin: 40px 2px 0px 6px;
+	padding: 0px;
+	float: right;
+}
+
+.buttonbar .item {
+	display: block;
+	padding: 0px;
+	cursor: pointer;
+	cursor: hand;
+}
+
+.buttonbar .spacer-small {
+	height: 5px;
+}
+
+.buttonbar .spacer-large {
+	height: 34px;
+}
+
+/*
+ * Info bar
+ */
+.infobar {
+	margin: 6px 80px 4px 6px;
+	padding: 0px;
+}
+
+.infobar .icon {
+	padding: 0px 6px 0px 0px;
+	float: left;
+}
+
+.infobar .body {
+	border: 1px solid #D4E2EF;
+	padding: 15px 5px;
+	height: 34px;
+	background-color: #FFFFFF;
+	font-family: "Courier New", monospace;
+	font-size: 11pt;
+	vertical-align: top;
+	overflow: auto;
+}
+
+/*
+ * Tab panels
+ */
+.maintabpanel {
+	margin: 0px;
+	padding: 10px 8px 8px 5px;
+	background: #C3D5E9;
+	border: 1px solid #2C424F;
+}
+
+.subtabpanel {
+	height: 484px;
+	margin: 0px;
+	padding: 12px;
+	background: #F2F7FA;
+	border: 1px solid #43667A;
+	text-align: left;
+	overflow: auto;
+}
+
+/*
+ * GridPanel
+ */
+.gridpanel {
+	white-space: nowrap;
+	margin: 0px 0px 12px 0px;
+}
+
+.gridpanel .tal {
+	text-align: left;
+}
+.gridpanel .tar {
+	text-align: right;
+}
+.gridpanel .tac {
+	text-align: center;
+}
+
+.gridpanel .label {
+	display: inline-block;
+	text-align: right;
+	margin: 0px;
+	padding: 2px 10px 2px 0px;
+	/*
+	 * IE Hack: 'inline-block' is only supported in IE6/7 on elements
+	 * with a display of 'inline'
+	 */
+	zoom: 1;
+	*display: inline;
+}
+
+.gridpanel .info {
+	margin: 0px;
+	padding: 0px 3px 0px 10px;
+	color: red;
+}
+
+.gridpanel .hcell {
+	padding: 1px 2px;
+}
+
+.gridpanel .bcell {
+	padding: 1px;
+	white-space: normal;
+}
+
+.gridpanel .info-cell {
+	padding: 0px;
+	color: red;
+}
+
+.gridpanel input, .gridpanel select {
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	border: 1px solid gray;
+	margin: 1px;
+}
+
+.gridpanel input {
+	padding: 1px 3px;
+}
+
+.gridpanel .bcell input, .gridpanel .bcell select {
+	margin: 0px;
+}
+
+.gridpanel button {
+	font-weight: bold;
+	padding: 1px 8px;
+	margin: 1px;
+}
+
+.gridpanel .xxxsmitem {
+	width: 30px;
+}
+.gridpanel .xxsmitem {
+	width: 40px;
+}
+.gridpanel .xsmitem {
+	width: 60px;
+}
+.gridpanel .smitem {
+	width: 90px;
+}
+.gridpanel .mditem {
+	width: 120px;
+}
+.gridpanel .lgitem {
+	width: 150px;
+}
+.gridpanel .xlgitem {
+	width: 180px;
+}
+.gridpanel .xxlgitem {
+	width: 220px;
+}
+.gridpanel .xxxlgitem {
+	width: 260px;
+}
+
+/*
+ * Nested panel
+ */
+.subpanel {
+	margin: 10px 0px 2px 0px;
+}
+
+/*
+ * Software install progress dialog
+ */
+.sw-install-box {
+	margin: 12px 8px 2px 8px;
+	overflow: auto;
+}
+
+/*
+ * Help page
+ */
+.help-box {
+	min-height: 400px;
+	margin: 14px 2px 10px;
+	overflow: auto;
+}
+
+.help-box .fgroup {
+	width: 100%;
+	background: #E4EEF5;
+	border: 2px solid white;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.help-box .fnested {
+	border-bottom: none;
+	margin-bottom: 0px;
+	margin-top: 0px;
+}
+
+.help-box .fgroup th, .help-box .fgroup td {
+	border: 1px solid white;
+	padding: 5px;
+}
+
+.help-box .fgroup th {
+	text-align: left;
+	background: #C3D5E9;
+}
+
+.help-box .fname {
+	width: 30%;
+}
+
+.help-box .fdesc {
+	font-weight: normal;
+}
+
+/*
+ * Misc
+ */
+span.errormsg {
+	color: #F52727;
+}
+
+/*
+ * WTimeEdit is not currently styled 
+ */
+.timeedit {
+	background-image: url('../images/time_edit.png');
+	background-repeat: no-repeat;
+	background-position: right top;
+	padding-right: 40px;
+}
+
+.timeedit::-ms-clear {
+	display:none
+}
+
+
+/*
+ * WDialog
+ */
+.Wt-dialog .Wt-msgbox-body {
+	width: 450px;
+}
+
+/*
+ * WPanel
+ */
+.Wt-panel {
+	border: 1px solid #8DA6C2;
+}
+
+.Wt-panel .titlebar {
+	padding: 2px 6px 1px;
+	background: #BFD0E0;
+	color: #000000;
+	font-weight: bold;
+}
+
+.Wt-panel .titlebar img {
+	padding-right: 4px;
+}
+
+.Wt-panel .body {
+	background: #D4E2EF;
+	padding: 12px;
+}
+
+.Wt-panel .titlebar,.Wt-panel .body {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11pt;
+}
+
+/*
+ * WTabWidget Main Menu
+ */
+.maintab .Wt-tabs {
+	border-bottom: none;
+	margin: 0px;
+	padding: 0px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	list-style-type: none;
+	list-style-position: outside;
+	background: none;
+	overflow: visible;
+}
+
+.maintab .Wt-tabs li {
+	cursor: pointer;
+	cursor: hand;
+	display: block;
+	white-space: nowrap;
+	float: left;
+	margin: 0px 5px 0px;
+	padding: 0px;
+	border: 1px solid #2C424F;
+	border-bottom: none;
+	background: #E5E5E5;
+	color: #2F496F;
+	font: inherit;
+	height: auto;
+}
+
+.maintab .Wt-tabs li a {
+	display: block;
+	background: inherit;
+	padding: 4px 15px;
+	text-decoration: none;
+	color: inherit;
+}
+
+.maintab .Wt-tabs li:hover, .maintab .Wt-tabs .itemselected {
+	background: #C3D5E9;
+	color: #2F386F;
+	border-bottom: 1px solid #C3D5E9;
+	margin-bottom: -1px;
+}
+
+/*
+ * Submenu
+ */
+.subtab {
+	border-right: none;
+	margin: 0px;
+	padding: 4px 0px 0px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	text-align: right;
+	list-style-type: none;
+	overflow: visible;
+	float: left;
+}
+
+.subtab li {
+	width: 116px;
+	cursor: pointer;
+	cursor: hand;
+	display: block;
+	white-space: normal;
+	float: none;
+	margin: 4px 0px 14px 4px;
+	padding: 0px;
+	border: 1px solid #43667A;
+	border-right: none;
+	background: #D9D9D9;
+	color: #2F496F;
+}
+
+.subtab li a {
+	display: block;
+	padding: 4px 8px;
+	background: inherit;
+	text-decoration: none;
+	color: inherit;
+}
+
+.subtab li:hover, .subtab .itemselected {
+	background: #F2F7FA;
+	color: #2F386F;
+	border-right: 1px solid #F2F7FA;
+	margin-right: -1px;
+}
+
+/*
+ * The clear-fix hack: force element to self-clear its children.
+ * http://css-tricks.com/snippets/css/clear-fix/
+ */
+.group:before, .group:after {
+	content: "";
+	display: table;
+}
+
+.group:after {
+	clear: both;
+}
+
+.group {
+	zoom: 1;	/* For IE 6/7 (trigger hasLayout) */
+}

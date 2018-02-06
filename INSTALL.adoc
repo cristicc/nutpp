@@ -12,37 +12,45 @@ endif::[]
 :sectanchors:
 :sectlinks:
 :NUTPP_DIR: /home/guest/nutpp
-:OUT_DIR: {NUTPP_DIR}/output
-:DIST_DIR: {OUT_DIR}/dist
+:BUILD_DIR: /home/guest/build
+:DIST_DIR: {BUILD_DIR}/dist
 
 == Intro
 
 This document describes the build and install procedure for the _nutpp_
 application and some of its dependencies.
 
-IMPORTANT: This is currently a work in progress..
+[IMPORTANT]
+The primary build platform is based on Ubuntu 16.04, therefore some of the
+commands bellow may require some tuning in order to run on other platforms.
+To speedup the compilation, commands that support parallel build make use
+of the `nproc` tool to receive the number of available CPU cores. On Ubuntu
+this is part of the `coreutils` package. If your platform doesn't provide
+this utility, you might want to replace `$(proc)` with the actual CPU cores
+count.
 
-
-.Requirements
-
-* GCC v5+ or an alternative compiler that supports C++14 (e.g. Clang)
+.Build requirements
+* GCC v5+ or an alternative compiler with basic $$C++14$$ support:
+  Visual Studio 2015, Clang v3.3+)
 * GNU Make or The Microsoft Program Maintenance Utility (NMAKE.EXE)
 * CMake v3.5+
 * Log4cplus v1.21
-* Wt library 4.0.2
+* Wt v4.0.2
  - Boost
  - OpenSSL
  - Sqlite
 * Doxygen (optional)
 
+.Build environment
+* Root location for building packages: `{BUILD_DIR}`
+* Root location for installing packages: `{DIST_DIR}`
+
 
 == Install build dependencies
 
-The instructions bellow assume the _nutpp_ source code resides in `{NUTPP_DIR}`.
-
 === CMake
 
-It is advisable the you use the latest version of _CMake_.
+Minimum required version is 3.5.
 
 ==== On Linux
 
@@ -68,22 +76,22 @@ $ sudo apt-get install cmake
 ==== On Windows
 
 Download and install https://cmake.org/download/[cmake for Windows].
-Minimum required version is 3.5.
 
-[NOTE]
+[TIP]
 Make sure the CMake binary folder has been properly configured in the PATH
 environment. E.g.: `C:\Program Files\CMake\bin`
 
 
 === Log4cplus
 
-Download the http://downloads.sourceforge.net/project/log4cplus/log4cplus-stable/1.2.1/log4cplus-1.2.1.tar.xz[source code].
-Extract the content in `{OUT_DIR}`, then proceed with the following commands:
+Download the
+http://downloads.sourceforge.net/project/log4cplus/log4cplus-stable/1.2.1/log4cplus-1.2.1.tar.xz[source code].
+Extract the content to `{BUILD_DIR}`, then proceed with the following commands:
 
 ==== On Linux
 
 [source,sh,subs="attributes+"]
-$ cd {OUT_DIR}/log4cplus-1.2.1
+$ cd {BUILD_DIR}/log4cplus-1.2.1
 $ ./configure CXXFLAGS=-std=c++14 --prefix={DIST_DIR}
 $ make -j $(nproc)
 $ make install
@@ -108,13 +116,13 @@ More details https://help.ubuntu.com/community/OpenSSL#Practical_OpenSSL_Usage[h
 
 ==== On Windows
 
-Obtain pre-compiled Win32/64 libraries without external dependencies to
-the Microsoft Visual Studio Runtime DLLs, except for the system
-provided msvcrt.dll.
+Obtain pre-compiled win 32/64 libraries without external dependencies to
+the Microsoft Visual Studio Runtime DLLs, except for the system provided
+`msvcrt.dll`.
 
 Go to https://indy.fulgan.com/SSL/ and download the latest archive
-suitable for your distribution, e.g. openssl-1.0.2d-x64_86-win64.zip.
-Unpack the archive in a third-party folder.
+suitable for your distribution, e.g. `openssl-1.0.2d-x64_86-win64.zip`.
+Unpack the archive in `{DIST_DIR}`.
 
 
 === Boost
@@ -126,39 +134,52 @@ program_options, system, thread, atomic, chrono, date_time.
 `atomic`, `chrono` and `date_time` are actually internal dependencies for `thread`.
 See `FindBoost.cmake` for details.
 
-Download the sources for version http://downloads.sourceforge.net/project/boost/boost/1.64.0/boost_1_64_0.tar.bz2[1.64],
-but it might also work with a newer version.
-Extract the content in `{OUT_DIR}`, then proceed with the following commands:
+[WARNING]
+====
+CMake reports errors if the Boost version is not supported:
+----
+CMake Warning at /usr/share/cmake-3.5/Modules/FindBoost.cmake:725 (message):
+  Imported targets not available for Boost version 106400
+----
+In the example above, CMake v3.5 doesn't recognize Boost v1.64 and
+is necessary to downgrade Boost to an older version.
+You may check `FindBoost.cmake` for hints regarding the latest supported:
+----
+ elseif(NOT Boost_VERSION VERSION_LESS 106000 AND Boost_VERSION VERSION_LESS 106200)
+----
+That means we must NOT use Boost v1.62 and newer.
+====
+
+Download the
+http://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.bz2[source code].
+Extract the content to `{BUILD_DIR}`, then proceed with the following commands:
 
 ==== On Linux
 
 [source,sh,subs="attributes+"]
-$ cd {OUT_DIR}/boost_1_64_0
+$ cd {BUILD_DIR}/boost_1_61_0
 $ ./bootstrap.sh --without-icu \
     --without-libraries=container,context,coroutine,coroutine2,exception,graph,graph_parallel,iostreams,locale,log,math,mpi,python,random,regex,serialization,signals,test,timer,type_erasure,wave \
     --prefix="{DIST_DIR}"
 $ ./b2 -j $(nproc) toolset=gcc cxxflags=-std=c++14 variant=release \
     threading=multi link=shared runtime-link=shared --layout=system install
 
-[NOTE]
-For more details about obtaining and building the Boost libraries on Linux, follow
-http://www.boost.org/doc/libs/1_64_0/more/getting_started/unix-variants.html[the official instructions].
+[TIP]
+Starting with Boost v1.62 there is a new component `fiber` that may also
+be added to the list of excluded libraries.
 
 ==== On Windows
 
 Same as building on Linux, just replace `bootstrap.sh` with `bootstrap.bat`.
 
-[NOTE]
-For more details about obtaining and building the Boost libraries on Windows, follow
-http://www.boost.org/doc/libs/1_64_0/more/getting_started/windows.html[the official instructions].
-
 
 === Wt library
 
 Download the https://github.com/emweb/wt/archive/4.0.2.tar.gz[source code].
+Extract the content to `{BUILD_DIR}`, then proceed with the following commands:
 
 [source,sh,subs="attributes+"]
-$ cd {OUT_DIR}/wt-4.0.2
+$ cd {BUILD_DIR}/wt-4.0.2
 $ cmake \
     -DCMAKE_PREFIX_PATH="{DIST_DIR}" \
     -DCMAKE_INSTALL_PREFIX="{DIST_DIR}" \
@@ -171,6 +192,7 @@ $ cmake \
     -DENABLE_UNWIND=OFF -DDEBUG=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF
 $ make -j $(nproc)
 $ make install
+
 
 === RapidJSON (not used for the moment)
 
@@ -195,22 +217,22 @@ and follow the normal installation flow.
 
 == Build nutpp
 
-This project uses the Cross-platform Make (`CMake`) build system.
+The instructions bellow assume the _nutpp_ source code resides in `{NUTPP_DIR}`.
 
 In order to keep the source folder clean, you can create a separate
-build folder and execute the `cmake` command in that folder.
+build folder and execute the `cmake` command there:
+[source,sh,subs="attributes+"]
+$ mkdir {BUILD_DIR}/nutpp
+$ cd {BUILD_DIR}/nutpp
 
 Make sure to replace the `<BUILD_ARGS>` in the commands bellow with the
-appropriate paths on your system:
+appropriate configuration on your system:
 [source,sh,subs="attributes+"]
 -DCMAKE_PREFIX_PATH="{DIST_DIR}" \
 -DCMAKE_INSTALL_PREFIX="{DIST_DIR}" \
 -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-
-Create a build folder and enter it:
-[source,sh,subs="attributes+"]
-$ mkdir {OUT_DIR}/build
-$ cd {OUT_DIR}/build
+-DCMAKE_ECLIPSE_VERSION=4.7.2 \
+-DCMAKE_ECLIPSE_MAKE_ARGUMENTS=-j4 \
 
 === Using CLI on Linux
 
@@ -235,7 +257,7 @@ $ cmake -G "Eclipse CDT4 - NMake Makefiles" <BUILD_ARGS> {NUTPP_DIR}
 === Using Visual Studio
 
 [source,sh,subs="attributes+"]
-$ cmake -G "Visual Studio 12 2013 Win64" <BUILD_ARGS> {NUTPP_DIR}
+$ cmake -G "Visual Studio 14 2015" <BUILD_ARGS> {NUTPP_DIR}
 
 
 == Create nutpp distributable

@@ -18,10 +18,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "nutpp-ui.h"
+
+#include "util/log.h"
+#include "util/settings.h"
+
+#include <signal.h>
+#include <string.h>
+
 #include <Wt/WServer.h>
 
 /*
- * Wt logger setup
+ * Wt logger setup.
  */
 #define LOGWT_LOGGER            "Webcfg/main: "
 #define LOGWT_INFO(m)           Wt::log("info") << LOGWT_LOGGER << m
@@ -33,36 +41,28 @@
  * Create a Connect2UI application for a new web session.
  */
 namespace {
-std::unique_ptr<Wt::WApplication> createApp(
-    const Wt::WEnvironment &env, Connect2UIType appType)
+/*
+ * Instantiates the application.
+ */
+std::unique_ptr<Wt::WApplication> createApp(const Wt::WEnvironment &env)
 {
-    LOGCNT_DEBUG(
-        "Creating " << (appType == Connect2UIType::Full ? "full" : "lite")
-        << " application");
-
-    return std::make_unique<Connect2UI>(env, appType);
+    LOGWT_INFO("Creating nutpp application");
+    return std::make_unique<nutpp::webserver::NutppUI>(env);
 }
-} // namespace
 
 /*
  * Signal handler to trigger log rotation.
  */
-static void handleSignals(int signal)
+void handleSignals(int signal)
 {
-    if (signal == SIGTSTP) {
+    if (signal == SIGUSR1) {
         // FIXME: This is a hack to add support for log file rotation in Wt
         // Rotate Wt log
         LOGWT_INFO("Rotating log file");
-        Wt::WLogger &logger = Wt::WServer::instance()->logger();
-        // This is a patched version of setFile()
-        logger.setFile("");
+        // This is a patched version of setFile().
+        // Wt::WLogger &logger = Wt::WServer::instance()->logger();
+        // logger.setFile("");
         LOGWT_INFO("Rotated log file");
-    } else if (signal == SIGUSR1) {
-        // Rotate log4cplus event log
-        RSGLogger::getInstance().reopenEventLog();
-    } else if (signal == SIGUSR2) {
-        // Rotate log4cplus audit log
-        RSGLogger::getInstance().reopenAuditLog();
     }
 }
 
@@ -70,7 +70,7 @@ static void handleSignals(int signal)
  * Catch SIGTSTP, SIGUSR1 & SIGUSR2 signals to trigger reopening
  * of the core and the application logs.
  */
-static void registerSignals()
+void registerSignals()
 {
     /* Block other terminal-generated signals while handler runs. */
     sigset_t block_mask;
@@ -88,58 +88,27 @@ static void registerSignals()
     action.sa_mask = block_mask;
     action.sa_flags = SA_RESTART;
 
-    /* Handle SIGTSTP signal for the core log rotation */
-    if (sigaction(SIGTSTP, &action, nullptr) < 0) {
-        LOGWT_WARN("Failed to register SIGTSTP handler: " << strerror(errno));
-    }
-
-    /* Handle SIGUSR signals for the app logs rotation */
     if (sigaction(SIGUSR1, &action, nullptr) < 0) {
         LOGWT_WARN("Failed to register SIGUSR1 handler: " << strerror(errno));
-    }
-
-    if (sigaction(SIGUSR2, &action, nullptr) < 0) {
-        LOGWT_WARN("Failed to register SIGUSR2 handler: " << strerror(errno));
     }
 }
 
 /*
  * One-time initialization.
  */
-static void initWebcfgApp()
+void initWebApp()
 {
     LOGWT_INFO("one-time initialization");
 
-    char *env_var = getenv(ENV_RSG_LOCAL_DEPLOY);
-    bool localDeployment = (env_var && (!strcasecmp(env_var, "1")
-                                        || !strcasecmp(env_var, "YES")
-                                        || !strcasecmp(env_var, "TRUE")));
-
-    /* Initialize RSGLogger */
-    if (RSGLogger::getInstance().init(
-            Wt::WServer::instance()->appRoot(), !localDeployment))
+    std::string log_file;
+    if (nutpp::util::Log::getInstance().initialize(
+            Wt::WServer::instance()->appRoot(),
+            nutpp::util::readAppStringSetting("loggerConfigName"),
+            log_file))
     {
-        LOGWT_INFO("Store application logs in: "
-                   << RSGLogger::getInstance().getLogDir());
+        LOGWT_INFO("Store application logs in: " << log_file);
     } else {
-        LOGWT_WARN("Failed to init RSGLogger");
-    }
-
-    /* Initialize RSGClientProxy */
-    if (!RSGClientProxy::getInstance().init(!localDeployment)) {
-        LOGCNT_ERROR("Failed to init RSGClientProxy");
-    }
-
-    /* Initialize SystemController */
-    if (!SystemController::getInstance().init(localDeployment)) {
-        LOGCNT_ERROR("Failed to init SystemController");
-    }
-
-    /* Initialize HomeServersConfig */
-    if (!HomeServersConfig::getInstance()
-        .load(SystemController::getInstance().getWebconfigDir()))
-    {
-        LOGCNT_ERROR("Failed to load HomeServersConfig");
+        LOGWT_WARN("Failed to init logger component");
     }
 
     /* Handle signals for log rotation */
@@ -149,11 +118,11 @@ static void initWebcfgApp()
 /*
  * Release any static resources.
  */
-static void cleanupWebcfgApp()
+void cleanupWebApp()
 {
-    RSGClientProxy::getInstance().cleanup();
-    RSGLogger::getInstance().cleanup();
+    nutpp::util::Log::getInstance().shutdown();
 }
+} // namespace
 
 /*
  * Configure and run the web server.
@@ -167,29 +136,23 @@ int main(int argc, char **argv)
         server.setServerConfiguration(argc, argv);
 
         /* Webcfg specific initialization */
-        initWebcfgApp();
+        initWebApp();
 
         /* Set application entry points */
         server.addEntryPoint(
-            Wt::EntryPointType::Application,
-            std::bind(createApp, std::placeholders::_1, Connect2UIType::Full),
-            DEPLOY_PATH_WEBFULL);
-        server.addEntryPoint(
-            Wt::EntryPointType::Application,
-            std::bind(createApp, std::placeholders::_1, Connect2UIType::Lite),
-            DEPLOY_PATH_WEBLITE);
+            Wt::EntryPointType::Application, createApp,
+            nutpp::util::readAppStringSetting("deploymentURI"));
 
         if (server.start()) {
             int sig = Wt::WServer::waitForShutdown();
-            LOGCNT_INFO("Shutdown (signal = " << sig << ")");
+            LOGNUTPP_INFO("Shutdown (signal = " << sig << ")");
             LOGWT_INFO("shutdown (signal = " << sig << ")");
             server.stop();
         }
 
         /* Webcfg specific cleanup */
-        cleanupWebcfgApp();
+        cleanupWebApp();
         return 0;
-
     } catch (Wt::WServer::Exception &e) {
         LOGWT_FATAL(e.what());
     } catch (std::exception &e) {

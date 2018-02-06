@@ -1,16 +1,27 @@
-# Build Webserver application component.
-set(COMPONENT_SRCS
+#
+# Build configuration for the webserver component.
+#
+
+set(WEBSERVER_SRCS
     main.cpp
+    nutpp-ui.cpp
 )
 
-set(COMPONENT_LIBS
-    ${LIBWT_LIBRARIES}
+set(WEBSERVER_LIBS
+    ${PROJECT_NAME}-util
+    Wt::Wt
+    Wt::HTTP
+    Wt::Dbo
+    Wt::DboSqlite3
+    ${LOG4CPLUS_LIBRARIES}
 )
 
 include_directories(.)
 
-add_executable(${WEBSERVER_COMPONENT} ${COMPONENT_SRCS})
-target_link_libraries(${WEBSERVER_COMPONENT} ${COMPONENT_LIBS})
+add_executable(${WEBSERVER_COMPONENT} ${WEBSERVER_SRCS})
+target_link_libraries(${WEBSERVER_COMPONENT} ${WEBSERVER_LIBS})
+set_target_properties(
+    ${WEBSERVER_COMPONENT} PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-webserver)
 
 # Prepare the start script.
 if(UNIX)

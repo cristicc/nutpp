@@ -18,29 +18,28 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "nutpp/log.h"
+#include "log.h"
+
+#include <iostream>
 
 #include <log4cplus/configurator.h>
 #include <log4cplus/fileappender.h>
 
-#include <iostream>
-
 namespace nutpp {
-namespace log {
+namespace util {
 // Create the static instance of Log and return a reference to it.
-Log &Log::GetInstance()
+Log &Log::getInstance()
 {
+    // Guaranteed to be destroyed.
     static Log instance;
+    // Instantiated on first use.
     return instance;
 }
 
 // Initialize Log with the provided configuration file
-bool Log::Initialize(const char *application_path,
-                     const char *log_cfg)
+bool Log::initialize(const std::string &app_dir,
+                     const std::string &log_cfg, std::string &log_file)
 {
-    // Make sure we have an instance of Log created before we initialize it.
-    GetInstance();
-
     try {
         log4cplus::initialize();
 
@@ -50,36 +49,37 @@ bool Log::Initialize(const char *application_path,
         // Apply dynamic configuration.
         // ${AppDir} placeholder can be used in the logger configuration to
         // to set the log file location relative to the installation directory.
-        properties.setProperty(LOG4CPLUS_TEXT("AppDir"), application_path);
+        properties.setProperty(LOG4CPLUS_TEXT("AppDir"), app_dir);
 
         // Configure logger.
-        log4cplus::PropertyConfigurator property_configurator(
+        log4cplus::PropertyConfigurator prop_conf(
             properties,
             log4cplus::Logger::getDefaultHierarchy(),
             log4cplus::PropertyConfigurator::fShadowEnvironment);
-        property_configurator.configure();
+        prop_conf.configure();
+
+        log_file
+            = prop_conf.getProperties()
+              .getProperty(LOG4CPLUS_TEXT("appender.CORE.File"));
+
+        core_logger_
+            = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("CoreLogger"));
+        return true;
     } catch (const std::exception &e) {
-        std::cerr << "Logging initialization failed :" << e.what() << std::endl;
-        return false;
+        std::cerr << "Logging initialization failed :"
+                  << e.what() << std::endl;
     } catch (...) {
         std::cerr << "Logging initialization failed with unknown exception."
                   << std::endl;
-        return false;
     }
 
-    return true;
-}
-
-// Initialize internal loggers.
-Log::Log()
-{
-    core_logger_ = log4cplus::Logger::getInstance("Logger");
+    return false;
 }
 
 // Manual cleanup of internal logger resources.
-void Log::Shutdown()
+void Log::shutdown()
 {
     core_logger_.closeNestedAppenders();
 }
-} // namespace log
+} // namespace util
 } // namespace nutpp

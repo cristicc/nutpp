@@ -18,11 +18,69 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CA_INCLUDE_LOG_H_
-#define CA_INCLUDE_LOG_H_
+#ifndef NUTPP_UTIL_LOG_H_
+#define NUTPP_UTIL_LOG_H_
 
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
+
+/**
+ * @brief Holds a reference to the core logger object.
+ *
+ * @def LOGNUTPP_CORE_LOGGER
+ */
+#define LOGNUTPP_CORE_LOGGER    nutpp::util::Log::getInstance().coreLogger()
+
+/**
+ * @brief Inserts a TRACE entry in the log file. Use this for the most detailed
+ * logging possible.
+ *
+ * @def LOGNUTPP_TRACE
+ */
+#define LOGNUTPP_TRACE(logEvent) LOG4CPLUS_TRACE(LOGNUTPP_CORE_LOGGER, logEvent)
+
+/**
+ * @brief Inserts a DEBUG entry in the log file. Use this for detailed, but not
+ * essential logging.
+ *
+ * @def LOGNUTPP_DEBUG
+ */
+#define LOGNUTPP_DEBUG(logEvent) LOG4CPLUS_DEBUG(LOGNUTPP_CORE_LOGGER, logEvent)
+
+/**
+ * @brief Inserts an INFO entry in the log file. Use this for important
+ * information output, flow steps and other relevant data. Normally this is the
+ * logging level used in production environments.
+ *
+ * @def LOGNUTPP_INFO
+ */
+#define LOGNUTPP_INFO(logEvent)  LOG4CPLUS_INFO(LOGNUTPP_CORE_LOGGER, logEvent)
+
+/**
+ * @brief Inserts an WARN entry in the log file. Use this for error cases with
+ * low severity and that do not impact the normal application logic flow.
+ *
+ * @def LOGNUTPP_WARN
+ */
+#define LOGNUTPP_WARN(logEvent)  LOG4CPLUS_WARN(LOGNUTPP_CORE_LOGGER, logEvent)
+
+/**
+ * @brief Inserts an ERROR entry in the log file. Use this for error cases with
+ * high severity that impact the normal application logic flow, but are absorbed
+ * by the application in a stable way.
+ *
+ * @def LOGNUTPP_ERROR
+ */
+#define LOGNUTPP_ERROR(logEvent) LOG4CPLUS_ERROR(LOGNUTPP_CORE_LOGGER, logEvent)
+
+/**
+ * @brief Inserts an FATAL entry in the log file. Use this for error cases with
+ * terminating severity that make the normal application logic flow impossible;
+ * usually the application should stop right after logging on this level.
+ *
+ * @def LOGNUTPP_FATAL
+ */
+#define LOGNUTPP_FATAL(logEvent) LOG4CPLUS_FATAL(LOGNUTPP_CORE_LOGGER, logEvent)
 
 /**
  * @namespace nutpp
@@ -30,10 +88,10 @@
  */
 namespace nutpp {
 /**
- * @namespace nutpp::log
- * @brief Namespace containing logging utilities.
+ * @namespace nutpp::util
+ * @brief Namespace containing utilities.
  */
-namespace log {
+namespace util {
 /**
  * @class Log
  * @brief General purpose logging class.
@@ -43,13 +101,13 @@ namespace log {
  * logging (https://sourceforge.net/p/log4cplus/wiki/Home/).
  *
  * @warning Do not use this class directly in your code. Access the logging
- * functionality through the @c LOG4NUT_* macros. Every source file containing
- * logging code must contain one of the @c LOG4NUT_LOGGER_* macros before any
- * @c LOG4NUT_* macro is called. They introduce the logger object, to be used
+ * functionality through the @c LOGNUTPP_* macros. Every source file containing
+ * logging code must contain one of the @c LOGNUTPP_LOGGER_* macros before any
+ * @c LOGNUTPP_* macro is called. They introduce the logger object, to be used
  * for all the logging code in that source file.
  *
- * @see LOG4NUT_LOGGER_CORE LOG4NUT_TRACE LOG4NUT_DEBUG
- * LOG4NUT_INFO LOG4NUT_WARN LOG4NUT_ERROR LOG4NUT_FATAL
+ * @see LOGNUTPP_LOGGER_CORE LOGNUTPP_TRACE LOGNUTPP_DEBUG
+ * LOGNUTPP_INFO LOGNUTPP_WARN LOGNUTPP_ERROR LOGNUTPP_FATAL
  */
 class Log {
 public:
@@ -63,30 +121,33 @@ public:
      *
      * @return Reference to the single instance of @c Log.
      *
-     * @see LOG4NUT_LOGGER_CORE
+     * @see LOGNUTPP_LOGGER_CORE
      *
      * @warning Use this function in your code only once before initializing
      * logging and once before cleanup. Besides these it is only called by the
-     * @c LOG4NUT_LOGGER_* macros.
+     * @c LOGNUTPP_LOGGER_* macros.
      */
-    static Log &GetInstance();
+    static Log &getInstance();
 
     /**
      * @brief Initializes this instance of @c Log.
      *
-     * @param[in] application_path Folder path where the application using
-     * logging is installed in. Usually it is the folder containing the common
-     * sub-folders bin, lib and conf.
-     * @param[in] log_cfg File path of the log4cplus configuration file.
+     * @param[in] app_dir Path to the application root folder.
+     * @param[in] log_cfg Path of the log4cplus configuration file,
+     * relative to @c app_dir.
+     * @param[out] log_file Path to the application log file.
      *
-     * @return @c true if the initialization succeeded.
+     * @return @c true if the initialization succeeded. The path of
+     * the log file will be returned in @c log_file.
      *
      * @see log4cplus.properties
      *
      * @warning This function should be called only once at the very beginning
-     * of main application logic.
+     * of the main application logic.
      */
-    static bool Initialize(const char *application_path, const char *log_cfg);
+    bool initialize(const std::string &app_dir,
+                    const std::string &log_cfg,
+                    std::string &log_file);
 
     /**
      * @brief Accessor to the core logger.
@@ -94,12 +155,12 @@ public:
      * @return Reference to a @c log4cplus::Logger object that should be used
      * for core operations logging.
      *
-     * @see LOG4NUT_LOGGER_CORE
+     * @see LOGNUTPP_LOGGER_CORE
      *
      * @warning Do not use this function in your code, it is called by the
-     * @c LOG4NUT_LOGGER_CORE macro.
+     * @c LOGNUTPP_LOGGER_CORE macro.
      */
-    inline log4cplus::Logger &core_logger() { return core_logger_; }
+    log4cplus::Logger &coreLogger() { return core_logger_; }
 
     /**
      * @brief Manual cleanup of internal logger resources.
@@ -108,86 +169,26 @@ public:
      * resources that are affected by the logger component (E.g. remove folder
      * containing log files).
      */
-    void Shutdown();
+    void shutdown();
 
 private:
     /**
      * @brief Constructor is kept private to prevent direct instantiation.
      *
-     * @see GetInstance()
+     * @see getInstance()
      */
-    Log();
+    Log() = default;
 
     /**
      * @brief Destructor is kept private to prevent direct instantiation.
      *
-     * @see GetInstance()
+     * @see getInstance()
      */
     ~Log() = default;
 
-    /// log4cplus::Logger object used for general purpose logging.
+    /// log4cplus::Logger object used for logging core related messages.
     log4cplus::Logger core_logger_;
 };
-
-/**
- * Enables the usage of the core logger in the source file where it is present.
- *
- * @def LOG4NUT_LOGGER_CORE
- */
-#define LOG4NUT_LOGGER_CORE() \
-    static log4cplus::Logger & logger \
-        = nutpp::log::Log::GetInstance().core_logger()
-
-/**
- * @brief Inserts a TRACE entry in the log file. Use this for the most detailed
- * logging possible.
- *
- * @def LOG4NUT_TRACE
- */
-#define LOG4NUT_TRACE(logEvent) LOG4CPLUS_TRACE(logger, logEvent)
-
-/**
- * @brief Inserts a DEBUG entry in the log file. Use this for detailed, but not
- * essential logging.
- *
- * @def LOG4NUT_DEBUG
- */
-#define LOG4NUT_DEBUG(logEvent) LOG4CPLUS_DEBUG(logger, logEvent)
-
-/**
- * @brief Inserts an INFO entry in the log file. Use this for important
- * information output, flow steps and other relevant data. Normally this is the
- * logging level used in production environments.
- *
- * @def LOG4NUT_INFO
- */
-#define LOG4NUT_INFO(logEvent)  LOG4CPLUS_INFO(logger, logEvent)
-
-/**
- * @brief Inserts an WARN entry in the log file. Use this for error cases with
- * low severity and that do not impact the normal application logic flow.
- *
- * @def LOG4NUT_WARN
- */
-#define LOG4NUT_WARN(logEvent)  LOG4CPLUS_WARN(logger, logEvent)
-
-/**
- * @brief Inserts an ERROR entry in the log file. Use this for error cases with
- * high severity that impact the normal application logic flow, but are absorbed
- * by the application in a stable way.
- *
- * @def LOG4NUT_ERROR
- */
-#define LOG4NUT_ERROR(logEvent) LOG4CPLUS_ERROR(logger, logEvent)
-
-/**
- * @brief Inserts an FATAL entry in the log file. Use this for error cases with
- * terminating severity that make the normal application logic flow impossible;
- * usually the application should stop right after logging on this level.
- *
- * @def LOG4NUT_FATAL
- */
-#define LOG4NUT_FATAL(logEvent) LOG4CPLUS_FATAL(logger, logEvent)
-} // namespace log
+} // namespace util
 } // namespace nutpp
-#endif /* CA_INCLUDE_LOG_H_ */
+#endif /* NUTPP_UTIL_LOG_H_ */

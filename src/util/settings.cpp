@@ -1,0 +1,87 @@
+/**
+ * nutpp - a nutrition planning utility
+ *
+ * Copyright (C) 2018  Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#include "settings.h"
+#include "log.h"
+
+#include <Wt/WServer.h>
+
+namespace nutpp {
+namespace util {
+// Reads a string from app configuration.
+std::string readAppStringSetting(const char *name, const char *defaultValue)
+{
+    std::string result;
+
+    if (!Wt::WServer::instance()->readConfigurationProperty(name, result)) {
+        LOGNUTPP_WARN("Missing app cfg: " << name);
+
+        if (defaultValue) {
+            result = defaultValue;
+        }
+    }
+
+    LOGNUTPP_DEBUG("Using app cfg: " << name << "=" << result);
+    return result;
+}
+
+// Reads an int from app configuration.
+int readAppIntSetting(const char *name, int defaultValue)
+{
+    int result = defaultValue;
+    std::string propval;
+
+    if (Wt::WServer::instance()->readConfigurationProperty(name, propval)) {
+        try {
+            result = std::stoi(propval);
+        } catch (const std::exception &) {
+            LOGNUTPP_WARN("Invalid app cfg: " << name << "=" << propval);
+        }
+    } else {
+        LOGNUTPP_WARN("Missing app cfg: " << name);
+    }
+
+    LOGNUTPP_DEBUG("Using app cfg: " << name << "=" << result);
+    return result;
+}
+
+// Reads a bool from app configuration.
+bool readAppSetting(const char *name, bool defaultValue)
+{
+    bool result = defaultValue;
+    std::string propval;
+
+    if (Wt::WServer::instance()->readConfigurationProperty(name, propval)) {
+        if (propval == "true") {
+            result = true;
+        } else if (propval == "false") {
+            result = false;
+        } else {
+            LOGNUTPP_WARN("Invalid app cfg: " << name << "=" << propval);
+        }
+    } else {
+        LOGNUTPP_WARN("Missing app cfg: " << name);
+    }
+
+    LOGNUTPP_DEBUG("Using app cfg: " << name << "=" << result);
+    return result;
+}
+} // namespace util
+} // namespace nutpp

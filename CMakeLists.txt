@@ -1,8 +1,8 @@
 #
 # Nutpp - CMake build configuration.
 #
+
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
-cmake_policy(VERSION 3.2)
 
 project(nutpp VERSION 1.0.0 LANGUAGES C CXX)
 add_definitions(-DAPP_NAME="${PROJECT_NAME}")
@@ -27,7 +27,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # GCC: enable common compiler warnings.
     add_compile_options(-Wall -Wextra -Wcast-align -Wpointer-arith
-        -Wformat-security -Wmissing-format-attribute -Wshadow)
+        -Wformat-security -Wmissing-format-attribute)
     # Make linker report any unresolved symbols from object files.
     set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
 
@@ -49,25 +49,25 @@ set(CMAKE_VERBOSE_MAKEFILE 0)
 # Project search paths.
 #
 list(APPEND CMAKE_PREFIX_PATH
-    "${PROJECT_SOURCE_DIR}"
-    "${PROJECT_SOURCE_DIR}/src"
-    "${PROJECT_SOURCE_DIR}/src/lib"
+    "${CMAKE_SOURCE_DIR}"
+    "${CMAKE_SOURCE_DIR}/src"
+    "${CMAKE_SOURCE_DIR}/src/lib"
 )
-
-include_directories("${PROJECT_SOURCE_DIR}/src/include")
+include_directories("${CMAKE_SOURCE_DIR}/src")
 
 #
 # Locate project prerequisites.
 #
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 # Log4cplus.
 find_package(Log4cplus REQUIRED)
-include_directories(${LOG4CPLUS_INCLUDE_DIR})
+include_directories(${LOG4CPLUS_INCLUDE_DIRS})
 
-# Wt.
+# Wt and dependencies.
+find_package(Boost REQUIRED)
 find_package(Wt REQUIRED)
-include_directories(${WT_INCLUDE_DIR})
+include_directories(${WT_INCLUDE_DIRS})
 
 #
 # Add src and custom targets.
