@@ -56,10 +56,10 @@ std::unique_ptr<Wt::WApplication> createApp(const Wt::WEnvironment &env)
 void handleSignals(int signal)
 {
     if (signal == SIGUSR1) {
-        // FIXME: This is a hack to add support for log file rotation in Wt
-        // Rotate Wt log
+        // Rotate Wt log.
         LOGWT_INFO("Rotating log file");
-        // This is a patched version of setFile().
+        // FIXME: This is a hack to add support for log file rotation in Wt
+        // using a patched version of setFile().
         // Wt::WLogger &logger = Wt::WServer::instance()->logger();
         // logger.setFile("");
         LOGWT_INFO("Rotated log file");
@@ -100,10 +100,15 @@ void initWebApp()
 {
     LOGWT_INFO("one-time initialization");
 
+    std::string app_dir = Wt::WServer::instance()->appRoot();
+    if (app_dir.back() == '/' || app_dir.back() == '\\') {
+        app_dir.pop_back();
+    }
+
     std::string log_file;
     if (nutpp::util::Log::getInstance().initialize(
-            Wt::WServer::instance()->appRoot(),
-            nutpp::util::readAppStringSetting("loggerConfigName"),
+            app_dir,
+            nutpp::util::silentReadAppStringSetting("loggerConfigName"),
             log_file))
     {
         LOGWT_INFO("Store application logs in: " << log_file);
@@ -111,7 +116,7 @@ void initWebApp()
         LOGWT_WARN("Failed to init logger component");
     }
 
-    /* Handle signals for log rotation */
+    /* Handle signals for log rotation. */
     registerSignals();
 }
 
@@ -132,13 +137,13 @@ int main(int argc, char **argv)
     try {
         Wt::WServer server(argv[0]);
 
-        /* This will block in case the process is the FastCGI relay server */
+        /* Configure the HTTP server. */
         server.setServerConfiguration(argc, argv);
 
-        /* Webcfg specific initialization */
+        /* Webcfg specific initialization. */
         initWebApp();
 
-        /* Set application entry points */
+        /* Set application entry points. */
         server.addEntryPoint(
             Wt::EntryPointType::Application, createApp,
             nutpp::util::readAppStringSetting("deploymentURI"));
@@ -150,7 +155,7 @@ int main(int argc, char **argv)
             server.stop();
         }
 
-        /* Webcfg specific cleanup */
+        /* Webcfg specific cleanup. */
         cleanupWebApp();
         return 0;
     } catch (Wt::WServer::Exception &e) {

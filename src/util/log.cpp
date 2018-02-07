@@ -21,9 +21,7 @@
 #include "log.h"
 
 #include <iostream>
-
 #include <log4cplus/configurator.h>
-#include <log4cplus/fileappender.h>
 
 namespace nutpp {
 namespace util {
@@ -44,7 +42,7 @@ bool Log::initialize(const std::string &app_dir,
         log4cplus::initialize();
 
         // Load static configuration.
-        log4cplus::helpers::Properties properties(log_cfg);
+        log4cplus::helpers::Properties properties(app_dir + "/" + log_cfg);
 
         // Apply dynamic configuration.
         // ${AppDir} placeholder can be used in the logger configuration to

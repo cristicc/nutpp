@@ -71,6 +71,10 @@ NutppUI::NutppUI(const WEnvironment &_env)
 //        mainMenu_->updateHelpBox();
 //    });
 
+    // TODO: Test only
+    root()->addWidget(
+        std::make_unique<Wt::WText>("Welcome to NUTPP"));
+
     // Check for JavaScript support
     if (!environment().javaScript()) {
 //        infoBar_->showError("JavaScript must be enabled/supported in order to"

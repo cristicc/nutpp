@@ -21,7 +21,6 @@
 #ifndef NUTPP_UTIL_LOG_H_
 #define NUTPP_UTIL_LOG_H_
 
-#include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
 
 /**
@@ -101,10 +100,7 @@ namespace util {
  * logging (https://sourceforge.net/p/log4cplus/wiki/Home/).
  *
  * @warning Do not use this class directly in your code. Access the logging
- * functionality through the @c LOGNUTPP_* macros. Every source file containing
- * logging code must contain one of the @c LOGNUTPP_LOGGER_* macros before any
- * @c LOGNUTPP_* macro is called. They introduce the logger object, to be used
- * for all the logging code in that source file.
+ * functionality through the @c LOGNUTPP_* macros.
  *
  * @see LOGNUTPP_LOGGER_CORE LOGNUTPP_TRACE LOGNUTPP_DEBUG
  * LOGNUTPP_INFO LOGNUTPP_WARN LOGNUTPP_ERROR LOGNUTPP_FATAL
@@ -117,11 +113,9 @@ public:
     Log &operator=(const Log &) = delete;
 
     /**
-     * @brief Accessor to the single instance of this class.
+     * @brief Gets access to the single instance of this class.
      *
      * @return Reference to the single instance of @c Log.
-     *
-     * @see LOGNUTPP_LOGGER_CORE
      *
      * @warning Use this function in your code only once before initializing
      * logging and once before cleanup. Besides these it is only called by the
@@ -137,13 +131,13 @@ public:
      * relative to @c app_dir.
      * @param[out] log_file Path to the application log file.
      *
-     * @return @c true if the initialization succeeded. The path of
-     * the log file will be returned in @c log_file.
+     * @return @c true if the initialization succeeded and the path of
+     * the log file stored in @c log_file.
      *
      * @see log4cplus.properties
      *
      * @warning This function should be called only once at the very beginning
-     * of the main application logic.
+     * of the main application logic, before using any of the logging macros.
      */
     bool initialize(const std::string &app_dir,
                     const std::string &log_cfg,
@@ -155,10 +149,8 @@ public:
      * @return Reference to a @c log4cplus::Logger object that should be used
      * for core operations logging.
      *
-     * @see LOGNUTPP_LOGGER_CORE
-     *
-     * @warning Do not use this function in your code, it is called by the
-     * @c LOGNUTPP_LOGGER_CORE macro.
+     * @warning Do not use this function in your code, it is used internally
+     * by the logging macros.
      */
     log4cplus::Logger &coreLogger() { return core_logger_; }
 
@@ -166,7 +158,7 @@ public:
      * @brief Manual cleanup of internal logger resources.
      *
      * @warning Call this method if you need to perform additional operation on
-     * resources that are affected by the logger component (E.g. remove folder
+     * resources that are affected by the logger component (e.g. remove folder
      * containing log files).
      */
     void shutdown();

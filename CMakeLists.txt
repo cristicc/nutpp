@@ -5,6 +5,9 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 project(nutpp VERSION 1.0.0 LANGUAGES C CXX)
+set(PROJECT_DESCRIPTION "Utility to manage nutrition plans.")
+set(PROJECT_LOGO "${CMAKE_CURRENT_SOURCE_DIR}/web/favicon.ico")
+
 add_definitions(-DAPP_NAME="${PROJECT_NAME}")
 add_definitions(-DAPP_VERSION="${PROJECT_VERSION}")
 
@@ -46,19 +49,9 @@ endif()
 set(CMAKE_VERBOSE_MAKEFILE 0)
 
 #
-# Project search paths.
-#
-list(APPEND CMAKE_PREFIX_PATH
-    "${CMAKE_SOURCE_DIR}"
-    "${CMAKE_SOURCE_DIR}/src"
-    "${CMAKE_SOURCE_DIR}/src/lib"
-)
-include_directories("${CMAKE_SOURCE_DIR}/src")
-
-#
 # Locate project prerequisites.
 #
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Log4cplus.
 find_package(Log4cplus REQUIRED)
@@ -70,33 +63,35 @@ find_package(Wt REQUIRED)
 include_directories(${WT_INCLUDE_DIRS})
 
 #
-# Add src and custom targets.
+# Project search paths.
 #
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
 add_subdirectory(src)
+
+#
+# Add build targets.
+#
+include(DoxygenTargets)
 #add_custom_target(check COMMENT "Checking sources..")
 #add_dependencies(check
 #    all-libs-check
 #)
 
 #
-# Add documentation targets.
-#
-include(DocumentationTargets)
-
-#
 # Add packaging support.
 #
-set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
 set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_VENDOR "Cristian Ciocaltea")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${PROJECT_NAME} - Utility to manage nutrition plans")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.adoc")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PROJECT_NAME}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
+set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.adoc)
+set(CPACK_PACKAGE_ICON ${PROJECT_LOGO})
+set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
+set(CPACK_PACKAGE_FILE_NAME ${PROJECT_NAME}-${PROJECT_VERSION})
+set(CPACK_PACKAGE_INSTALL_DIRECTORY ${PROJECT_NAME})
 
 # Select components to be packaged by default.
 set(CPACK_COMPONENTS_ALL ${CORE_COMPONENT} ${RUNTIME_COMPONENT})

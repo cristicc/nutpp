@@ -1,13 +1,7 @@
-# Creates build targets for a generic static library.
+# Creates build targets for generating Doxygen source code documentation.
 #
-# The following variables are used as input for the script:
-#
-#    LIBRARY_NAME   - name of the library without the "lib" prefix (mandatory)
-#    LIBRARY_SRCS   - listing of the sources to be build (mandatory)
-#    LIBRARY_LIBS   - listing of the libraries to be linked with (optional)
-#
-# The target name to build the library will be "${PROJECT_NAME}-${LIBRARY_NAME}"
-# and can be referenced using ${LIBRARY_TARGET} variable.
+# The script is based on Victoria Rudakova's work:
+# https://vicrucann.github.io/tutorials/quick-cmake-doxygen/
 #
 # Copyright (C) 2018, Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 # All rights reserved.
@@ -35,30 +29,31 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Check mandatory settings.
-if("${LIBRARY_NAME}" STREQUAL "")
-    message(FATAL_ERROR
-        "Please set 'LIBRARY_NAME' before using 'StaticLibraryTargets'!")
-endif()
-if("${LIBRARY_SRCS}" STREQUAL "")
-    message(FATAL_ERROR
-        "Please set 'LIBRARY_SRCS' before using 'StaticLibraryTargets'!")
-endif()
+# Provides an option for the user to toggle ON/OFF the default execution
+# of the docs target.
+option(BUILD_DOCS "Build documentation" ON)
 
-# Set full library name and unit tests dir.
-set(LIBRARY_TARGET ${PROJECT_NAME}-${LIBRARY_NAME})
-set(LIBRARY_UT_DIR ut)
+# Checks if Doxygen is installed.
+find_package(Doxygen)
 
-# Create build target for static library.
-add_library(
-    ${LIBRARY_TARGET} STATIC ${LIBRARY_SRCS})
-set_target_properties(
-    ${LIBRARY_TARGET} PROPERTIES OUTPUT_NAME ${LIBRARY_TARGET})
-if(NOT "${LIBRARY_LIBS}" STREQUAL "")
-    target_link_libraries(${LIBRARY_TARGET} ${LIBRARY_LIBS})
-endif()
+if(DOXYGEN_FOUND)
+    # Generates Doxygen configuration.
+    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
+    set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
 
-# Enable unit tests if available.
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${LIBRARY_UT_DIR}/CMakeLists.txt")
-    add_subdirectory("${LIBRARY_UT_DIR}")
+    # Creates build target.
+    add_custom_target(docs ALL
+        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM)
+
+    if(NOT BUILD_DOCS)
+        # Exclude docs from the default build target.
+        set_target_properties(docs PROPERTIES EXCLUDE_FROM_ALL TRUE)
+    endif()
+else()
+    message(WARNING "Please install Doxygen in order"
+        " to be able to generate documentation!")
 endif()

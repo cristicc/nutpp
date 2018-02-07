@@ -204,10 +204,14 @@ https://github.com/miloyip/rapidjson/archive/master.zip
 
 ==== On Linux
 
-Install _doxygen_ package in the standard distribution:
+Install `doxygen` and, optionally, `graphviz` packages:
 
 [source,sh]
-$ sudo apt-get install doxygen
+$ sudo apt-get install doxygen graphviz
+
+[TIP]
+Doxygen uses the `dot` tool from `graphviz`, if available, to generate
+more advanced diagrams and graphs.
 
 ==== On Windows
 
@@ -233,6 +237,7 @@ appropriate configuration on your system:
 -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 -DCMAKE_ECLIPSE_VERSION=4.7.2 \
 -DCMAKE_ECLIPSE_MAKE_ARGUMENTS=-j4 \
+-DBUILD_DOCS=OFF
 
 === Using CLI on Linux
 

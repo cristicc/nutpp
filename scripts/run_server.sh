@@ -20,8 +20,9 @@ SRV_PATH=${APP_PATH}/run
     for xmlfile in ${RUN_PATH}/../conf/*.xml; do
         ln -s ${xmlfile} ${SRV_PATH}/conf/
     done
-
     cp -f ${RUN_PATH}/../conf/*.properties ${SRV_PATH}/conf/
+
+    mkdir -p ${SRV_PATH}/log
 }
 
 [ "$1" = "debug" ] && {

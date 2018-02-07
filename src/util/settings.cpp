@@ -31,14 +31,22 @@ std::string readAppStringSetting(const char *name, const char *defaultValue)
     std::string result;
 
     if (!Wt::WServer::instance()->readConfigurationProperty(name, result)) {
-        LOGNUTPP_WARN("Missing app cfg: " << name);
+        LOGNUTPP_WARN("Missing app setting: " << name);
 
         if (defaultValue) {
             result = defaultValue;
         }
     }
 
-    LOGNUTPP_DEBUG("Using app cfg: " << name << "=" << result);
+    LOGNUTPP_DEBUG("Using app setting: " << name << "=" << result);
+    return result;
+}
+
+// Simplified version of readAppStringSetting().
+std::string silentReadAppStringSetting(const char *name)
+{
+    std::string result;
+    Wt::WServer::instance()->readConfigurationProperty(name, result);
     return result;
 }
 
@@ -52,18 +60,18 @@ int readAppIntSetting(const char *name, int defaultValue)
         try {
             result = std::stoi(propval);
         } catch (const std::exception &) {
-            LOGNUTPP_WARN("Invalid app cfg: " << name << "=" << propval);
+            LOGNUTPP_WARN("Invalid app setting: " << name << "=" << propval);
         }
     } else {
-        LOGNUTPP_WARN("Missing app cfg: " << name);
+        LOGNUTPP_WARN("Missing app setting: " << name);
     }
 
-    LOGNUTPP_DEBUG("Using app cfg: " << name << "=" << result);
+    LOGNUTPP_DEBUG("Using app setting: " << name << "=" << result);
     return result;
 }
 
 // Reads a bool from app configuration.
-bool readAppSetting(const char *name, bool defaultValue)
+bool readAppBoolSetting(const char *name, bool defaultValue)
 {
     bool result = defaultValue;
     std::string propval;
@@ -74,13 +82,13 @@ bool readAppSetting(const char *name, bool defaultValue)
         } else if (propval == "false") {
             result = false;
         } else {
-            LOGNUTPP_WARN("Invalid app cfg: " << name << "=" << propval);
+            LOGNUTPP_WARN("Invalid app setting: " << name << "=" << propval);
         }
     } else {
-        LOGNUTPP_WARN("Missing app cfg: " << name);
+        LOGNUTPP_WARN("Missing app setting: " << name);
     }
 
-    LOGNUTPP_DEBUG("Using app cfg: " << name << "=" << result);
+    LOGNUTPP_DEBUG("Using app setting: " << name << "=" << result);
     return result;
 }
 } // namespace util

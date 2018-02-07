@@ -8,6 +8,3 @@
 /.settings/
 #   CLion
 /.idea/
-
-# Generated project documentation.
-/docs/generated/

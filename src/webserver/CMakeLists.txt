@@ -9,9 +9,7 @@ set(WEBSERVER_SRCS
 
 set(WEBSERVER_LIBS
     ${PROJECT_NAME}-util
-    Wt::Wt
     Wt::HTTP
-    Wt::Dbo
     Wt::DboSqlite3
     ${LOG4CPLUS_LIBRARIES}
 )

@@ -41,8 +41,22 @@ namespace util {
  *
  * @return The string value read.
  */
-std::string readAppStringSetting(const char *name,
-                                 const char *defaultValue = nullptr);
+std::string readAppStringSetting(
+    const char *name, const char *defaultValue = nullptr);
+
+/**
+ * @brief Reads a string setting from the application configuration.
+ *
+ * This method is similar with readAppStringSetting() but it doesn't
+ * perform any logging operations and doesn't use any default values.
+ * The main purpose is to use it at the very beginning of the application
+ * startup, when the logging subsystem hasn't been initialized yet.
+ *
+ * @param[in] name The name of the setting.
+ *
+ * @return The string value read.
+ */
+std::string silentReadAppStringSetting(const char *name);
 
 /**
  * @brief Reads an integer setting from the application configuration.

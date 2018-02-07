@@ -46,6 +46,11 @@ namespace webserver {
  */
 class NutppUI : public Wt::WApplication {
 public:
+    /**
+     * @brief Creates an applicaton instance.
+     *
+     * @param[in] env Application environment.
+     */
     NutppUI(const Wt::WEnvironment &env);
     ~NutppUI();
 
