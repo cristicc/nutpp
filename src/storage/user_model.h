@@ -18,34 +18,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef NUTPP_UTIL_STRINGOPS_H_
-#define NUTPP_UTIL_STRINGOPS_H_
+#ifndef NUTPP_STORAGE_USER_MODEL_H_
+#define NUTPP_STORAGE_USER_MODEL_H_
 
-#include <string>
+#include "user.h"
 
-/**
- * @namespace nutpp
- * @brief Project root namespace.
- */
+#include <Wt/WFormModel.h>
+
 namespace nutpp {
+namespace storage {
 /**
- * @namespace nutpp::util
- * @brief Namespace containing utilities.
+ * @class UserModel
+ * @brief Implements a data model for the User table.
  */
-namespace util {
-/**
- * @brief Performs an inline replacement of all occurrences of a string
- * with another string.
- *
- * @param[in,out] context The text to work on.
- * @param[in] from The string to be replaced.
- * @param[in] to The string to be used as replacement.
- *
- * @return The resulted text, which is actually the @c context.
- */
-std::string &replaceAll(std::string &context,
-                        const std::string &from,
-                        const std::string &to);
-} // namespace util
+class UserModel : public Wt::WFormModel {
+public:
+    UserModel();
+private:
+    Wt::Dbo::QueryModel<Wt::Dbo::ptr<User>> *model_;
+};
+} // namespace storage
 } // namespace nutpp
-#endif /* NUTPP_UTIL_STRINGOPS_H_ */
+#endif /* NUTPP_STORAGE_USER_MODEL_H_ */

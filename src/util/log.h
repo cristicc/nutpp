@@ -82,9 +82,13 @@
 #define LOGNUTPP_FATAL(logEvent) LOG4CPLUS_FATAL(LOGNUTPP_CORE_LOGGER, logEvent)
 
 /**
- * @namespace nutpp
- * @brief Project root namespace.
+ * @brief Evaluates to @c true if DEBUG level is enabled in the logger.
+ *
+ * @def LOGNUTPP_DEBUG_ENABLED
  */
+#define LOGNUTPP_DEBUG_ENABLED \
+    LOGNUTPP_CORE_LOGGER.isEnabledFor(log4cplus::DEBUG_LOG_LEVEL)
+
 namespace nutpp {
 /**
  * @namespace nutpp::util

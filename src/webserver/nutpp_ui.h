@@ -61,6 +61,6 @@ private:
     //! Counter used to limit max active sessions.
     static int session_cnt;
 };
-} // namespace util
 } // namespace webserver
+} // namespace nutpp
 #endif /* NUTPP_WEBSERVER_NUTPPUI_H_ */

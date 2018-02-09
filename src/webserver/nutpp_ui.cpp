@@ -18,28 +18,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "nutpp-ui.h"
+#include "nutpp_ui.h"
 
-#include "util/settings.h"
+#include "settings.h"
 #include "util/log.h"
 
 #include <unistd.h>
 
 #include <Wt/WEnvironment.h>
 #include <Wt/WOverlayLoadingIndicator.h>
+// TEST
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
 #include <Wt/WText.h>
-
-using namespace Wt;
 
 namespace nutpp {
 namespace webserver {
 int NutppUI::session_cnt = 0;
 
 // Creates web app.
-NutppUI::NutppUI(const WEnvironment &_env)
+NutppUI::NutppUI(const Wt::WEnvironment &_env)
     : WApplication(_env)
 {
-    if (++session_cnt > util::readAppIntSetting("maxWebSessions")) {
+    if (++session_cnt > readAppIntSetting("maxWebSessions")) {
         LOGNUTPP_WARN("Reached max allowed web sessions: " << session_cnt);
 
         // TODO: design error page
@@ -56,29 +58,35 @@ NutppUI::NutppUI(const WEnvironment &_env)
     setCssTheme("polished");
 
     useStyleSheet("css/nutpp_ui.css");
-    // Fix for loading indicator to render properly in IE
+    // Fix for loading indicator to render properly in IE.
     styleSheet().addRule("body", "margin: 0px");
-    setLoadingIndicator(std::make_unique<WOverlayLoadingIndicator>());
+    setLoadingIndicator(std::make_unique<Wt::WOverlayLoadingIndicator>());
 
     // Load message resources
     messageResourceBundle().use(appRoot() + "messages-main");
 
     // Application title
-    setTitle(WString::tr("app-title"));
+    setTitle(Wt::WString::tr("app-title"));
 
     // Auto update help box on context change
-//    internalPathChanged().connect([=]() {
-//        mainMenu_->updateHelpBox();
-//    });
+// internalPathChanged().connect([=]() {
+// mainMenu_->updateHelpBox();
+// });
 
     // TODO: Test only
     root()->addWidget(
         std::make_unique<Wt::WText>("Welcome to NUTPP"));
+    auto t = root()->addWidget(std::make_unique<Wt::WTemplate>(
+        Wt::WString::tr("test-template")));
+
+    t->bindWidget("name-edit", std::make_unique<Wt::WLineEdit>());
+    t->bindWidget("save-button", std::make_unique<Wt::WPushButton>("Save"));
+    t->bindWidget("cancel-button", std::make_unique<Wt::WPushButton>("Cancel"));
 
     // Check for JavaScript support
     if (!environment().javaScript()) {
-//        infoBar_->showError("JavaScript must be enabled/supported in order to"
-//                            " properly use the application!");
+// infoBar_->showError("JavaScript must be enabled/supported in order to"
+// " properly use the application!");
     }
 }
 

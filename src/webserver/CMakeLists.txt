@@ -4,14 +4,14 @@
 
 set(WEBSERVER_SRCS
     main.cpp
-    nutpp-ui.cpp
+    nutpp_ui.cpp
+    settings.cpp
 )
 
 set(WEBSERVER_LIBS
     ${PROJECT_NAME}-util
-    Wt::HTTP
-    Wt::DboSqlite3
     ${LOG4CPLUS_LIBRARIES}
+    Wt::HTTP
 )
 
 include_directories(.)

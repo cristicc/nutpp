@@ -123,4 +123,14 @@ Note: If the agent is stopped for more than 3 minutes, connect 2 is rebooted.</m
 <!-- Action messages -->
 <message id="msg-main-failedgetsysinfo">Failed to retrieve the system information.</message>
 
+<message id="test-template">
+<div class="form">
+  <p>
+    <label>Please enter your name: ${name-edit}</label>
+  </p>
+  <p>
+    ${save-button} ${cancel-button}
+  </p>
+</div>
+</message>
 </messages>

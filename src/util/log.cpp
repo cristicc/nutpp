@@ -51,18 +51,21 @@ bool Log::initialize(const std::string &app_dir,
 
         // Configure logger.
         log4cplus::PropertyConfigurator prop_conf(
-            properties,
-            log4cplus::Logger::getDefaultHierarchy(),
+            properties, log4cplus::Logger::getDefaultHierarchy(),
             log4cplus::PropertyConfigurator::fShadowEnvironment);
         prop_conf.configure();
 
-        log_file
-            = prop_conf.getProperties()
-              .getProperty(LOG4CPLUS_TEXT("appender.CORE.File"));
+        if (log4cplus::Logger::exists(LOG4CPLUS_TEXT("CoreLogger"))) {
+            core_logger_
+                = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("CoreLogger"));
+            log_file = prop_conf.getProperties()
+                       .getProperty(LOG4CPLUS_TEXT("appender.CORE.File"));
 
-        core_logger_
-            = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("CoreLogger"));
-        return true;
+            return true;
+        }
+
+        core_logger_ = log4cplus::Logger::getRoot();
+        //TODO: create default appender to stderr
     } catch (const std::exception &e) {
         std::cerr << "Logging initialization failed :"
                   << e.what() << std::endl;

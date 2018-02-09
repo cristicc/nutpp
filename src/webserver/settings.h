@@ -23,18 +23,10 @@
 
 #include <string>
 
-/**
- * @namespace nutpp
- * @brief Project root namespace.
- */
 namespace nutpp {
+namespace webserver {
 /**
- * @namespace nutpp::util
- * @brief Namespace containing utilities.
- */
-namespace util {
-/**
- * @brief Reads a string setting from the application configuration.
+ * @brief Reads a string setting from the Web server configuration.
  *
  * @param[in] name The name of the setting.
  * @param[in] defaultValue The value to be used if the setting is not available.
@@ -77,6 +69,6 @@ int readAppIntSetting(const char *name, int defaultValue = 0);
  * @return The boolean value read.
  */
 bool readAppBoolSetting(const char *name, bool defaultValue = false);
-} // namespace util
+} // namespace webserver
 } // namespace nutpp
 #endif /* NUTPP_UTIL_SETTINGS_H_ */

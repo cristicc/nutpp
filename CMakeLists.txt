@@ -13,6 +13,7 @@ add_definitions(-DAPP_VERSION="${PROJECT_VERSION}")
 
 # Main components.
 set(WEBSERVER_COMPONENT "webserver")
+set(STORAGE_COMPONENT "storage")
 set(RUNTIME_COMPONENT "runtime")
 
 #

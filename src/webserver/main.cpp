@@ -18,14 +18,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "nutpp-ui.h"
+#include "nutpp_ui.h"
 
+#include "settings.h"
 #include "util/log.h"
-#include "util/settings.h"
 
 #include <signal.h>
 #include <string.h>
-
 #include <Wt/WServer.h>
 
 /*
@@ -108,10 +107,10 @@ void initWebApp()
     std::string log_file;
     if (nutpp::util::Log::getInstance().initialize(
             app_dir,
-            nutpp::util::silentReadAppStringSetting("loggerConfigName"),
+            nutpp::webserver::silentReadAppStringSetting("loggerConfigName"),
             log_file))
     {
-        LOGWT_INFO("Store application logs in: " << log_file);
+        LOGWT_INFO("Log file location: " << log_file);
     } else {
         LOGWT_WARN("Failed to init logger component");
     }
@@ -146,7 +145,7 @@ int main(int argc, char **argv)
         /* Set application entry points. */
         server.addEntryPoint(
             Wt::EntryPointType::Application, createApp,
-            nutpp::util::readAppStringSetting("deploymentURI"));
+            nutpp::webserver::readAppStringSetting("deploymentURI"));
 
         if (server.start()) {
             int sig = Wt::WServer::waitForShutdown();

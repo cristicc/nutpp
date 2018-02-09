@@ -18,24 +18,26 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "string-ops.h"
+#ifndef NUTPP_UTIL_STRINGOPS_H_
+#define NUTPP_UTIL_STRINGOPS_H_
+
+#include <string>
 
 namespace nutpp {
 namespace util {
-// Text replacement utility.
+/**
+ * @brief Performs an inline replacement of all occurrences of a string
+ * with another string.
+ *
+ * @param[in,out] context The text to work on.
+ * @param[in] from The string to be replaced.
+ * @param[in] to The string to be used as replacement.
+ *
+ * @return The resulted text, which is actually the @c context.
+ */
 std::string &replaceAll(std::string &context,
                         const std::string &from,
-                        const std::string &to)
-{
-    std::size_t lookHere = 0;
-    std::size_t foundHere;
-
-    while ((foundHere = context.find(from, lookHere)) != std::string::npos) {
-        context.replace(foundHere, from.size(), to);
-        lookHere = foundHere + to.size();
-    }
-
-    return context;
-}
+                        const std::string &to);
 } // namespace util
 } // namespace nutpp
+#endif /* NUTPP_UTIL_STRINGOPS_H_ */

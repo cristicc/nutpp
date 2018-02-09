@@ -19,12 +19,12 @@
  */
 
 #include "settings.h"
-#include "log.h"
+#include "util/log.h"
 
 #include <Wt/WServer.h>
 
 namespace nutpp {
-namespace util {
+namespace webserver {
 // Reads a string from app configuration.
 std::string readAppStringSetting(const char *name, const char *defaultValue)
 {
@@ -91,5 +91,5 @@ bool readAppBoolSetting(const char *name, bool defaultValue)
     LOGNUTPP_DEBUG("Using app setting: " << name << "=" << result);
     return result;
 }
-} // namespace util
+} // namespace webserver
 } // namespace nutpp

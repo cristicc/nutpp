@@ -631,9 +631,16 @@
         <!-- <property name="favicon">images/favicon.ico</property> -->
 
         <!--  Custom properties -->
+
         <property name="maxWebSessions">100</property>
         <property name="deploymentURI">/nutpp</property>
+        <!-- Log4cplus configuration file path, may be absolute or relative
+            to app root dir. -->
         <property name="loggerConfigName">log4cplus.properties</property>
+        <!-- Database file path, absolute or relative to app root dir. -->
+        <property name="sqlite3DbPath">../db/nutpp.db</property>
+        <!-- The max no. of DB connections in the pool. -->
+        <property name="maxDbConnections">2</property>
         <property name="enableInternalPaths">true</property>
         <property name="displayTimeFormat">yyyy-MM-dd hh:mm:ss</property>
         <property name="displayShortTimeFormat">yyyy-MM-dd hh:mm</property>
