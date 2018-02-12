@@ -34,7 +34,7 @@ count.
   Visual Studio 2015, Clang v3.3+)
 * GNU Make or The Microsoft Program Maintenance Utility (NMAKE.EXE)
 * CMake v3.5+
-* Log4cplus v1.21
+* Log4cplus v2.0+
 * Wt v4.0.2
  - Boost
  - OpenSSL
@@ -85,13 +85,13 @@ environment. E.g.: `C:\Program Files\CMake\bin`
 === Log4cplus
 
 Download the
-http://downloads.sourceforge.net/project/log4cplus/log4cplus-stable/1.2.1/log4cplus-1.2.1.tar.xz[source code].
+http://downloads.sourceforge.net/project/log4cplus/log4cplus-stable/2.0.0/log4cplus-2.0.0-rc2.tar.xz[source code].
 Extract the content to `{BUILD_DIR}`, then proceed with the following commands:
 
 ==== On Linux
 
 [source,sh,subs="attributes+"]
-$ cd {BUILD_DIR}/log4cplus-1.2.1
+$ cd {BUILD_DIR}/log4cplus-2.0.0-rc2
 $ ./configure CXXFLAGS=-std=c++14 --prefix={DIST_DIR}
 $ make -j $(nproc)
 $ make install
@@ -99,7 +99,7 @@ $ make install
 ==== On Windows
 
 [source,sh]
-$ cd C:\nutpp\output\log4cplus-1.2.1\msvc10
+$ cd C:\nutpp\output\log4cplus-2.0.0-rc2\msvc10
 $ msbuild log4cplus.sln /target:log4cplus /p:Configuration=Release /p:PlatformToolset=v140
 
 

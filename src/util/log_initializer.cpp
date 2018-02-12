@@ -18,29 +18,37 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "log.h"
+#include "log_initializer.h"
 
 #include <iostream>
 #include <log4cplus/configurator.h>
+#include <log4cplus/consoleappender.h>
+#include <log4cplus/initializer.h>
 
 namespace nutpp {
 namespace util {
-// Create the static instance of Log and return a reference to it.
-Log &Log::getInstance()
-{
-    // Guaranteed to be destroyed.
-    static Log instance;
-    // Instantiated on first use.
-    return instance;
-}
+/**
+ * @brief Hides the implementation details from the logger API.
+ */
+struct LogInitializer::LogInitializerImpl {
+    /// The @e log4cplus specific initializer helper.
+    log4cplus::Initializer initializer;
+};
+
+// C-tor.
+LogInitializer::LogInitializer()
+    : impl_(std::make_unique<LogInitializer::LogInitializerImpl>())
+{}
+
+// Destructor in .cpp required by unique_ptr to avoid incomplete type errors.
+LogInitializer::~LogInitializer() = default;
 
 // Initialize Log with the provided configuration file
-bool Log::initialize(const std::string &app_dir,
-                     const std::string &log_cfg, std::string &log_file)
+bool LogInitializer::configure(
+    const std::string &app_dir,
+    const std::string &log_cfg, std::string &log_file)
 {
     try {
-        log4cplus::initialize();
-
         // Load static configuration.
         log4cplus::helpers::Properties properties(app_dir + "/" + log_cfg);
 
@@ -55,17 +63,22 @@ bool Log::initialize(const std::string &app_dir,
             log4cplus::PropertyConfigurator::fShadowEnvironment);
         prop_conf.configure();
 
-        if (log4cplus::Logger::exists(LOG4CPLUS_TEXT("CoreLogger"))) {
-            core_logger_
-                = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("CoreLogger"));
+        if (log4cplus::Logger::exists(LOG4CPLUS_TEXT("CORE"))) {
             log_file = prop_conf.getProperties()
                        .getProperty(LOG4CPLUS_TEXT("appender.CORE.File"));
-
-            return true;
+        } else {
+            // Enable logging to stderr.
+            log4cplus::SharedAppenderPtr console(
+                new log4cplus::ConsoleAppender(true));
+            console->setLayout(
+                std::make_unique<log4cplus::PatternLayout>(
+                    kDefaultConsoleLogPattern));
+            log4cplus::Logger::getRoot().addAppender(console);
+            log4cplus::Logger::getRoot().setLogLevel(kDefaultConsoleLogLevel);
+            log_file = "stderr";
         }
 
-        core_logger_ = log4cplus::Logger::getRoot();
-        //TODO: create default appender to stderr
+        return true;
     } catch (const std::exception &e) {
         std::cerr << "Logging initialization failed :"
                   << e.what() << std::endl;
@@ -75,12 +88,6 @@ bool Log::initialize(const std::string &app_dir,
     }
 
     return false;
-}
-
-// Manual cleanup of internal logger resources.
-void Log::shutdown()
-{
-    core_logger_.closeNestedAppenders();
 }
 } // namespace util
 } // namespace nutpp

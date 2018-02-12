@@ -55,11 +55,10 @@ set(CMAKE_VERBOSE_MAKEFILE 0)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Log4cplus.
-find_package(Log4cplus REQUIRED)
+find_package(Log4cplus 2.0 REQUIRED)
 include_directories(${LOG4CPLUS_INCLUDE_DIRS})
 
-# Wt and dependencies.
-find_package(Boost REQUIRED)
+# Wt.
 find_package(Wt REQUIRED)
 include_directories(${WT_INCLUDE_DIRS})
 

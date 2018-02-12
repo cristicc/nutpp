@@ -28,7 +28,6 @@
 namespace nutpp {
 namespace storage {
 /**
- * @class UserModel
  * @brief Implements a data model for the User table.
  */
 class UserModel : public Wt::WFormModel {

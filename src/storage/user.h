@@ -27,7 +27,6 @@
 namespace nutpp {
 namespace storage {
 /**
- * @enum UserRole
  * @brief Enum class representing the types of user accounts recognized
  * by the system.
  */
@@ -43,7 +42,6 @@ enum class UserRole {
 };
 
 /**
- * @class User
  * @brief Class mapping the "user" database table.
  */
 class User {
@@ -59,7 +57,6 @@ public:
 
     /**
      * @brief Defines the User class persistence.
-     *
      * @param a Database object action.
      */
     template<class Action>

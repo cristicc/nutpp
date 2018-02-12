@@ -23,6 +23,8 @@
 
 #include <Wt/WServer.h>
 
+LOGNUTPP_LOGGER_WS;
+
 namespace nutpp {
 namespace webserver {
 // Reads a string from app configuration.

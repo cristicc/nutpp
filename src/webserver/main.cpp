@@ -22,36 +22,23 @@
 
 #include "settings.h"
 #include "util/log.h"
+#include "util/log_initializer.h"
 
 #include <signal.h>
 #include <string.h>
 #include <Wt/WServer.h>
 
-/*
- * Wt logger setup.
- */
-#define LOGWT_LOGGER            "Webcfg/main: "
-#define LOGWT_INFO(m)           Wt::log("info") << LOGWT_LOGGER << m
-#define LOGWT_WARN(m)           Wt::log("warning") << LOGWT_LOGGER << m
-#define LOGWT_ERROR(m)          Wt::log("error") << LOGWT_LOGGER << m
-#define LOGWT_FATAL(m)          Wt::log("fatal") << LOGWT_LOGGER << m
+// Wt logger setup.
+#define LOGWT_LOGGER        "Nutpp/main: "
+#define LOGWT_INFO(m)       Wt::log("info") << LOGWT_LOGGER << m
+#define LOGWT_WARN(m)       Wt::log("warning") << LOGWT_LOGGER << m
+#define LOGWT_ERROR(m)      Wt::log("error") << LOGWT_LOGGER << m
+#define LOGWT_FATAL(m)      Wt::log("fatal") << LOGWT_LOGGER << m
 
-/*
- * Create a Connect2UI application for a new web session.
- */
+LOGNUTPP_LOGGER_WS;
+
 namespace {
-/*
- * Instantiates the application.
- */
-std::unique_ptr<Wt::WApplication> createApp(const Wt::WEnvironment &env)
-{
-    LOGWT_INFO("Creating nutpp application");
-    return std::make_unique<nutpp::webserver::NutppUI>(env);
-}
-
-/*
- * Signal handler to trigger log rotation.
- */
+// Catch signals.
 void handleSignals(int signal)
 {
     if (signal == SIGUSR1) {
@@ -65,13 +52,10 @@ void handleSignals(int signal)
     }
 }
 
-/*
- * Catch SIGTSTP, SIGUSR1 & SIGUSR2 signals to trigger reopening
- * of the core and the application logs.
- */
+// Register signal handlers.
 void registerSignals()
 {
-    /* Block other terminal-generated signals while handler runs. */
+    // Block other terminal-generated signals while signal handler runs.
     sigset_t block_mask;
     sigemptyset(&block_mask);
     sigaddset(&block_mask, SIGHUP);
@@ -80,8 +64,8 @@ void registerSignals()
     sigaddset(&block_mask, SIGTERM);
     sigaddset(&block_mask, SIGTSTP);
     sigaddset(&block_mask, SIGUSR1);
-    sigaddset(&block_mask, SIGUSR2);
 
+    // Catch SIGUSR1 signal to trigger reopening of the Wt log.
     struct sigaction action;
     action.sa_handler = handleSignals;
     action.sa_mask = block_mask;
@@ -92,70 +76,60 @@ void registerSignals()
     }
 }
 
-/*
- * One-time initialization.
- */
-void initWebApp()
+// Creates an application instance for a new session.
+std::unique_ptr<Wt::WApplication> createApp(const Wt::WEnvironment &env)
 {
-    LOGWT_INFO("one-time initialization");
-
-    std::string app_dir = Wt::WServer::instance()->appRoot();
-    if (app_dir.back() == '/' || app_dir.back() == '\\') {
-        app_dir.pop_back();
-    }
-
-    std::string log_file;
-    if (nutpp::util::Log::getInstance().initialize(
-            app_dir,
-            nutpp::webserver::silentReadAppStringSetting("loggerConfigName"),
-            log_file))
-    {
-        LOGWT_INFO("Log file location: " << log_file);
-    } else {
-        LOGWT_WARN("Failed to init logger component");
-    }
-
-    /* Handle signals for log rotation. */
-    registerSignals();
-}
-
-/*
- * Release any static resources.
- */
-void cleanupWebApp()
-{
-    nutpp::util::Log::getInstance().shutdown();
+    return std::make_unique<nutpp::webserver::NutppUI>(env);
 }
 } // namespace
 
-/*
- * Configure and run the web server.
- */
+
+// Configure and start the web server.
 int main(int argc, char **argv)
 {
-    try {
-        Wt::WServer server(argv[0]);
+    Wt::WServer server(argv[0]);
 
-        /* Configure the HTTP server. */
+    try {
+        // Init web server.
         server.setServerConfiguration(argc, argv);
 
-        /* Webcfg specific initialization. */
-        initWebApp();
+        // Initialize application logger.
+        nutpp::util::LogInitializer log_init;
+        {
+            std::string app_dir = Wt::WServer::instance()->appRoot();
+            if (app_dir.back() == '/' || app_dir.back() == '\\') {
+                app_dir.pop_back();
+            }
 
-        /* Set application entry points. */
+            std::string log_file;
+            if (log_init.configure(
+                    app_dir,
+                    nutpp::webserver::silentReadAppStringSetting("loggerConfigName"),
+                    log_file))
+            {
+                LOGWT_INFO("Logging set to: " << log_file);
+            } else {
+                LOGWT_WARN("Failed to initialize logging");
+            }
+        }
+
+        // Set signal handlers.
+        registerSignals();
+
+        // Set web contexts.
         server.addEntryPoint(
             Wt::EntryPointType::Application, createApp,
             nutpp::webserver::readAppStringSetting("deploymentURI"));
 
         if (server.start()) {
+            LOGNUTPP_INFO("Web server started");
+
             int sig = Wt::WServer::waitForShutdown();
-            LOGNUTPP_INFO("Shutdown (signal = " << sig << ")");
-            LOGWT_INFO("shutdown (signal = " << sig << ")");
+            LOGNUTPP_INFO("Web server stopped (signal = " << sig << ")");
+            LOGWT_INFO("Web server stopped (signal = " << sig << ")");
             server.stop();
         }
 
-        /* Webcfg specific cleanup. */
-        cleanupWebApp();
         return 0;
     } catch (Wt::WServer::Exception &e) {
         LOGWT_FATAL(e.what());

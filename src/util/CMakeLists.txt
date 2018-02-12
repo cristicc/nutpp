@@ -5,7 +5,7 @@
 set(LIBRARY_NAME "util")
 
 set(LIBRARY_SRCS
-    log.cpp
+    log_initializer.cpp
     string_ops.cpp
 )
 

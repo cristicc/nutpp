@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * @file
+ * @brief Web application UI.
  */
 
 #ifndef NUTPP_WEBSERVER_NUTPPUI_H_
@@ -23,31 +26,30 @@
 
 #include <Wt/WApplication.h>
 
-/*
- * Utility macros
+/**
+ * @brief Gives access to the nutpp::webserver::NutppUI instance
+ * for the current session.
  */
-#define NUTPP_APP ((nutpp::webserver::NutppUI *) wApp)
+#define NUTPP_APP   static_cast<nutpp::webserver::NutppUI*>(wApp)
 
 /**
- * @namespace nutpp
- * @brief Project root namespace.
+ * @brief Namespace for the @e Nutpp application.
  */
 namespace nutpp {
 /**
- * @namespace nutpp::webserver
  * @brief Namespace containing the sources for the webserver component.
  */
 namespace webserver {
-
-/*! \class NutppUI
- *  \brief The Web UI for the Nutpp application.
+/**
+ * @brief Represents an application instance for a single Web session.
  *
- * The class implementing a web user interface for the Nutpp application.
+ * The class implements a Web user interface for the @e Nutpp application.
+ * Each user session of the application has a corresponding NutppUI instance.
  */
 class NutppUI : public Wt::WApplication {
 public:
     /**
-     * @brief Creates an applicaton instance.
+     * @brief Creates an application instance for the current session.
      *
      * @param[in] env Application environment.
      */
@@ -58,7 +60,7 @@ private:
     // Specialization to handle application refresh
     void refresh() override;
 
-    //! Counter used to limit max active sessions.
+    // Counter used to limit max active sessions.
     static int session_cnt;
 };
 } // namespace webserver

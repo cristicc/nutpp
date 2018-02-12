@@ -22,8 +22,11 @@
 
 #include "user.h"
 #include "util/log.h"
+#include "util/log_initializer.h"
 
 #include <iostream>
+
+LOGNUTPP_LOGGER_STORAGE;
 
 namespace db = nutpp::storage;
 
@@ -32,15 +35,16 @@ namespace db = nutpp::storage;
  */
 int main(int argc, char **argv)
 {
-    // Init logger.h
+    // Initialize logging.
+    nutpp::util::LogInitializer log_init;
     std::string log_file;
-    if (nutpp::util::Log::getInstance()
-        .initialize(".", "log4cplus.properties", log_file))
-    {
-        std::cerr << "Log file location: " << log_file << std::endl;
+    if (log_init.configure(".", "log4cplus.properties", log_file)) {
+        std::cerr << "Logging set to: " << log_file << std::endl;
+    } else {
+        std::cerr << "Failed to initialize logging" << std::endl;
     }
 
-    //TODO: design db classes to hide Wt::Dbo API from user
+    // TODO: design db classes to remove Wt::Dbo objects from the API
     LOGNUTPP_INFO("Initializing db connection");
     db::DbModel model("test.db", 1);
 
@@ -68,22 +72,22 @@ int main(int argc, char **argv)
     Wt::Dbo::ptr<db::User> userPtr = session.add(std::move(user));
 
     // Save session.
-//    try {
-//        Dbo::Transaction t(*dbSession_);
-//        dbSession_->flush();
-//        return t.commit();
-//    } catch (Dbo::Exception &e) {
-//        LOGCNT_ERROR("Dbo exception on TIQCon DB session save: " << e.what());
-//        return false;
-//    }
+// try {
+// Dbo::Transaction t(*dbSession_);
+// dbSession_->flush();
+// return t.commit();
+// } catch (Dbo::Exception &e) {
+// LOGCNT_ERROR("Dbo exception on TIQCon DB session save: " << e.what());
+// return false;
+// }
 
     // Cancel session.
-//    try {
-//        dbSession_->rereadAll();
-//    } catch (Dbo::Exception &e) {
-//        LOGCNT_ERROR("Dbo exception on TIQCon DB session cancel: " << e.what());
-//        return false;
-//    }
+// try {
+// dbSession_->rereadAll();
+// } catch (Dbo::Exception &e) {
+// LOGCNT_ERROR("Dbo exception on TIQCon DB session cancel: " << e.what());
+// return false;
+// }
 
     return 0;
 }

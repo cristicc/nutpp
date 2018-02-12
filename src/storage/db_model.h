@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * @file
+ * @brief Database model.
  */
 
 #ifndef NUTPP_STORAGE_DB_MODEL_H_
@@ -26,12 +29,10 @@
 
 namespace nutpp {
 /**
- * @namespace nutpp::storage
  * @brief Namespace containing the sources for the data persistence component.
  */
 namespace storage {
 /**
- * @class DbModel
  * @brief Implements a model for database persistence.
  */
 class DbModel {
@@ -48,7 +49,7 @@ public:
 
     /**
      * @brief Creates a database session using a connection from the pool.
-     * @param[out] The new database session.
+     * @param[out] session The new database session.
      */
     void newSession(Wt::Dbo::Session &session);
 

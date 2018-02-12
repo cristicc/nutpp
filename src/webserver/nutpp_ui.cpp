@@ -33,6 +33,8 @@
 #include <Wt/WTemplate.h>
 #include <Wt/WText.h>
 
+LOGNUTPP_LOGGER_WS;
+
 namespace nutpp {
 namespace webserver {
 int NutppUI::session_cnt = 0;
@@ -52,7 +54,7 @@ NutppUI::NutppUI(const Wt::WEnvironment &_env)
         return;
     }
 
-    LOGNUTPP_DEBUG("Created session: " << sessionId());
+    LOGNUTPP_DEBUG("Creating app for session: " << sessionId());
 
     // Set theme (default, polished)
     setCssTheme("polished");
@@ -93,7 +95,7 @@ NutppUI::NutppUI(const Wt::WEnvironment &_env)
 // Destroys web app.
 NutppUI::~NutppUI()
 {
-    LOGNUTPP_DEBUG("Destroyed session: " << sessionId());
+    LOGNUTPP_DEBUG("Destroyed app for session: " << sessionId());
 
     --NutppUI::session_cnt;
 }

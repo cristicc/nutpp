@@ -25,6 +25,8 @@
 #include <Wt/Dbo/backend/Sqlite3.h>
 #include <Wt/Dbo/FixedSqlConnectionPool.h>
 
+LOGNUTPP_LOGGER_STORAGE;
+
 namespace nutpp {
 namespace storage {
 // Constructor.
