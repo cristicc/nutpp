@@ -28,66 +28,58 @@
 
 LOGNUTPP_LOGGER_STORAGE;
 
-namespace db = nutpp::storage;
+namespace storage = nutpp::storage;
+namespace dbo = Wt::Dbo;
 
-/*
- * Utility to perform database operations.
- */
-int main(int argc, char **argv)
+// Utility to perform database operations.
+int main(int /*argc*/, char ** /*argv*/)
 {
     // Initialize logging.
-    nutpp::util::LogInitializer log_init;
+    nutpp::util::LogInitializer log_init(log4cplus::DEBUG_LOG_LEVEL);
+
     std::string log_file;
-    if (log_init.configure(".", "log4cplus.properties", log_file)) {
-        std::cerr << "Logging set to: " << log_file << std::endl;
-    } else {
+    if (!log_init.configure("log4cplus.properties", ".")) {
         std::cerr << "Failed to initialize logging" << std::endl;
     }
 
-    // TODO: design db classes to remove Wt::Dbo objects from the API
-    LOGNUTPP_INFO("Initializing db connection");
-    db::DbModel model("test.db", 1);
+    LOGNUTPP_INFO("Initializing db model");
+    storage::DbModel model("test.db", 1);
 
-    Wt::Dbo::Session session;
-    model.newSession(session);
-    try {
-        session.mapClass<db::User>("user");
-    } catch (Wt::Dbo::Exception &e) {
-        LOGNUTPP_ERROR("Dbo exception model init: " << e.what());
+    // Create DB.
+    if (!model.createSchema()) {
+        LOGNUTPP_FATAL("Database corrupted or not accessible");
         return 1;
     }
 
-    // Try to create the schema (will fail if already exists).
-    session.createTables();
+    const storage::DbModel &cmodel = model;
+
+    dbo::Session s1;
+    cmodel.initSession(s1);
+
+    LOGNUTPP_DEBUG("DB SQL: " << s1.tableCreationSql());
 
     // Add an entry.
-    Wt::Dbo::Transaction transaction(session);
-
-    auto user = std::make_unique<db::User>();
+    auto user = std::make_unique<storage::User>();
     user->name = "Joe Doe";
     user->email = "joe.doe@gmail.com";
     user->passwd = "Secret";
-    user->role = db::UserRole::GUEST;
+    user->role = storage::UserRole::GUEST;
 
-    Wt::Dbo::ptr<db::User> userPtr = session.add(std::move(user));
+    dbo::ptr<storage::User> userPtr = s1.add(std::move(user));
 
-    // Save session.
-// try {
-// Dbo::Transaction t(*dbSession_);
-// dbSession_->flush();
-// return t.commit();
-// } catch (Dbo::Exception &e) {
-// LOGCNT_ERROR("Dbo exception on TIQCon DB session save: " << e.what());
-// return false;
-// }
+    // Save db.
+    cmodel.saveSession(s1);
 
-    // Cancel session.
-// try {
-// dbSession_->rereadAll();
-// } catch (Dbo::Exception &e) {
-// LOGCNT_ERROR("Dbo exception on TIQCon DB session cancel: " << e.what());
-// return false;
-// }
+    // Verify
+    dbo::Session s2;
+    cmodel.initSession(s2);
+    dbo::Transaction t(s2);
+    int count = s2.query<int>(
+        std::string("select count(1) from ") + storage::User::kTableName);
+    LOGNUTPP_INFO("Total users: " << count);
+
+    // Discard changes.
+    // cmodel.discardSession(session);
 
     return 0;
 }

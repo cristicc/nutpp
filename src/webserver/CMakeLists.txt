@@ -9,6 +9,7 @@ set(WEBSERVER_SRCS
 )
 
 set(WEBSERVER_LIBS
+    ${PROJECT_NAME}-storage
     ${PROJECT_NAME}-util
     ${LOG4CPLUS_LIBRARIES}
     Wt::HTTP

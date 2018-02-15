@@ -21,13 +21,15 @@
 #include "nutpp_ui.h"
 
 #include "settings.h"
+#include "storage/db_model.h"
 #include "util/log.h"
 
+#include <atomic>
 #include <unistd.h>
 
 #include <Wt/WEnvironment.h>
 #include <Wt/WOverlayLoadingIndicator.h>
-// TEST
+// TODO: TEST only
 #include <Wt/WLineEdit.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WTemplate.h>
@@ -37,14 +39,33 @@ LOGNUTPP_LOGGER_WS;
 
 namespace nutpp {
 namespace webserver {
-int NutppUI::session_cnt = 0;
+/**
+ * @brief Hides the implementation details from the NutppUI API.
+ */
+class NutppUI::NutppUIImpl {
+private:
+    // Counter used to limit max active sessions.
+    static std::atomic<int> session_cnt;
+
+    // Grants access to all resources.
+    friend class NutppUI;
+};
+
+std::atomic<int> NutppUI::NutppUIImpl::session_cnt = { 0 };
 
 // Creates web app.
-NutppUI::NutppUI(const Wt::WEnvironment &_env)
-    : WApplication(_env)
+NutppUI::NutppUI(const Wt::WEnvironment &env, const storage::DbModel &db_model)
+    : WApplication(env),
+    impl_(std::make_unique<NutppUI::NutppUIImpl>()),
+    db_model_(db_model)
 {
-    if (++session_cnt > readAppIntSetting("maxWebSessions")) {
-        LOGNUTPP_WARN("Reached max allowed web sessions: " << session_cnt);
+    // Relaxed memory order constraint is fine since there is not data sync
+    // involved in the usage of session_cnt.
+    if (impl_->session_cnt.fetch_add(1, std::memory_order_relaxed)
+        >= readAppIntSetting("maxWebSessions"))
+    {
+        LOGNUTPP_WARN(
+            "Reached max allowed web sessions: " << impl_->session_cnt);
 
         // TODO: design error page
         // app->redirect("error.html");
@@ -79,7 +100,7 @@ NutppUI::NutppUI(const Wt::WEnvironment &_env)
     root()->addWidget(
         std::make_unique<Wt::WText>("Welcome to NUTPP"));
     auto t = root()->addWidget(std::make_unique<Wt::WTemplate>(
-        Wt::WString::tr("test-template")));
+                                   Wt::WString::tr("test-template")));
 
     t->bindWidget("name-edit", std::make_unique<Wt::WLineEdit>());
     t->bindWidget("save-button", std::make_unique<Wt::WPushButton>("Save"));
@@ -96,8 +117,7 @@ NutppUI::NutppUI(const Wt::WEnvironment &_env)
 NutppUI::~NutppUI()
 {
     LOGNUTPP_DEBUG("Destroyed app for session: " << sessionId());
-
-    --NutppUI::session_cnt;
+    impl_->session_cnt.fetch_sub(1, std::memory_order_relaxed);
 }
 
 // Refreshes web app.

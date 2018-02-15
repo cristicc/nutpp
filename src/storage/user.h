@@ -46,6 +46,9 @@ enum class UserRole {
  */
 class User {
 public:
+    /// The name of the DB table mapped to this class.
+    static constexpr const char *kTableName = "user";
+
     /// Full user name.
     std::string name;
     /// Email address (also used for account identification).

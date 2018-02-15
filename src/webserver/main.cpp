@@ -21,8 +21,10 @@
 #include "nutpp_ui.h"
 
 #include "settings.h"
+#include "storage/db_model.h"
 #include "util/log.h"
 #include "util/log_initializer.h"
+#include "util/string_ops.h"
 
 #include <signal.h>
 #include <string.h>
@@ -37,7 +39,11 @@
 
 LOGNUTPP_LOGGER_WS;
 
+namespace nutpp {
 namespace {
+// Shared DB model instance.
+storage::DbModel db_model;
+
 // Catch signals.
 void handleSignals(int signal)
 {
@@ -79,46 +85,57 @@ void registerSignals()
 // Creates an application instance for a new session.
 std::unique_ptr<Wt::WApplication> createApp(const Wt::WEnvironment &env)
 {
-    return std::make_unique<nutpp::webserver::NutppUI>(env);
+    return std::make_unique<nutpp::webserver::NutppUI>(env, db_model);
 }
 } // namespace
+} // namespace nutpp
 
 
 // Configure and start the web server.
 int main(int argc, char **argv)
 {
+    nutpp::util::LogInitializer log_init;
     Wt::WServer server(argv[0]);
 
     try {
         // Init web server.
         server.setServerConfiguration(argc, argv);
 
-        // Initialize application logger.
-        nutpp::util::LogInitializer log_init;
-        {
-            std::string app_dir = Wt::WServer::instance()->appRoot();
-            if (app_dir.back() == '/' || app_dir.back() == '\\') {
-                app_dir.pop_back();
-            }
+        // Get app root dir.
+        std::string app_dir = Wt::WServer::instance()->appRoot();
+        if (app_dir.back() == '/' || app_dir.back() == '\\') {
+            app_dir.pop_back();
+        }
 
-            std::string log_file;
-            if (log_init.configure(
-                    app_dir,
-                    nutpp::webserver::silentReadAppStringSetting("loggerConfigName"),
-                    log_file))
-            {
-                LOGWT_INFO("Logging set to: " << log_file);
-            } else {
-                LOGWT_WARN("Failed to initialize logging");
-            }
+        // Initialize application logger.
+        if (!log_init.configure(
+                nutpp::util::sanitizeFilePath(
+                    nutpp::webserver::silentReadAppStringSetting(
+                        "log4cplusConfig"),
+                    app_dir),
+                app_dir))
+        {
+            LOGWT_WARN("Failed to initialize logging");
         }
 
         // Set signal handlers.
-        registerSignals();
+        nutpp::registerSignals();
+
+        // Initialize database.
+        if (!nutpp::db_model.initialize(
+                nutpp::util::sanitizeFilePath(
+                    nutpp::webserver::readAppStringSetting("sqlite3Db"),
+                    app_dir),
+                nutpp::webserver::readAppIntSetting("maxDbConnections"))
+            || !nutpp::db_model.createSchema())
+        {
+            LOGNUTPP_FATAL("Database corrupted or not accessible");
+            return 1;
+        }
 
         // Set web contexts.
         server.addEntryPoint(
-            Wt::EntryPointType::Application, createApp,
+            Wt::EntryPointType::Application, nutpp::createApp,
             nutpp::webserver::readAppStringSetting("deploymentURI"));
 
         if (server.start()) {
@@ -131,9 +148,9 @@ int main(int argc, char **argv)
         }
 
         return 0;
-    } catch (Wt::WServer::Exception &e) {
+    } catch (const Wt::WServer::Exception &e) {
         LOGWT_FATAL(e.what());
-    } catch (std::exception &e) {
+    } catch (const std::exception &e) {
         LOGWT_FATAL("exception: " << e.what());
     }
 

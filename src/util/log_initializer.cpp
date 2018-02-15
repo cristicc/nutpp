@@ -36,8 +36,9 @@ struct LogInitializer::LogInitializerImpl {
 };
 
 // C-tor.
-LogInitializer::LogInitializer()
-    : impl_(std::make_unique<LogInitializer::LogInitializerImpl>())
+LogInitializer::LogInitializer(log4cplus::LogLevel level)
+    : consoleLogLevel_(level),
+    impl_(std::make_unique<LogInitializer::LogInitializerImpl>())
 {}
 
 // Destructor in .cpp required by unique_ptr to avoid incomplete type errors.
@@ -45,16 +46,14 @@ LogInitializer::~LogInitializer() = default;
 
 // Initialize Log with the provided configuration file
 bool LogInitializer::configure(
-    const std::string &app_dir,
-    const std::string &log_cfg, std::string &log_file)
+    const std::string &log_cfg,
+    const std::string &app_dir)
 {
     try {
         // Load static configuration.
-        log4cplus::helpers::Properties properties(app_dir + "/" + log_cfg);
+        log4cplus::helpers::Properties properties(log_cfg);
 
-        // Apply dynamic configuration.
-        // ${AppDir} placeholder can be used in the logger configuration to
-        // to set the log file location relative to the installation directory.
+        // Apply dynamic configuration - replace ${AppDir}.
         properties.setProperty(LOG4CPLUS_TEXT("AppDir"), app_dir);
 
         // Configure logger.
@@ -63,10 +62,7 @@ bool LogInitializer::configure(
             log4cplus::PropertyConfigurator::fShadowEnvironment);
         prop_conf.configure();
 
-        if (log4cplus::Logger::exists(LOG4CPLUS_TEXT("CORE"))) {
-            log_file = prop_conf.getProperties()
-                       .getProperty(LOG4CPLUS_TEXT("appender.CORE.File"));
-        } else {
+        if (!log4cplus::Logger::exists(LOG4CPLUS_TEXT("CORE"))) {
             // Enable logging to stderr.
             log4cplus::SharedAppenderPtr console(
                 new log4cplus::ConsoleAppender(true));
@@ -74,8 +70,9 @@ bool LogInitializer::configure(
                 std::make_unique<log4cplus::PatternLayout>(
                     kDefaultConsoleLogPattern));
             log4cplus::Logger::getRoot().addAppender(console);
-            log4cplus::Logger::getRoot().setLogLevel(kDefaultConsoleLogLevel);
-            log_file = "stderr";
+            log4cplus::Logger::getRoot().setLogLevel(consoleLogLevel_);
+            std::cerr << "Core logger not found, using default"
+                      << " console appender to stderr" << std::endl;
         }
 
         return true;

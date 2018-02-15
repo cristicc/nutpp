@@ -43,12 +43,19 @@ namespace util {
  * @warning Make sure the class instance is preserved during the entire
  * execution time of the application.
  *
- * @see log4cplus::Initialize for more details about the logger init process.
+ * @see @c log4cplus::Initialize for more details about the logger init process.
  */
 class LogInitializer {
 public:
-    /// Constructor.
-    LogInitializer();
+    /**
+     * @brief Creates a logger initializer instance.
+     * @param[in] console_log_level The log level to be used by the
+     * default console appender created by configure().
+     *
+     * @sa configure()
+     */
+    LogInitializer(
+        log4cplus::LogLevel console_log_level = kDefaultConsoleLogLevel);
 
     /// Copy constructor not allowed.
     LogInitializer(LogInitializer const &) = delete;
@@ -66,20 +73,32 @@ public:
     /**
      * @brief Initializes this instance of @c Log.
      *
+     * The logger is configured using the settings written in a configuration
+     * file, which is typically @e log4cplus.properties. If, for various
+     * reasons, the application logger cannot be set up, a default
+     * configuration is dynamically created using a default console appender.
+     *
+     * The log level for the default configuration can be changed via
+     * the @p console_log_level parameter of the class constructor.
+     *
+     * The @p app_dir parameter is only needed if the logger configuration
+     * uses the ${AppDir} placeholder to set appender log file location
+     * relative to the installation directory.
+     *
+     * @param[in] log_cfg Path of the log4cplus configuration file.
      * @param[in] app_dir Path to the application root folder.
-     * @param[in] log_cfg Path of the log4cplus configuration file,
-     * relative to @c app_dir.
-     * @param[out] log_file Path to the application log file.
      *
      * @return @c true if the initialization succeeded and the path of
      * the log file stored in @c log_file.
      *
-     * @warning This function should be called only once at the very beginning
-     * of the main application logic, before using any of the logging macros.
+     * @warning This function should be called once at the very beginning
+     * of the main application logic, before using the logger macros defined
+     * in log.h.
+     *
+     * @sa LogInitializer(log4cplus::LogLevel)
      */
-    bool configure(const std::string &app_dir,
-                   const std::string &log_cfg,
-                   std::string &log_file);
+    bool configure(const std::string &log_cfg,
+                   const std::string &app_dir);
 
     /// Default logging pattern for the console appender.
     static constexpr const char *kDefaultConsoleLogPattern
@@ -90,6 +109,8 @@ public:
         = log4cplus::INFO_LOG_LEVEL;
 
 private:
+    log4cplus::LogLevel consoleLogLevel_;
+
     // Hide implementation details.
     struct LogInitializerImpl;
     std::unique_ptr<LogInitializerImpl> impl_;

@@ -9,6 +9,46 @@ APP_PATH=${BUILD_PATH}/nutpp
 DIST_PATH=${BUILD_PATH}/dist
 SRV_PATH=${APP_PATH}/run
 
+# Parse arguments
+while [ $# -gt 0 ]; do
+    arg=$1
+    shift
+
+    case "${arg}" in
+    clean)
+        rm -rf "${SRV_PATH}"
+        ;;
+
+    debug)
+        # GLib has a few features that confuse Valgrind.
+        # 1. memory pools (g_slice in newer glib, "mem chunks" in older).
+        #    These are specialized allocators used for small objects such as list nodes.
+        #    Use G_SLICE=always-malloc to disable the slice allocator.
+        # 2. Sometimes GLib would avoid initializing new memory or keep dead pointers in
+        #    freed slices/chunks. Fix with G_DEBUG=gc-friendly
+        START_CMD="G_SLICE=always-malloc G_DEBUG=gc-friendly"
+
+        # Valgrind configuration
+        START_CMD+=" valgrind "
+        START_CMD+=" --tool=memcheck --leak-check=full --leak-resolution=high"
+        START_CMD+=" --vgdb=no --num-callers=40"
+        for supf in $(ls ${RUN_PATH}/valgrind/); do
+            START_CMD+=" --suppressions=${RUN_PATH}/valgrind/${supf}"
+        done
+        START_CMD+=" --log-file=${SRV_PATH}/valgrind.log"
+        #START_CMD+=" --trace-children=yes"
+        #START_CMD+=" --read-var-info=yes"
+        START_CMD+=" --track-origins=yes"
+        #START_CMD+=" --show-reachable=yes"
+        ;;
+
+    *)
+        printf "Invalid argument: %s\n" "${arg}"
+        exit 1
+        ;;
+    esac
+done
+
 [ -d ${SRV_PATH} ] || {
     # Install default configuration.
     mkdir -p ${SRV_PATH}/web
@@ -22,30 +62,7 @@ SRV_PATH=${APP_PATH}/run
     done
     cp -f ${RUN_PATH}/../conf/*.properties ${SRV_PATH}/conf/
 
-    mkdir -p ${SRV_PATH}/log
-}
-
-[ "$1" = "debug" ] && {
-    # GLib has a few features that confuse Valgrind.
-    # 1. memory pools (g_slice in newer glib, "mem chunks" in older).
-    #    These are specialized allocators used for small objects such as list nodes.
-    #    Use G_SLICE=always-malloc to disable the slice allocator.
-    # 2. Sometimes GLib would avoid initializing new memory or keep dead pointers in
-    #    freed slices/chunks. Fix with G_DEBUG=gc-friendly
-    START_CMD="G_SLICE=always-malloc G_DEBUG=gc-friendly"
-
-    # Valgrind configuration
-    START_CMD+=" valgrind "
-    START_CMD+=" --tool=memcheck --leak-check=full --leak-resolution=high"
-    START_CMD+=" --vgdb=no --num-callers=40"
-    for supf in $(ls ${RUN_PATH}/valgrind/); do
-        START_CMD+=" --suppressions=${RUN_PATH}/valgrind/${supf}"
-    done
-    START_CMD+=" --log-file=${SRV_PATH}/valgrind.log"
-    #START_CMD+=" --trace-children=yes"
-    #START_CMD+=" --read-var-info=yes"
-    START_CMD+=" --track-origins=yes"
-    #START_CMD+=" --show-reachable=yes"
+    mkdir -p ${SRV_PATH}/log ${SRV_PATH}/db
 }
 
 # Enable webui local configuration

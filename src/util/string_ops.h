@@ -29,18 +29,32 @@
 namespace nutpp {
 namespace util {
 /**
- * @brief Performs an inline replacement of all occurrences of a string
- * with another string.
+ * @brief Replaces all occurrences of a string with another string.
  *
- * @param[in,out] context The text to work on.
+ * @param[in] context The text to work on.
  * @param[in] from The string to be replaced.
  * @param[in] to The string to be used as replacement.
  *
- * @return The resulted text, which is actually the @c context.
+ * @return The resulting string.
  */
-std::string &replaceAll(std::string &context,
-                        const std::string &from,
-                        const std::string &to);
+std::string replaceAll(const std::string &context,
+                       const std::string &from,
+                       const std::string &to);
+
+/**
+ * @brief Performs a transformation of a relative file path into
+ * an absolute one.
+ *
+ * If the given \a path is a relative one, the prefix @p root is added
+ * to form an absolute path, otherwise no operation is performed.
+ *
+ * @param[in] path The file path to be processed.
+ * @param[in] root The prefix to be added to relative paths.
+ *
+ * @return The transformed path.
+ */
+std::string sanitizeFilePath(const std::string &path,
+                             const std::string &root);
 } // namespace util
 } // namespace nutpp
 #endif /* NUTPP_UTIL_STRINGOPS_H_ */

@@ -38,24 +38,76 @@ namespace storage {
 class DbModel {
 public:
     /**
-     * @brief Initializes the DB model.
+     * @brief Creates an uninitialized DB model instance.
+     * @sa initialize()
+     */
+    DbModel();
+
+    /**
+     * @brief Creates an initialized the DB model instance.
      * @param[in] db_file_path Path to a sqlite3 file.
      * @param[in] max_conn Max no. of connections in the pool.
      */
     DbModel(const std::string &db_file_path, int max_conn);
 
-    // Destructor.
+    /// Destructor.
     ~DbModel();
 
     /**
-     * @brief Creates a database session using a connection from the pool.
-     * @param[out] session The new database session.
+     * @brief Initialized the current DB model instance.
+     * @param[in] db_file_path Path to a sqlite3 file.
+     * @param[in] max_conn Max no. of connections in the pool.
      */
-    void newSession(Wt::Dbo::Session &session);
+    bool initialize(const std::string &db_file_path, int max_conn);
+
+    /**
+     * @brief Creates the database schema.
+     *
+     * The method verifies if the user table exists and attempts to create
+     * all the necessary objects, including a default user account with
+     * administrative role.
+     *
+     * @param[in] force Enables a database reset by deleting all tables
+     * followed by their re-creation.
+     * @return @c false if errors occurred, or @c true otherwise.
+     */
+    bool createSchema(bool force = false);
+
+    /**
+     * @brief Initializes a database session using a connection from the pool.
+     * @param[in,out] session The uninitialized database session.
+     * @return @c false if errors occurred, or @c true otherwise.
+     */
+    bool initSession(Wt::Dbo::Session &session) const;
+
+    /**
+     * @brief Saves the given database session.
+     * @param[in,out] session The database session.
+     * @return @c false if errors occurred, or @c true otherwise.
+     */
+    bool saveSession(Wt::Dbo::Session &session) const;
+
+    /**
+     * @brief Discards the given session.
+     *
+     * Rereads all objects from the database, possibly discarding unflushed
+     * modifications.
+     *
+     * @param[in,out] session The database session.
+     * @param[in] tableName If specified, only the objects of that table are
+     * reread.
+     * @return @c false if errors occurred, or @c true otherwise.
+     */
+    bool discardSession(Wt::Dbo::Session &session,
+                        const char *tableName = nullptr) const;
 
 private:
-    std::string db_file_path_;
-    int max_conn_;
+    // Returns the no. of user accounts or -1 in case of errors.
+    int getUserCount() const;
+
+    // Creates default admin account.
+    bool createDefaultUser();
+
     // Provides a connection pool for the application DB.
     std::unique_ptr<Wt::Dbo::SqlConnectionPool> conn_pool_;
 };

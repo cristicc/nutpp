@@ -23,19 +23,30 @@
 namespace nutpp {
 namespace util {
 // Text replacement utility.
-std::string &replaceAll(std::string &context,
-                        const std::string &from,
-                        const std::string &to)
+std::string replaceAll(const std::string &context,
+                       const std::string &from,
+                       const std::string &to)
 {
     std::size_t lookHere = 0;
     std::size_t foundHere;
 
-    while ((foundHere = context.find(from, lookHere)) != std::string::npos) {
-        context.replace(foundHere, from.size(), to);
+    std::string result = context;
+    while ((foundHere = result.find(from, lookHere)) != std::string::npos) {
+        result.replace(foundHere, from.size(), to);
         lookHere = foundHere + to.size();
     }
 
-    return context;
+    return result;
+}
+
+// Transforms a relative file path into an absolute one.
+std::string sanitizeFilePath(const std::string &path, const std::string &root)
+{
+    if (!path.empty() && path[0] != '/') {
+        return root + "/" + path;
+    }
+
+    return path;
 }
 } // namespace util
 } // namespace nutpp

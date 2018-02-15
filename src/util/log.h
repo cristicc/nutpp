@@ -27,7 +27,7 @@
 #include <log4cplus/loggingmacros.h>
 
 /**
- * @brief Enables the usage of the logger for the given module @a m
+ * @brief Enables the usage of the logger for the given module @p m
  * in the source file where it is present.
  *
  * The module name should be registered in the app logger configuration,
@@ -39,9 +39,9 @@
  * @endcode
  */
 #define LOGNUTPP_LOGGER(m) \
-    namespace nutpp { \
-    static log4cplus::Logger logger = log4cplus::Logger::getInstance(m); \
-    }
+    namespace nutpp { namespace { \
+        auto logger = log4cplus::Logger::getInstance(m); \
+    }}
 
 /**
  * @brief Enables the usage of the @e Webserver module logger
@@ -95,9 +95,9 @@
 #define LOGNUTPP_FATAL(logEvent) LOG4CPLUS_FATAL(nutpp::logger, logEvent)
 
 /**
- * @brief Evaluates to @c true if DEBUG level is enabled in the
+ * @brief Evaluates to @c true if TRACE level is enabled in the
  * active logger.
  */
-#define LOGNUTPP_DEBUG_ENABLED \
-    nutpp::logger.isEnabledFor(log4cplus::DEBUG_LOG_LEVEL)
+#define LOGNUTPP_TRACE_ENABLED \
+    nutpp::logger.isEnabledFor(log4cplus::TRACE_LOG_LEVEL)
 #endif /* NUTPP_UTIL_LOG_H_ */

@@ -27,15 +27,26 @@
 #include <Wt/WApplication.h>
 
 /**
- * @brief Gives access to the nutpp::webserver::NutppUI instance
+ * @brief Macro to access the nutpp::webserver::NutppUI instance
  * for the current session.
  */
-#define NUTPP_APP   static_cast<nutpp::webserver::NutppUI*>(wApp)
+#define NUTPP_APP   static_cast<nutpp::webserver::NutppUI *>(wApp)
+
+/**
+ * @brief Macro to access the nutpp::webserver::NutppUI instance
+ * for the current session.
+ */
+#define NUTPP_DB    NUTPP_APP->getDbModel()
 
 /**
  * @brief Namespace for the @e Nutpp application.
  */
 namespace nutpp {
+namespace storage {
+// Fwd declaration.
+class DbModel;
+} // namespace storage
+
 /**
  * @brief Namespace containing the sources for the webserver component.
  */
@@ -52,16 +63,27 @@ public:
      * @brief Creates an application instance for the current session.
      *
      * @param[in] env Application environment.
+     * @param[in] db_model
      */
-    NutppUI(const Wt::WEnvironment &env);
+    NutppUI(const Wt::WEnvironment &env, const storage::DbModel &db_model);
     ~NutppUI();
+
+    /**
+     * @brief Gets access to the DB model instance.
+     * @return The DB model instance shared between all web sessions.
+     */
+    const storage::DbModel &getDbModel() { return db_model_; }
 
 private:
     // Specialization to handle application refresh
     void refresh() override;
 
-    // Counter used to limit max active sessions.
-    static int session_cnt;
+    // Hide implementation details.
+    class NutppUIImpl;
+    std::unique_ptr<NutppUIImpl> impl_;
+
+    // Reference to the shared DB model instance.
+    const storage::DbModel &db_model_;
 };
 } // namespace webserver
 } // namespace nutpp
