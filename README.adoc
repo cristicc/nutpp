@@ -35,3 +35,15 @@ building and installing the application on the build platform. Additionally,
 if provides instructions on how to create a distributable package.
 
 TODO
+
+=== Enable Google OAuth2
+
+To use OAuth service for Google as third-party authenticator, follow the
+steps bellow:
+
+* Create a new project for nutpp application on:
+    https://console.developers.google.com
+
+* Create `OAuth 2.0 client ID` credential for application type `Web Application`
+ - Note the generated `Client ID` and `Client secret`
+ - Authorized redirect URIs: http://localhost:8080/google-oauth2callback

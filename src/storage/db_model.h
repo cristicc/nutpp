@@ -32,6 +32,8 @@ namespace nutpp {
  * @brief Namespace containing the sources for the data persistence component.
  */
 namespace storage {
+// FIXME: some methods could be static
+
 /**
  * @brief Implements a model for database persistence.
  */
@@ -76,9 +78,10 @@ public:
     /**
      * @brief Initializes a database session using a connection from the pool.
      * @param[in,out] session The uninitialized database session.
+     * @param[in] auth_only Only maps the classes relevant for authentication.
      * @return @c false if errors occurred, or @c true otherwise.
      */
-    bool initSession(Wt::Dbo::Session &session) const;
+    bool initSession(Wt::Dbo::Session &session, bool auth_only = false) const;
 
     /**
      * @brief Saves the given database session.
@@ -113,4 +116,4 @@ private:
 };
 } // namespace storage
 } // namespace nutpp
-#endif /* NUTPP_STORAGE_DB_MODEL_H_ */
+#endif // NUTPP_STORAGE_DB_MODEL_H_

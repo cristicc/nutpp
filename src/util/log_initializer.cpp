@@ -44,7 +44,7 @@ LogInitializer::LogInitializer(log4cplus::LogLevel level)
 // Destructor in .cpp required by unique_ptr to avoid incomplete type errors.
 LogInitializer::~LogInitializer() = default;
 
-// Initialize Log with the provided configuration file
+// Initialize Log with the provided configuration file.
 bool LogInitializer::configure(
     const std::string &log_cfg,
     const std::string &app_dir)

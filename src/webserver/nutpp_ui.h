@@ -29,12 +29,18 @@
 /**
  * @brief Macro to access the nutpp::webserver::NutppUI instance
  * for the current session.
+ *
+ * @warning To be used only after the NutppUI instance has been created,
+ * so NOT during the execution of the NutppUI constructor.
  */
 #define NUTPP_APP   static_cast<nutpp::webserver::NutppUI *>(wApp)
 
 /**
  * @brief Macro to access the nutpp::webserver::NutppUI instance
  * for the current session.
+ *
+ * @warning To be used only after the NutppUI instance has been created,
+ * so NOT during the execution of the NutppUI constructor.
  */
 #define NUTPP_DB    NUTPP_APP->getDbModel()
 
@@ -51,6 +57,26 @@ class DbModel;
  * @brief Namespace containing the sources for the webserver component.
  */
 namespace webserver {
+// TODO: move this to a separate file and class, with getters.
+
+/**
+ * @brief Holds information related to the application runtime environment.
+ */
+struct NutppRuntime {
+    /**
+     * @brief Creates a runtime instance.
+     */
+    NutppRuntime(
+        const Wt::WEnvironment &env,
+        const storage::DbModel &model);
+
+    /// Reference to the Wt application environment.
+    const Wt::WEnvironment &env_;
+
+    /// Reference to the database model that includes a connection pool.
+    const storage::DbModel &db_model_;
+};
+
 /**
  * @brief Represents an application instance for a single Web session.
  *
@@ -62,17 +88,16 @@ public:
     /**
      * @brief Creates an application instance for the current session.
      *
-     * @param[in] env Application environment.
-     * @param[in] db_model
+     * @param[in] runtime Application runtime.
      */
-    NutppUI(const Wt::WEnvironment &env, const storage::DbModel &db_model);
+    NutppUI(const NutppRuntime &runtime);
     ~NutppUI();
 
     /**
      * @brief Gets access to the DB model instance.
      * @return The DB model instance shared between all web sessions.
      */
-    const storage::DbModel &getDbModel() { return db_model_; }
+    const storage::DbModel &getDbModel();
 
 private:
     // Specialization to handle application refresh
@@ -81,10 +106,7 @@ private:
     // Hide implementation details.
     class NutppUIImpl;
     std::unique_ptr<NutppUIImpl> impl_;
-
-    // Reference to the shared DB model instance.
-    const storage::DbModel &db_model_;
 };
 } // namespace webserver
 } // namespace nutpp
-#endif /* NUTPP_WEBSERVER_NUTPPUI_H_ */
+#endif // NUTPP_WEBSERVER_NUTPPUI_H_

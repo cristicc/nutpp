@@ -9,13 +9,9 @@ set(WEBSERVER_SRCS
 )
 
 set(WEBSERVER_LIBS
-    ${PROJECT_NAME}-storage
-    ${PROJECT_NAME}-util
-    ${LOG4CPLUS_LIBRARIES}
+    ${PROJECT_NAME}-auth
     Wt::HTTP
 )
-
-include_directories(.)
 
 add_executable(${WEBSERVER_COMPONENT} ${WEBSERVER_SRCS})
 target_link_libraries(${WEBSERVER_COMPONENT} ${WEBSERVER_LIBS})

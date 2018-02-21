@@ -21,18 +21,17 @@
 #include "nutpp_ui.h"
 
 #include "settings.h"
+#include "auth/auth_widget.h"
+#include "auth/login_session.h"
 #include "storage/db_model.h"
 #include "util/log.h"
 
 #include <atomic>
 #include <unistd.h>
 
-#include <Wt/WEnvironment.h>
+#include "Wt/Auth/PasswordService.h"
+#include <Wt/WBootstrapTheme.h>
 #include <Wt/WOverlayLoadingIndicator.h>
-// TODO: TEST only
-#include <Wt/WLineEdit.h>
-#include <Wt/WPushButton.h>
-#include <Wt/WTemplate.h>
 #include <Wt/WText.h>
 
 LOGNUTPP_LOGGER_WS;
@@ -43,9 +42,17 @@ namespace webserver {
  * @brief Hides the implementation details from the NutppUI API.
  */
 class NutppUI::NutppUIImpl {
+public:
+    // C-tor.
+    NutppUIImpl(const NutppRuntime &runtime);
+
 private:
     // Counter used to limit max active sessions.
     static std::atomic<int> session_cnt;
+    // Reference to the shared DB model instance.
+    const storage::DbModel &db_model_;
+    // Handler for user authentication.
+    auth::LoginSession login_session_;
 
     // Grants access to all resources.
     friend class NutppUI;
@@ -53,11 +60,24 @@ private:
 
 std::atomic<int> NutppUI::NutppUIImpl::session_cnt = { 0 };
 
+// C-tor.
+NutppUI::NutppUIImpl::NutppUIImpl(const NutppRuntime &runtime)
+    : db_model_(runtime.db_model_),
+    login_session_(runtime.db_model_)
+{}
+
+// C-tor.
+NutppRuntime::NutppRuntime(
+    const Wt::WEnvironment &env,
+    const storage::DbModel &model)
+    : env_(env),
+    db_model_(model)
+{}
+
 // Creates web app.
-NutppUI::NutppUI(const Wt::WEnvironment &env, const storage::DbModel &db_model)
-    : WApplication(env),
-    impl_(std::make_unique<NutppUI::NutppUIImpl>()),
-    db_model_(db_model)
+NutppUI::NutppUI(const NutppRuntime &runtime)
+    : WApplication(runtime.env_),
+    impl_(std::make_unique<NutppUI::NutppUIImpl>(runtime))
 {
     // Relaxed memory order constraint is fine since there is not data sync
     // involved in the usage of session_cnt.
@@ -69,48 +89,53 @@ NutppUI::NutppUI(const Wt::WEnvironment &env, const storage::DbModel &db_model)
 
         // TODO: design error page
         // app->redirect("error.html");
-        root()->addWidget(
-            std::make_unique<Wt::WText>("ERROR: max session number reached!"));
+        root()->addWidget(std::make_unique<Wt::WText>(
+                              Wt::WString::tr("nutpp.max-sessions-error")));
         quit();
         return;
     }
 
     LOGNUTPP_DEBUG("Creating app for session: " << sessionId());
 
-    // Set theme (default, polished)
-    setCssTheme("polished");
+    // Handle authentication.
+    impl_->login_session_.login().changed().connect([=]() {
+                if (impl_->login_session_.login().loggedIn()) {
+                    const Wt::Auth::User &u = impl_->login_session_.login().user();
+                    LOGNUTPP_INFO(
+                        "User " << u.id() << " ("
+                                << u.identity(Wt::Auth::Identity::LoginName)
+                                << ") logged in.");
+                    // Wt::Dbo::Transaction t(session_);
+                    // dbo::ptr<User> user = session_.user();
+                    // log("notice") << "(Favourite pet: " << user->favouritePet
+                    // << ")";
+                } else {
+                    LOGNUTPP_INFO("User logged out.");
+                }
+            });
 
+    root()->addStyleClass("container");
+    setTheme(std::make_shared<Wt::WBootstrapTheme>());
     useStyleSheet("css/nutpp_ui.css");
-    // Fix for loading indicator to render properly in IE.
-    styleSheet().addRule("body", "margin: 0px");
     setLoadingIndicator(std::make_unique<Wt::WOverlayLoadingIndicator>());
 
-    // Load message resources
-    messageResourceBundle().use(appRoot() + "messages-main");
+    // Load message resources.
+    messageResourceBundle().use(appRoot() + "strings");
+    messageResourceBundle().use(appRoot() + "templates");
 
-    // Application title
-    setTitle(Wt::WString::tr("app-title"));
+    // Application title.
+    setTitle(Wt::WString::tr("nutpp.app-title"));
 
-    // Auto update help box on context change
-// internalPathChanged().connect([=]() {
-// mainMenu_->updateHelpBox();
-// });
+    auto authWidget
+        = std::make_unique<nutpp::auth::AuthWidget>(impl_->login_session_);
 
-    // TODO: Test only
-    root()->addWidget(
-        std::make_unique<Wt::WText>("Welcome to NUTPP"));
-    auto t = root()->addWidget(std::make_unique<Wt::WTemplate>(
-                                   Wt::WString::tr("test-template")));
+    authWidget->model()->addPasswordAuth(&auth::LoginSession::passwordAuth());
+    authWidget->model()->addOAuth(auth::LoginSession::oAuth());
+    authWidget->setRegistrationEnabled(true);
 
-    t->bindWidget("name-edit", std::make_unique<Wt::WLineEdit>());
-    t->bindWidget("save-button", std::make_unique<Wt::WPushButton>("Save"));
-    t->bindWidget("cancel-button", std::make_unique<Wt::WPushButton>("Cancel"));
+    authWidget->processEnvironment();
 
-    // Check for JavaScript support
-    if (!environment().javaScript()) {
-// infoBar_->showError("JavaScript must be enabled/supported in order to"
-// " properly use the application!");
-    }
+    root()->addWidget(std::move(authWidget));
 }
 
 // Destroys web app.
@@ -118,6 +143,12 @@ NutppUI::~NutppUI()
 {
     LOGNUTPP_DEBUG("Destroyed app for session: " << sessionId());
     impl_->session_cnt.fetch_sub(1, std::memory_order_relaxed);
+}
+
+// Gets access to db model.
+const storage::DbModel &NutppUI::getDbModel()
+{
+    return impl_->db_model_;
 }
 
 // Refreshes web app.

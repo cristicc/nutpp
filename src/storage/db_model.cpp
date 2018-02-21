@@ -115,14 +115,21 @@ bool DbModel::createSchema(bool force)
 }
 
 // Gets new session.
-bool DbModel::initSession(dbo::Session &session) const
+bool DbModel::initSession(dbo::Session &session, bool auth_only) const
 {
     try {
         // Enable the DB session to use the shared connection pool.
         session.setConnectionPool(*conn_pool_);
 
-        // Map classes to database tables.
+        // Map authentication related classes to DB tables.
         session.mapClass<User>(User::kTableName);
+        session.mapClass<AuthInfo>("auth_info");
+        session.mapClass<AuthInfo::AuthIdentityType>("auth_identity");
+        session.mapClass<AuthInfo::AuthTokenType>("auth_token");
+
+        if (!auth_only) {
+            // Map app specific classes to DB tables.
+        }
 
         return true;
     } catch (const dbo::Exception &e) {
@@ -189,9 +196,10 @@ bool DbModel::createDefaultUser()
     try {
         auto user = std::make_unique<storage::User>();
 
-        user->name = "Admin";
-        user->email = "admin@local";
-        user->passwd = "admin";
+        // FIXME: admin auth info
+// user->name = "Admin";
+// user->email = "admin@local";
+// user->passwd = "admin";
         user->role = storage::UserRole::ADMIN;
 
         s.add(std::move(user));

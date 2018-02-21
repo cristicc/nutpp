@@ -74,4 +74,4 @@ int readAppIntSetting(const char *name, int defaultValue = 0);
 bool readAppBoolSetting(const char *name, bool defaultValue = false);
 } // namespace webserver
 } // namespace nutpp
-#endif /* NUTPP_UTIL_SETTINGS_H_ */
+#endif // NUTPP_UTIL_SETTINGS_H_

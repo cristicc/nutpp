@@ -35,7 +35,7 @@ while [ $# -gt 0 ]; do
         for supf in $(ls ${RUN_PATH}/valgrind/); do
             START_CMD+=" --suppressions=${RUN_PATH}/valgrind/${supf}"
         done
-        START_CMD+=" --log-file=${SRV_PATH}/valgrind.log"
+        START_CMD+=" --log-file=${SRV_PATH}/log/valgrind.log"
         #START_CMD+=" --trace-children=yes"
         #START_CMD+=" --read-var-info=yes"
         START_CMD+=" --track-origins=yes"
@@ -74,7 +74,7 @@ SRV_BIN=${APP_PATH}/src/webserver/nutpp-webserver
 # Start app server
 eval ${START_CMD} ${SRV_BIN} \
     --no-compression \
-    --accesslog ${SRV_PATH}/access.log \
+    --accesslog ${SRV_PATH}/log/access.log \
     --pid-file ${SRV_PATH}/webcfg.pid \
     --docroot ${SRV_PATH}/web \
     --approot ${SRV_PATH}/conf \

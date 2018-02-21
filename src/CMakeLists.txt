@@ -1,3 +1,4 @@
+add_subdirectory(auth)
 add_subdirectory(runtime)
 add_subdirectory(storage)
 add_subdirectory(util)

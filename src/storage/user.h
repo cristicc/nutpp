@@ -16,16 +16,29 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * @file
+ * @brief Persisted user information.
  */
 
 #ifndef NUTPP_STORAGE_USER_H_
 #define NUTPP_STORAGE_USER_H_
 
-#include <Wt/Dbo/Dbo.h>
+#include <Wt/Auth/Dbo/AuthInfo.h>
+#include <Wt/Dbo/Types.h>
 #include <string>
 
 namespace nutpp {
 namespace storage {
+// Fwd declaration.
+class User;
+
+/**
+ * @brief Links the Wt authentication information persistence class
+ * to our custom User information persistence class.
+ */
+using AuthInfo = Wt::Auth::Dbo::AuthInfo<User>;
+
 /**
  * @brief Enum class representing the types of user accounts recognized
  * by the system.
@@ -42,21 +55,36 @@ enum class UserRole {
 };
 
 /**
+ * @brief Enum class representing the languages supported by the system.
+ */
+enum class UserLanguage {
+    /// English.
+    EN = 0,
+    /// Romanian.
+    RO,
+    /// Reserved for unsupported languages.
+    UNKNOWN = 100
+};
+
+/**
  * @brief Class mapping the "user" database table.
+ *
+ * Using this class we add application specific data for a particular user
+ * which is linked up with the Wt authentication system.
  */
 class User {
 public:
     /// The name of the DB table mapped to this class.
     static constexpr const char *kTableName = "user";
 
-    /// Full user name.
-    std::string name;
-    /// Email address (also used for account identification).
-    std::string email;
-    /// Account password.
-    std::string passwd;
     /// Account type.
     UserRole role;
+
+    /// User preferred language.
+    UserLanguage language;
+
+    /// Wt standard authentication information.
+    Wt::Dbo::weak_ptr<AuthInfo> auth_info;
 
     /**
      * @brief Defines the User class persistence.
@@ -65,11 +93,11 @@ public:
     template<class Action>
     void persist(Action &a)
     {
-        Wt::Dbo::field(a, name, "name");
-        Wt::Dbo::field(a, passwd, "passwd");
         Wt::Dbo::field(a, role, "role");
+        Wt::Dbo::field(a, language, "language");
+        Wt::Dbo::hasOne(a, auth_info, kTableName);
     }
 };
 } // namespace storage
 } // namespace nutpp
-#endif /* NUTPP_STORAGE_USER_H_ */
+#endif // NUTPP_STORAGE_USER_H_

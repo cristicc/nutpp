@@ -58,15 +58,6 @@ int main(int /*argc*/, char ** /*argv*/)
 
     LOGNUTPP_DEBUG("DB SQL: " << s1.tableCreationSql());
 
-    // Add an entry.
-    auto user = std::make_unique<storage::User>();
-    user->name = "Joe Doe";
-    user->email = "joe.doe@gmail.com";
-    user->passwd = "Secret";
-    user->role = storage::UserRole::GUEST;
-
-    dbo::ptr<storage::User> userPtr = s1.add(std::move(user));
-
     // Save db.
     cmodel.saveSession(s1);
 

@@ -6,19 +6,17 @@ set(LIBRARY_NAME ${STORAGE_COMPONENT})
 
 set(LIBRARY_SRCS
     db_model.cpp
-    user_model.cpp
 )
 
 set(LIBRARY_LIBS
     ${PROJECT_NAME}-util
-    ${LOG4CPLUS_LIBRARIES}
+    Wt::Wt
     Wt::DboSqlite3
 )
 
 include(StaticLibraryTargets)
 
 set(TOOL_NAME "dbadmin")
-
 set(TOOL_SRCS "main.cpp")
 
 add_executable(${TOOL_NAME} ${TOOL_SRCS})

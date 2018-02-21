@@ -18,24 +18,36 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef NUTPP_STORAGE_USER_MODEL_H_
-#define NUTPP_STORAGE_USER_MODEL_H_
+#include "auth_widget.h"
 
-#include "user.h"
-
-#include <Wt/WFormModel.h>
+#include "login_session.h"
+#include "registration_view.h"
+#include "user_details_model.h"
 
 namespace nutpp {
-namespace storage {
-/**
- * @brief Implements a data model for the User table.
- */
-class UserModel : public Wt::WFormModel {
-public:
-    UserModel();
-private:
-    Wt::Dbo::QueryModel<Wt::Dbo::ptr<User>> *model_;
-};
+namespace auth {
+// C-tor.
+AuthWidget::AuthWidget(LoginSession &session)
+    : Wt::Auth::AuthWidget(
+        LoginSession::auth(), session.users(), session.login()),
+    session_(session)
+{}
+
+// Creates registration view.
+std::unique_ptr<Wt::WWidget> AuthWidget::createRegistrationView(
+    const Wt::Auth::Identity &id)
+{
+    auto registrationView
+        = std::make_unique<RegistrationView>(session_, this);
+    std::unique_ptr<Wt::Auth::RegistrationModel> model
+        = createRegistrationModel();
+
+    if (id.isValid()) {
+        model->registerIdentified(id);
+    }
+
+    registrationView->setModel(std::move(model));
+    return std::move(registrationView);
+}
 } // namespace storage
 } // namespace nutpp
-#endif /* NUTPP_STORAGE_USER_MODEL_H_ */

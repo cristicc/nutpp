@@ -100,4 +100,4 @@
  */
 #define LOGNUTPP_TRACE_ENABLED \
     nutpp::logger.isEnabledFor(log4cplus::TRACE_LOG_LEVEL)
-#endif /* NUTPP_UTIL_LOG_H_ */
+#endif // NUTPP_UTIL_LOG_H_

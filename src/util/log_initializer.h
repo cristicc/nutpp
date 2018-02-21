@@ -117,4 +117,4 @@ private:
 };
 } // namespace util
 } // namespace nutpp
-#endif /* NUTPP_UTIL_LOG_INITIALIZER_H_ */
+#endif // NUTPP_UTIL_LOG_INITIALIZER_H_

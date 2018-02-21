@@ -57,4 +57,4 @@ std::string sanitizeFilePath(const std::string &path,
                              const std::string &root);
 } // namespace util
 } // namespace nutpp
-#endif /* NUTPP_UTIL_STRINGOPS_H_ */
+#endif // NUTPP_UTIL_STRINGOPS_H_

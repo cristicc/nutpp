@@ -630,7 +630,7 @@
           -->
         <!-- <property name="favicon">images/favicon.ico</property> -->
 
-        <!--  Custom properties -->
+        <!-- Nutpp specific properties -->
 
         <property name="maxWebSessions">20</property>
         <property name="deploymentURI">/nutpp</property>
@@ -643,6 +643,48 @@
         <property name="enableInternalPaths">true</property>
         <property name="displayTimeFormat">yyyy-MM-dd hh:mm:ss</property>
         <property name="displayShortTimeFormat">yyyy-MM-dd hh:mm</property>
+
+        <!-- You can use the following properties to configure SMTP settings -->
+        <!-- The host to identify as (defaults to localhost if not specified) -->
+        <property name="smtp-self-host">localhost</property>
+        <!-- The SMTP host to connect to (defaults to localhost if not specified) -->
+        <property name="smtp-host">localhost</property>
+        <!-- The SMTP port to connect to (defaults to 25 if not specified) -->
+        <property name="smtp-port">25</property>
+
+        <!-- The email address to be used for sending authentication emails. -->
+        <property name="auth-mail-sender-name">
+            Nutpp Authentication
+        </property>
+        <property name="auth-mail-sender-address">
+            noreply-nutpp@localhost
+        </property>
+
+        <!-- The URL of the local redirect endpoint, to which the Google
+            OAuth service redirects the user after authentication. -->
+        <property name="google-oauth2-redirect-endpoint">
+            http://localhost:8080/google-oauth2callback
+        </property>
+        <!-- Google OAuth client ID. -->
+        <property name="google-oauth2-client-id">
+            293928628835-1ouncgg5re1sgm7r856rrtciac24akpt.apps.googleusercontent.com
+        </property>
+        <!-- Google OAuth client secret. -->
+        <property name="google-oauth2-client-secret">
+            Ss5vpOy60XkQwQWT7ZNUqpSS
+        </property>
+
+        <!-- The URL of the local redirect endpoint, to which the Facebook
+            OAuth service redirects the user after authentication. -->
+        <property name="facebook-oauth2-redirect-endpoint">
+            http://localhost:8080/facebook-oauth2callback
+        </property>
+        <!-- Facebook OAuth application ID. -->
+        <property name="facebook-oauth2-app-id">
+        </property>
+        <!-- Facebook OAuth application secret. -->
+        <property name="facebook-oauth2-app-secret">
+        </property>
     </properties>
 
     </application-settings>

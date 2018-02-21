@@ -21,6 +21,7 @@
 #include "nutpp_ui.h"
 
 #include "settings.h"
+#include "auth/login_session.h"
 #include "storage/db_model.h"
 #include "util/log.h"
 #include "util/log_initializer.h"
@@ -41,9 +42,6 @@ LOGNUTPP_LOGGER_WS;
 
 namespace nutpp {
 namespace {
-// Shared DB model instance.
-storage::DbModel db_model;
-
 // Catch signals.
 void handleSignals(int signal)
 {
@@ -81,12 +79,6 @@ void registerSignals()
         LOGWT_WARN("Failed to register SIGUSR1 handler: " << strerror(errno));
     }
 }
-
-// Creates an application instance for a new session.
-std::unique_ptr<Wt::WApplication> createApp(const Wt::WEnvironment &env)
-{
-    return std::make_unique<nutpp::webserver::NutppUI>(env, db_model);
-}
 } // namespace
 } // namespace nutpp
 
@@ -94,8 +86,9 @@ std::unique_ptr<Wt::WApplication> createApp(const Wt::WEnvironment &env)
 // Configure and start the web server.
 int main(int argc, char **argv)
 {
-    nutpp::util::LogInitializer log_init;
     Wt::WServer server(argv[0]);
+    nutpp::util::LogInitializer log_init;
+    nutpp::storage::DbModel db_model;
 
     try {
         // Init web server.
@@ -122,20 +115,27 @@ int main(int argc, char **argv)
         nutpp::registerSignals();
 
         // Initialize database.
-        if (!nutpp::db_model.initialize(
+        if (!db_model.initialize(
                 nutpp::util::sanitizeFilePath(
                     nutpp::webserver::readAppStringSetting("sqlite3Db"),
                     app_dir),
                 nutpp::webserver::readAppIntSetting("maxDbConnections"))
-            || !nutpp::db_model.createSchema())
+            || !db_model.createSchema())
         {
             LOGNUTPP_FATAL("Database corrupted or not accessible");
             return 1;
         }
 
+        // Configure authentication services.
+        nutpp::auth::LoginSession::configureAuth();
+
         // Set web contexts.
         server.addEntryPoint(
-            Wt::EntryPointType::Application, nutpp::createApp,
+            Wt::EntryPointType::Application,
+            [&](const Wt::WEnvironment &env) {
+                return std::make_unique<nutpp::webserver::NutppUI>(
+                    nutpp::webserver::NutppRuntime(env, db_model));
+            },
             nutpp::webserver::readAppStringSetting("deploymentURI"));
 
         if (server.start()) {

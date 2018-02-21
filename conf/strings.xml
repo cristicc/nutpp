@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<messages>
+
+<!-- Global messages. -->
+
+<message id="nutpp.app-title">Nutpp Nutrition Utility</message>
+<message id="nutpp.max-sessions-error">Max session number reached!</message>
+
+
+<!-- Form fields. -->
+
+<message id="nutpp.registration.lang">Language</message>
+<message id="nutpp.registration.lang-info">Choose your preferred language</message>
+
+
+<!-- Wt authentication related emails. -->
+
+<message id="Wt.Auth.confirmmail.subject">Nutpp user account activation</message>
+
+<message id="Wt.Auth.confirmmail.body">
+Hello {1},
+
+Thank you for using the Nutpp application!
+
+Please copy and paste the following URL into your browser in order
+to confirm your registration:
+
+{3}
+
+Note: be sure to copy the entire URL, including any part of it which
+might wrap on a second line!
+
+Enjoy!
+
+The Nutpp team.
+</message>
+
+<message id="Wt.Auth.confirmmail.htmlbody">
+<h3>Hello {1},</h3>
+
+<p>Thank you for using the Nutpp application!</p>
+
+<p>Please <a href="{3}">click here to confirm</a> your registration
+or copy and paste the following URL into your browser:</p>
+
+<b>{3}</b>
+
+<i>Note: be sure to copy the entire URL, including any part of it
+which might wrap on a second line.</i>
+
+<p>Enjoy!</p>
+
+<p>The Nutpp team.</p>
+</message>
+
+<message id="Wt.Auth.lostpasswordmail.subject">Lost password recovery</message>
+
+<message id="Wt.Auth.lostpasswordmail.body">
+Hello {1},
+
+This mail has been sent to you, because someone (presumably you?)
+indicated that he wishes to choose a new password, because the current
+password escapes his mind.
+
+If you requested this, then choose a new password by using the following
+link. If you didn't request this, you can safely ignore and discard this
+email.
+
+Please copy and paste the following URL into your browser:
+
+{3}
+
+Note: be sure to copy the entire URL, including any part of it which
+might wrap on a second line!
+
+Your truly,
+
+The Nutpp team.
+</message>
+
+<message id="Wt.Auth.lostpasswordmail.htmlbody">
+<h3>Hello {1},</h3>
+
+<p>This mail has been sent to you, because someone (presumably
+you?) indicated that he wishes to choose a new password, because
+the current password escapes his mind.</p>
+
+<p>If you requested this, then choose a new password by using the
+following link. If you didn't request this, you can safely ignore and
+discard this email.</p>
+
+<p>Please <a href="{3}">click here to choose a new password</a> or
+copy and paste the following URL into your browser:</p>
+
+<b>{3}</b>
+
+<i>Note: be sure to copy the entire URL, including any part of it
+which might wrap on a second line!</i>
+
+<p>Yours truly,</p>
+
+<p>The Nutpp team.</p>
+</message>
+</messages>
