@@ -90,12 +90,35 @@ NutppUI::NutppUI(const NutppRuntime &runtime)
         // TODO: design error page
         // app->redirect("error.html");
         root()->addWidget(std::make_unique<Wt::WText>(
-                              Wt::WString::tr("nutpp.max-sessions-error")));
+                              Wt::WString::tr("nutpp.ws.max-sessions-error")));
         quit();
         return;
     }
 
     LOGNUTPP_DEBUG("Creating app for session: " << sessionId());
+
+    auto theme = std::make_shared<Wt::WBootstrapTheme>();
+    theme->setVersion(Wt::BootstrapVersion::v3);
+    setTheme(theme);
+
+    useStyleSheet("css/nutpp-ui.css");
+    root()->addStyleClass("container");
+    setLoadingIndicator(std::make_unique<Wt::WOverlayLoadingIndicator>());
+
+    // Load message resources.
+    messageResourceBundle().use(appRoot() + "strings");
+    messageResourceBundle().use(appRoot() + "templates");
+
+    // Application title.
+    setTitle(Wt::WString::tr("nutpp.ws.app-title"));
+
+    auto authWidget
+        = std::make_unique<nutpp::auth::AuthWidget>(impl_->login_session_);
+    authWidget->model()->addPasswordAuth(&auth::LoginSession::passwordAuth());
+    authWidget->model()->addOAuth(auth::LoginSession::oAuth());
+    authWidget->setRegistrationEnabled(true);
+    authWidget->processEnvironment();
+    root()->addWidget(std::move(authWidget));
 
     // Handle authentication.
     impl_->login_session_.login().changed().connect([=]() {
@@ -113,29 +136,6 @@ NutppUI::NutppUI(const NutppRuntime &runtime)
                     LOGNUTPP_INFO("User logged out.");
                 }
             });
-
-    root()->addStyleClass("container");
-    setTheme(std::make_shared<Wt::WBootstrapTheme>());
-    useStyleSheet("css/nutpp_ui.css");
-    setLoadingIndicator(std::make_unique<Wt::WOverlayLoadingIndicator>());
-
-    // Load message resources.
-    messageResourceBundle().use(appRoot() + "strings");
-    messageResourceBundle().use(appRoot() + "templates");
-
-    // Application title.
-    setTitle(Wt::WString::tr("nutpp.app-title"));
-
-    auto authWidget
-        = std::make_unique<nutpp::auth::AuthWidget>(impl_->login_session_);
-
-    authWidget->model()->addPasswordAuth(&auth::LoginSession::passwordAuth());
-    authWidget->model()->addOAuth(auth::LoginSession::oAuth());
-    authWidget->setRegistrationEnabled(true);
-
-    authWidget->processEnvironment();
-
-    root()->addWidget(std::move(authWidget));
 }
 
 // Destroys web app.

@@ -37,7 +37,7 @@ namespace webserver {
  * @return The string value read.
  */
 std::string readAppStringSetting(
-    const char *name, const char *defaultValue = nullptr);
+    const char *name, const char *default_value = nullptr);
 
 /**
  * @brief Reads a string setting from the application configuration.
@@ -61,7 +61,7 @@ std::string silentReadAppStringSetting(const char *name);
  *
  * @return The integer value read.
  */
-int readAppIntSetting(const char *name, int defaultValue = 0);
+int readAppIntSetting(const char *name, int default_value = 0);
 
 /**
  * @brief Reads a boolean setting from the application configuration.
@@ -71,7 +71,7 @@ int readAppIntSetting(const char *name, int defaultValue = 0);
  *
  * @return The boolean value read.
  */
-bool readAppBoolSetting(const char *name, bool defaultValue = false);
+bool readAppBoolSetting(const char *name, bool default_value = false);
 } // namespace webserver
 } // namespace nutpp
 #endif // NUTPP_UTIL_SETTINGS_H_

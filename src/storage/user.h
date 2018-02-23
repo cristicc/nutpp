@@ -24,9 +24,9 @@
 #ifndef NUTPP_STORAGE_USER_H_
 #define NUTPP_STORAGE_USER_H_
 
+#include <string>
 #include <Wt/Auth/Dbo/AuthInfo.h>
 #include <Wt/Dbo/Types.h>
-#include <string>
 
 namespace nutpp {
 namespace storage {
@@ -55,18 +55,6 @@ enum class UserRole {
 };
 
 /**
- * @brief Enum class representing the languages supported by the system.
- */
-enum class UserLanguage {
-    /// English.
-    EN = 0,
-    /// Romanian.
-    RO,
-    /// Reserved for unsupported languages.
-    UNKNOWN = 100
-};
-
-/**
  * @brief Class mapping the "user" database table.
  *
  * Using this class we add application specific data for a particular user
@@ -81,7 +69,7 @@ public:
     UserRole role;
 
     /// User preferred language.
-    UserLanguage language;
+    std::string language;
 
     /// Wt standard authentication information.
     Wt::Dbo::weak_ptr<AuthInfo> auth_info;

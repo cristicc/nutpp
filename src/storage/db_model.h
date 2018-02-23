@@ -102,7 +102,7 @@ public:
      * @return @c false if errors occurred, or @c true otherwise.
      */
     bool discardSession(Wt::Dbo::Session &session,
-                        const char *tableName = nullptr) const;
+                        const char *table_name = nullptr) const;
 
 private:
     // Returns the no. of user accounts or -1 in case of errors.

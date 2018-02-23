@@ -18,7 +18,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * @file
- * @brief General purpose utilities.
+ * @brief General purpose string utilities.
  */
 
 #ifndef NUTPP_UTIL_STRINGOPS_H_

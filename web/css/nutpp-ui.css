@@ -1,6 +1,22 @@
-body {
-    font-family: arial, sans-serif;
+/*
+ * Customize bootstrap.
+ */
+
+.form-group .btn {
+    padding: 5px 12px;
 }
+
+.form-horizontal .form-group {
+    margin-bottom: 15px;
+}
+
+.form-horizontal .help-block {
+    margin-bottom: 0px;
+}
+
+/*
+ * Customize Wt authentication forms.
+ */
 
 .Wt-auth-logged-in {
     text-align: right;
@@ -13,41 +29,11 @@ body {
     padding-right: 4px;
 }
 
-.Wt-auth-registration {
-    width: 600px;
+.Wt-auth-login .panel-body {
+    background-color: #f5f5f5;
+    padding: 6px 1px 4px 1px;
 }
 
-/*
- * Override some bootstrap styles.
- */
-
-/*
- * Do not show informational help, only errors.
- */
-.form-horizontal .help-inline > span {
-    display: none;
-}
-
-.control-group.error .help-inline > span {
-    display: inline-block;
-}
-
-.control-group.success .control-label,
-.control-group.success .help-inline {
-    color: inherit;
-}
-
-/*
- * Do not constrain dialog maximum height
- */
-.modal-body {
-    max-height: none;
-}
-
-/*
- * Default width of .modal is too narrow to accomodate
- * div.Wt-auth-registration of width 600px.
- */
-.modal {
-    width: auto;
+.Wt-auth-login .panel-body > .form-group {
+    margin-bottom: 2px;
 }

@@ -51,8 +51,17 @@ public:
      */
     void save(const Wt::Auth::User &auth_user);
 
+    /**
+     * @brief Gets access to language model.
+     */
+    std::shared_ptr<Wt::WAbstractItemModel> languageModel();
+
 private:
+    static const std::string kDefaultLanguage;
+    static const std::vector<std::string> languages;
+
     LoginSession &session_;
+    std::shared_ptr<Wt::WStandardItemModel> language_model_;
 };
 } // namespace auth
 } // namespace nutpp

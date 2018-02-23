@@ -28,15 +28,15 @@ LOGNUTPP_LOGGER_WS;
 namespace nutpp {
 namespace webserver {
 // Reads a string from app configuration.
-std::string readAppStringSetting(const char *name, const char *defaultValue)
+std::string readAppStringSetting(const char *name, const char *default_value)
 {
     std::string result;
 
     if (!Wt::WServer::instance()->readConfigurationProperty(name, result)) {
         LOGNUTPP_WARN("Missing app setting: " << name);
 
-        if (defaultValue) {
-            result = defaultValue;
+        if (default_value) {
+            result = default_value;
         }
     }
 
@@ -53,9 +53,9 @@ std::string silentReadAppStringSetting(const char *name)
 }
 
 // Reads an int from app configuration.
-int readAppIntSetting(const char *name, int defaultValue)
+int readAppIntSetting(const char *name, int default_value)
 {
-    int result = defaultValue;
+    int result = default_value;
     std::string propval;
 
     if (Wt::WServer::instance()->readConfigurationProperty(name, propval)) {
@@ -73,9 +73,9 @@ int readAppIntSetting(const char *name, int defaultValue)
 }
 
 // Reads a bool from app configuration.
-bool readAppBoolSetting(const char *name, bool defaultValue)
+bool readAppBoolSetting(const char *name, bool default_value)
 {
-    bool result = defaultValue;
+    bool result = default_value;
     std::string propval;
 
     if (Wt::WServer::instance()->readConfigurationProperty(name, propval)) {

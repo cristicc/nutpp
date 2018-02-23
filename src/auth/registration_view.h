@@ -43,13 +43,7 @@ public:
      * @param[in] session The user authentication manager for current session.
      */
     RegistrationView(LoginSession &session,
-                     Wt::Auth::AuthWidget *authWidget = nullptr);
-
-    /**
-     * @brief Specialization to create user details fields.
-     */
-    virtual std::unique_ptr<Wt::WWidget> createFormWidget(
-        Wt::WFormModel::Field field) override;
+                     Wt::Auth::AuthWidget *auth_widget = nullptr);
 
 protected:
     /*
@@ -64,7 +58,7 @@ protected:
 
 private:
     LoginSession &session_;
-    std::unique_ptr<UserDetailsModel> detailsModel_;
+    std::unique_ptr<UserDetailsModel> details_model_;
 };
 } // namespace auth
 } // namespace nutpp

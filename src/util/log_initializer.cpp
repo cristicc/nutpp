@@ -37,7 +37,7 @@ struct LogInitializer::LogInitializerImpl {
 
 // C-tor.
 LogInitializer::LogInitializer(log4cplus::LogLevel level)
-    : consoleLogLevel_(level),
+    : console_log_level_(level),
     impl_(std::make_unique<LogInitializer::LogInitializerImpl>())
 {}
 
@@ -70,7 +70,7 @@ bool LogInitializer::configure(
                 std::make_unique<log4cplus::PatternLayout>(
                     kDefaultConsoleLogPattern));
             log4cplus::Logger::getRoot().addAppender(console);
-            log4cplus::Logger::getRoot().setLogLevel(consoleLogLevel_);
+            log4cplus::Logger::getRoot().setLogLevel(console_log_level_);
             std::cerr << "Core logger not found, using default"
                       << " console appender to stderr" << std::endl;
         }

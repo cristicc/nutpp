@@ -154,10 +154,11 @@ bool DbModel::saveSession(dbo::Session &session) const
 }
 
 // Discards session.
-bool DbModel::discardSession(dbo::Session &session, const char *tableName) const
+bool DbModel::discardSession(
+    dbo::Session &session, const char *table_name) const
 {
     try {
-        session.rereadAll(tableName);
+        session.rereadAll(table_name);
     } catch (const dbo::Exception &e) {
         LOGNUTPP_ERROR("Failed to discard DB session: " << e.what());
         return false;

@@ -109,7 +109,7 @@ public:
         = log4cplus::INFO_LOG_LEVEL;
 
 private:
-    log4cplus::LogLevel consoleLogLevel_;
+    log4cplus::LogLevel console_log_level_;
 
     // Hide implementation details.
     struct LogInitializerImpl;

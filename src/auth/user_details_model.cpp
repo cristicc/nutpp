@@ -23,23 +23,49 @@
 #include "login_session.h"
 #include "storage/user.h"
 
+#include <Wt/WStandardItemModel.h>
+
 namespace nutpp {
 namespace auth {
 const Wt::WFormModel::Field UserDetailsModel::LanguageField = "language";
+const std::string UserDetailsModel::kDefaultLanguage = "en";
+
+const std::vector<std::string> UserDetailsModel::languages = {
+    { "en", "ro", "de" }
+};
 
 // C-tor.
 UserDetailsModel::UserDetailsModel(LoginSession &session)
     : Wt::WFormModel(),
     session_(session)
 {
-    addField(LanguageField, Wt::WString::tr("nutpp.registration.lang-info"));
+    addField(LanguageField, Wt::WString::tr("nutpp.auth.language-info"));
+    setValue(LanguageField, kDefaultLanguage);
+
+    // Initialize language model.
+    language_model_
+        = std::make_shared<Wt::WStandardItemModel>(languages.size(), 1);
+
+    for (size_t i = 0; i < languages.size(); ++i) {
+        language_model_->setData(i, 0, languages[i], Wt::ItemDataRole::User);
+        language_model_->setData(
+            i, 0, Wt::WString::tr("nutpp.lang." + languages[i]),
+            Wt::ItemDataRole::Display);
+    }
 }
 
 // Persistence.
 void UserDetailsModel::save(const Wt::Auth::User &auth_user)
 {
     Wt::Dbo::ptr<storage::User> user = session_.user(auth_user);
-    user.modify()->language = storage::UserLanguage::RO; // valueText(LanguageField).toUTF8();
+    user.modify()->language
+        = Wt::cpp17::any_cast<std::string>(value(LanguageField));
+}
+
+// Getter.
+std::shared_ptr<Wt::WAbstractItemModel> UserDetailsModel::languageModel()
+{
+    return language_model_;
 }
 } // namespace auth
 } // namespace nutpp

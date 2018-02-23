@@ -22,32 +22,46 @@
 
 #include "login_session.h"
 #include "user_details_model.h"
+#include "util/model_ops.h"
 
+#include <Wt/WComboBox.h>
 #include <Wt/WLineEdit.h>
 
 namespace nutpp {
 namespace auth {
 // C-tor.
 RegistrationView::RegistrationView(LoginSession &session,
-                                   Wt::Auth::AuthWidget *authWidget)
-    : Wt::Auth::RegistrationWidget(authWidget),
+                                   Wt::Auth::AuthWidget *auth_widget)
+    : Wt::Auth::RegistrationWidget(auth_widget),
     session_(session)
 {
-    setTemplateText(tr("template.registration"));
-    detailsModel_ = std::make_unique<UserDetailsModel>(session_);
+    setTemplateText(tr("nutpp.auth.template.registration"));
+    details_model_ = std::make_unique<UserDetailsModel>(session_);
 
-    updateView(detailsModel_.get());
-}
+    auto combo = std::make_unique<Wt::WComboBox>();
+    auto combo_ptr = combo.get();
 
-// Specialization.
-std::unique_ptr<Wt::WWidget> RegistrationView::createFormWidget(
-    Wt::WFormModel::Field field)
-{
-    if (field == UserDetailsModel::LanguageField) {
-        return std::make_unique<Wt::WLineEdit>();
-    } else {
-        return Wt::Auth::RegistrationWidget::createFormWidget(field);
-    }
+    combo->setModel(details_model_->languageModel());
+
+    setFormWidget(
+        UserDetailsModel::LanguageField,
+        std::move(combo),
+        [=] { // updateViewValue()
+            combo_ptr->setCurrentIndex(
+                util::getItemModelCurrentIndex<std::string>(
+                    UserDetailsModel::LanguageField,
+                    *details_model_->languageModel(),
+                    *details_model_));
+        },
+        [=] { // updateModelValue()
+            details_model_->setValue(
+                UserDetailsModel::LanguageField,
+                util::getItemModelValueAt<std::string>(
+                    combo_ptr->currentIndex(),
+                    *details_model_->languageModel()));
+        });
+
+    updateView(details_model_.get());
 }
 
 // Specialization.
@@ -55,12 +69,12 @@ bool RegistrationView::validate()
 {
     bool result = Wt::Auth::RegistrationWidget::validate();
 
-    updateModel(detailsModel_.get());
-    if (!detailsModel_->validate()) {
+    updateModel(details_model_.get());
+    if (!details_model_->validate()) {
         result = false;
     }
 
-    updateView(detailsModel_.get());
+    updateView(details_model_.get());
 
     return result;
 }
@@ -68,7 +82,7 @@ bool RegistrationView::validate()
 // Specialization.
 void RegistrationView::registerUserDetails(Wt::Auth::User &user)
 {
-    detailsModel_->save(user);
+    details_model_->save(user);
 }
 } // namespace auth
 } // namespace nutpp

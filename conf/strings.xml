@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
 
-<!-- Global messages. -->
+<!-- Global. -->
 
-<message id="nutpp.app-title">Nutpp Nutrition Utility</message>
-<message id="nutpp.max-sessions-error">Max session number reached!</message>
+<message id="nutpp.ws.app-title">Nutpp Nutrition Utility</message>
+<message id="nutpp.ws.max-sessions-error">Max session number reached!</message>
 
-
-<!-- Form fields. -->
-
-<message id="nutpp.registration.lang">Language</message>
-<message id="nutpp.registration.lang-info">Choose your preferred language</message>
+<message id="nutpp.lang.en">English</message>
+<message id="nutpp.lang.ro">Romanian</message>
+<message id="nutpp.lang.de">German</message>
 
 
-<!-- Wt authentication related emails. -->
+<!-- Registration widget. -->
+
+<message id="nutpp.auth.language">Language</message>
+<message id="nutpp.auth.language-info">Choose your preferred language</message>
+
+
+<!-- Authentication emails. -->
 
 <message id="Wt.Auth.confirmmail.subject">Nutpp user account activation</message>
 

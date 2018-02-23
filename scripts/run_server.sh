@@ -70,6 +70,7 @@ export RSG_LOCAL_DEPLOYMENT=1
 #export LD_LIBRARY_PATH=${DIST_PATH}/lib
 
 SRV_BIN=${APP_PATH}/src/webserver/nutpp-webserver
+#SRV_BIN=${APP_PATH}/src/auth/nutpp-authtest
 
 # Start app server
 eval ${START_CMD} ${SRV_BIN} \

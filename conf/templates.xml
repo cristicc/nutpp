@@ -1,58 +1,168 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages xmlns:if="Wt.WTemplate.conditions">
-  <message id="template.registration">
-    <div class="Wt-form Wt-auth-registration">
-      <h2>${tr:Wt.Auth.registration-form-title}</h2>
-      <p>${tr:Wt.Auth.registration-form-info}</p>
+  <!-- The nutpp.auth templates are based on those provided by Wt:
+       wt-4.0.2/src/xml/bootstrap*_theme.xml -->
 
-      ${password-description}
+  <message id="nutpp.form.field">
+    <![CDATA[
+    <div class="form-group">
+      <label for="${id:{1}}" class="control-label col-sm-4">{2}</label>
+      <div class="col-sm-6">${{1}}<span class="help-block">{3} {4}</span></div>
+    </div>
+    ]]>
+  </message>
 
-      <div class="Wt-fields">
-        ${<if:user-name>}
-          <label for="${id:user-name}">${user-name-label}
-            ${user-name-info class="Wt-info"}
-            ${confirm-is-you class="Wt-info"}
-          </label>
-          ${user-name}
-        ${</if:user-name>}
-
-        ${<if:choose-password>}
-          <label for="${id:choose-password}">${tr:Wt.Auth.choose-password}
-            ${choose-password-info class="Wt-info"}
-          </label>
-          ${choose-password}
-
-          <label for="${id:repeat-password}">${tr:Wt.Auth.repeat-password}
-            ${repeat-password-info class="Wt-info"}
-          </label>
-          ${repeat-password}
-        ${</if:choose-password>}
-
-        ${<if:email>}
-          <label for="${id:email}">${tr:Wt.Auth.email}
-            ${email-info class="Wt-info"}
-          </label>
-          ${email}
-        ${</if:email>}
-
-    <label for="${id:language}">${tr:nutpp.registration.lang}
-      ${tr:nutpp.registration.lang-info class="Wt-info"}
-    </label>
-    ${language}
+  <message id="nutpp.form.checkbox">
+    <![CDATA[
+    <div class="form-group">
+      <div class="col-sm-offset-4 col-sm-6">
+        <div class="checkbox"><label>${{1}} {2}</label></div>
+        <span class="help-block">{3}</span>
       </div>
+    </div>
+    ]]>
+  </message>
 
-      ${<if:oauth>}
-        <br clear="both" />
-        ${oauth-description}
-        <label>${tr:Wt.Auth.oauth}
-          <span class="Wt-info">${tr:Wt.Auth.oauth-info}</span>
-        </label>
-        ${icons}
-      ${</if:oauth>}
+  <message id="nutpp.mvc.field">
+    <![CDATA[
+    ${<if:{1}>}
+        ${block:nutpp.form.field {1} '${tr:{2}.{1}}' '${{1}-info}' ''}
+    ${</if:{1}>}
+    ]]>
+  </message>
 
-      <div class="Wt-buttons">
-        ${ok-button} ${cancel-button}
+  <message id="nutpp.mvc.field2">
+    <![CDATA[
+    ${<if:{1}>}
+        ${block:nutpp.form.field {1} '${tr:{2}.{1}}' '${{1}-info}' '{3}'}
+    ${</if:{1}>}
+    ]]>
+  </message>
+
+  <message id="nutpp.mvc.checkbox">
+    <![CDATA[
+    ${<if:{1}>}
+        ${block:nutpp.form.checkbox {1} '${tr:{2}.{1}}' '${{1}-info}'}
+    ${</if:{1}>}
+    ]]>
+  </message>
+
+  <message id="Wt.Auth.template.login">
+    <div class="col-sm-offset-2 col-sm-8 Wt-auth-login">
+      <legend>${tr:Wt.Auth.login-form-title}</legend>
+      <p>${tr:Wt.Auth.login-form-info}</p>
+
+      <div class="form-horizontal">
+        ${<if:passwords>}
+          ${block:nutpp.mvc.field user-name Wt.Auth}
+          ${block:nutpp.mvc.field password Wt.Auth}
+          ${block:nutpp.mvc.checkbox remember-me Wt.Auth}
+        ${</if:passwords>}
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="form-group">
+              <div class="col-sm-offset-4 col-sm-6">
+                ${login class="btn-primary"}
+                ${<if:oauth>}${icons class="btn"}${</if:oauth>}
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-offset-4 col-sm-6">
+                ${lost-password class="btn-link"} ${sep} ${register class="btn-link"}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
+  </message>
+
+  <message id="nutpp.auth.template.registration">
+    <div class="Wt-auth-registration">
+      <p class="lead">
+        ${password-description}
+      </p>
+
+      <div class="form-horizontal">
+        ${block:nutpp.mvc.field2 user-name Wt.Auth '${confirm-is-you class="btn-link"}'}
+        ${block:nutpp.mvc.field choose-password Wt.Auth}
+        ${block:nutpp.mvc.field repeat-password Wt.Auth}
+        ${block:nutpp.mvc.field email Wt.Auth}
+        ${block:nutpp.mvc.field language nutpp.auth}
+
+        ${<if:oauth>}
+          <p class="lead">
+            ${oauth-description}
+          </p>
+          <div class="form-group">
+            <label class="control-label col-sm-4">${tr:Wt.Auth.oauth}</label>
+            <div class="col-sm-6">${icons}</div>
+          </div>
+        ${</if:oauth>}
+
+        <div class="modal-footer">
+          ${ok-button class="btn-primary"} ${cancel-button}
+        </div>
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.update-password">
+    <div class="Wt-auth-update-password">
+      <div class="form-horizontal">
+        ${block:nutpp.mvc.field user-name Wt.Auth}
+        ${block:nutpp.mvc.field password Wt.Auth}
+        ${block:nutpp.mvc.field choose-password Wt.Auth}
+        ${block:nutpp.mvc.field repeat-password Wt.Auth}
+
+        <div class="modal-footer">
+          ${ok-button class="btn-primary"} ${cancel-button}
+        </div>
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.lost-password">
+    <div class="Wt-auth-lost-password">
+      <div class="form-horizontal">
+        ${block:nutpp.form.field email "${tr:Wt.Auth.email}"
+            "${tr:Wt.Auth.email-info}" ""}
+
+        <div class="modal-footer">
+          ${send-button class="btn-primary"} ${cancel-button}
+        </div>
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.password-prompt">
+    <div class="Wt-auth-password-prompt">
+      <div class="form-horizontal">
+        ${block:nutpp.mvc.field user-name Wt.Auth}
+        ${block:nutpp.mvc.field password Wt.Auth}
+
+        <div class="modal-footer">
+          ${ok-button class="btn-primary"} ${cancel-button}
+        </div>
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.Auth.template.logged-in">
+    <div class="Wt-auth-logged-in">
+      <b>${user-name}</b> ${logout}
+    </div>
+  </message>
+
+  <message id="Wt.WNavigationBar.template">
+    <div>
+      ${collapse-button}
+      <div class="navbar-header">
+        ${expand-button}
+        ${title-link}
+      </div>
+      ${contents}
     </div>
   </message>
 </messages>
