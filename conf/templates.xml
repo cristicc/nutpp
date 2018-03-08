@@ -165,4 +165,25 @@
       ${contents}
     </div>
   </message>
+
+  <!-- ${logout-form} is bount to the object generated
+       from Wt.Auth.template.logged-in -->
+  <message id="nutpp.user-account-widget.template">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <div class="row">
+          <div class="col-sm-4">${user-img}</div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4">${user-name}</div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4">${user-email}</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        ${logout-form}
+      </div>
+    </div>
+  </message>
 </messages>

@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
 
-<!-- Global. -->
+<!-- General. -->
 
 <message id="nutpp.ws.app-title">Nutpp Nutrition Utility</message>
 <message id="nutpp.ws.max-sessions-error">Max session number reached!</message>
+<message id="nutpp.ws.logout-message">Thank you for using Nutpp!</message>
+<message id="nutpp.ws.restart-message">The current session has been terminated. Proceed with login?</message>
 
 <message id="nutpp.lang.en">English</message>
 <message id="nutpp.lang.ro">Romanian</message>
 <message id="nutpp.lang.de">German</message>
+
+
+<!-- Navigation bar. -->
+
+<message id="nutpp.nav.patients">Patients</message>
+<message id="nutpp.nav.forms">Forms</message>
+<message id="nutpp.nav.help">Help</message>
+<message id="nutpp.nav.search-hint">Enter a search item</message>
+<message id="nutpp.nav.search-not-found">Nothing found for {1}.</message>
 
 
 <!-- Registration widget. -->

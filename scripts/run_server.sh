@@ -49,21 +49,24 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-[ -d ${SRV_PATH} ] || {
-    # Install default configuration.
+# Deploy default configuration.
+[ -d ${SRV_PATH}/web ] || {
     mkdir -p ${SRV_PATH}/web
     ln -s ${RUN_PATH}/../web/css ${SRV_PATH}/web/
     ln -s ${RUN_PATH}/../web/images ${SRV_PATH}/web/
+    ln -s ${RUN_PATH}/../web/favicon.ico ${SRV_PATH}/web/
     ln -s ${DIST_PATH}/share/Wt/resources ${SRV_PATH}/web/
+}
 
+[ -d ${SRV_PATH}/conf ] || {
     mkdir -p ${SRV_PATH}/conf
     for xmlfile in ${RUN_PATH}/../conf/*.xml; do
         ln -s ${xmlfile} ${SRV_PATH}/conf/
     done
     cp -f ${RUN_PATH}/../conf/*.properties ${SRV_PATH}/conf/
-
-    mkdir -p ${SRV_PATH}/log ${SRV_PATH}/db
 }
+
+mkdir -p ${SRV_PATH}/log ${SRV_PATH}/db
 
 # Enable webui local configuration
 export RSG_LOCAL_DEPLOYMENT=1

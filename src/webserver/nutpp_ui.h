@@ -103,6 +103,12 @@ private:
     // Specialization to handle application refresh
     void refresh() override;
 
+    // Handler for logged in user.
+    void handleLoggedIn();
+
+    // Create components.
+    void createNavBar();
+
     // Hide implementation details.
     class NutppUIImpl;
     std::unique_ptr<NutppUIImpl> impl_;

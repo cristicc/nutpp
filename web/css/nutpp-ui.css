@@ -1,5 +1,5 @@
 /*
- * Customize bootstrap.
+ * Customize bootstrap forms.
  */
 
 .form-group .btn {
@@ -12,6 +12,19 @@
 
 .form-horizontal .help-block {
     margin-bottom: 0px;
+}
+
+
+/*
+ * Customize bootstrap navigation bar.
+ */
+
+.navbar-brand {
+    padding: 3px;
+}
+
+.navbar-brand > img {
+    height: 44px;
 }
 
 /*
