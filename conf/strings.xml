@@ -12,7 +12,6 @@
 <message id="nutpp.lang.ro">Romanian</message>
 <message id="nutpp.lang.de">German</message>
 
-
 <!-- Navigation bar. -->
 
 <message id="nutpp.nav.patients">Patients</message>
@@ -26,6 +25,14 @@
 
 <message id="nutpp.auth.language">Language</message>
 <message id="nutpp.auth.language-info">Choose your preferred language</message>
+
+<!-- Logged-in widget. -->
+
+<message id="nutpp.auth.profile-pic">Profile</message>
+<message id="nutpp.auth.profile-pic-change">Change</message>
+<message id="nutpp.auth.edit-account">My account</message>
+<message id="nutpp.auth.add-account">Add account</message>
+<message id="nutpp.auth.sign-out">Sign out</message>
 
 
 <!-- Authentication emails. -->

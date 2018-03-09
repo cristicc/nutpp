@@ -22,7 +22,6 @@
 
 #include "login_session.h"
 #include "registration_view.h"
-#include "user_details_model.h"
 
 namespace nutpp {
 namespace auth {
@@ -37,17 +36,15 @@ AuthWidget::AuthWidget(LoginSession &session)
 std::unique_ptr<Wt::WWidget> AuthWidget::createRegistrationView(
     const Wt::Auth::Identity &id)
 {
-    auto registrationView
-        = std::make_unique<RegistrationView>(session_, this);
-    std::unique_ptr<Wt::Auth::RegistrationModel> model
-        = createRegistrationModel();
+    auto model = createRegistrationModel();
 
     if (id.isValid()) {
         model->registerIdentified(id);
     }
 
-    registrationView->setModel(std::move(model));
-    return std::move(registrationView);
+    auto view = std::make_unique<RegistrationView>(session_, this);
+    view->setModel(std::move(model));
+    return std::move(view);
 }
 } // namespace storage
 } // namespace nutpp

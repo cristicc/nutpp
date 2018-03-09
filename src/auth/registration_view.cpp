@@ -32,11 +32,10 @@ namespace auth {
 // C-tor.
 RegistrationView::RegistrationView(LoginSession &session,
                                    Wt::Auth::AuthWidget *auth_widget)
-    : Wt::Auth::RegistrationWidget(auth_widget),
-    session_(session)
+    : Wt::Auth::RegistrationWidget(auth_widget)
 {
     setTemplateText(tr("nutpp.auth.template.registration"));
-    details_model_ = std::make_unique<UserDetailsModel>(session_);
+    details_model_ = std::make_unique<UserDetailsModel>(session);
 
     auto combo = std::make_unique<Wt::WComboBox>();
     auto combo_ptr = combo.get();
@@ -63,6 +62,9 @@ RegistrationView::RegistrationView(LoginSession &session,
 
     updateView(details_model_.get());
 }
+
+// Destructor in .cpp required by unique_ptr to avoid incomplete type errors.
+RegistrationView::~RegistrationView() = default;
 
 // Specialization.
 bool RegistrationView::validate()

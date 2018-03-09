@@ -45,6 +45,9 @@ public:
     RegistrationView(LoginSession &session,
                      Wt::Auth::AuthWidget *auth_widget = nullptr);
 
+    /// Destructor.
+    ~RegistrationView();
+
 protected:
     /*
      * @brief Specialization to also validate the user details.
@@ -57,7 +60,6 @@ protected:
     virtual void registerUserDetails(Wt::Auth::User &user) override;
 
 private:
-    LoginSession &session_;
     std::unique_ptr<UserDetailsModel> details_model_;
 };
 } // namespace auth

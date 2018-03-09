@@ -78,6 +78,7 @@
     </div>
   </message>
 
+  <!-- Replaces Wt.Auth.template.registration. -->
   <message id="nutpp.auth.template.registration">
     <div class="Wt-auth-registration">
       <p class="lead">
@@ -149,9 +150,24 @@
     </div>
   </message>
 
-  <message id="Wt.Auth.template.logged-in">
-    <div class="Wt-auth-logged-in">
-      <b>${user-name}</b> ${logout}
+  <!-- Replaces Wt.Auth.template.logged-in. -->
+  <message id="nutpp.auth.template.logged-in">
+    <div class="nutpp-auth-logged-in">
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-sm-3">${user-profile-pic}</div>
+          <div class="col-sm-9">
+            <b>${user-name}</b><br/>${user-email}
+            <br/>${edit-account-button class="edit-acc"}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="row">
+          <div class="col-sm-4">${add-account-button}</div>
+          <div class="col-sm-8">${logout-button class="btn-primary"}</div>
+        </div>
+      </div>
     </div>
   </message>
 
@@ -163,27 +179,6 @@
         ${title-link}
       </div>
       ${contents}
-    </div>
-  </message>
-
-  <!-- ${logout-form} is bount to the object generated
-       from Wt.Auth.template.logged-in -->
-  <message id="nutpp.user-account-widget.template">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <div class="row">
-          <div class="col-sm-4">${user-img}</div>
-        </div>
-        <div class="row">
-          <div class="col-sm-4">${user-name}</div>
-        </div>
-        <div class="row">
-          <div class="col-sm-4">${user-email}</div>
-        </div>
-      </div>
-      <div class="panel-body">
-        ${logout-form}
-      </div>
     </div>
   </message>
 </messages>

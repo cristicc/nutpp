@@ -58,6 +58,7 @@ UserDetailsModel::UserDetailsModel(LoginSession &session)
 void UserDetailsModel::save(const Wt::Auth::User &auth_user)
 {
     Wt::Dbo::ptr<storage::User> user = session_.user(auth_user);
+    user.modify()->role = storage::UserRole::REGULAR;
     user.modify()->language
         = Wt::cpp17::any_cast<std::string>(value(LanguageField));
 }

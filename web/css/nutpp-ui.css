@@ -19,12 +19,30 @@
  * Customize bootstrap navigation bar.
  */
 
-.navbar-brand {
+/*.navbar-default {
+    background-color: #438c59;
+    border-color: #275635;
+}*/
+
+.navbar-default .navbar-brand {
     padding: 3px;
 }
 
-.navbar-brand > img {
+.navbar-default .navbar-brand > img {
     height: 44px;
+}
+
+.navbar-default .navbar-right > li:last-child > a {
+    padding: 9px;
+}
+
+.navbar-default .navbar-right > li:last-child > a > .Wt-icon {
+    border-radius: 50%;
+    height: 32px;
+    line-height: 32px;
+    width: 32px;
+    background-repeat: no-repeat;
+    display: block;
 }
 
 /*
@@ -49,4 +67,51 @@
 
 .Wt-auth-login .panel-body > .form-group {
     margin-bottom: 2px;
+}
+
+/*
+ * Popup widget for user account operations.
+ */
+
+.nutpp-auth-logged-in {
+    font-size: 13px;
+}
+
+.nutpp-auth-logged-in .btn {
+    font-size: 13px;
+    padding: 5px 10px;
+}
+
+.nutpp-auth-logged-in .btn.edit-acc {
+    margin-top: 8px
+}
+
+.nutpp-auth-logged-in .profile-pic-chg {
+    border-radius: 50%;
+    margin: 5px 15px 4px 2px;
+    overflow: hidden;
+    display: inline-block;
+    position: relative;
+    vertical-align: top;
+}
+
+.nutpp-auth-logged-in .profile-pic-chg > div {
+    height: 64px;
+    line-height: 64px;
+    width: 64px;
+    background-image: url(../images/default_user_profile_pic_64.png);
+    background-repeat: no-repeat;
+}
+
+.nutpp-auth-logged-in .profile-pic-chg > span {
+    color: #fff;
+    background: rgba(0,0,0,.66);
+    width: 64px;
+    line-height: 7px;
+    font-size: 7px;
+    font-weight: bold;
+    text-align: center;
+    position: absolute;
+    bottom: 0px;
+    padding: 5px 0px;
 }

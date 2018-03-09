@@ -90,7 +90,6 @@ Wt::Dbo::ptr<storage::User> LoginSession::user()
 Wt::Dbo::ptr<storage::User> LoginSession::user(const Wt::Auth::User &authUser)
 {
     Wt::Dbo::ptr<storage::AuthInfo> authInfo = users_->find(authUser);
-
     Wt::Dbo::ptr<storage::User> user = authInfo->user();
 
     if (!user) {
