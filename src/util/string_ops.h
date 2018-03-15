@@ -55,6 +55,37 @@ std::string replaceAll(const std::string &context,
  */
 std::string sanitizeFilePath(const std::string &path,
                              const std::string &root);
+
+/**
+ * @brief Tokenizes expression. This function is equivalent to C @c strtok.
+ *
+ * Input sequence is split into tokens, separated by separators.
+ * Each part is copied and added as a new element to the output container.
+ * Thus the result container must be able to hold copies of the matches
+ * or a reference to it.
+ *
+ * @param[in] str The string which will be searched.
+ * @param[in] delims The list of separators chars.
+ * @param[out] cont A container that can hold copies of references to the substrings.
+ *
+ * @return A reference to the result.
+ */
+template <class Container>
+Container &split(const std::string& str, const std::string& delims,
+                 Container& cont)
+{
+    std::size_t current, previous = 0;
+    current = str.find_first_of(delims);
+
+    while (current != std::string::npos) {
+        cont.push_back(str.substr(previous, current - previous));
+        previous = current + 1;
+        current = str.find_first_of(delims, previous);
+    }
+
+    cont.push_back(str.substr(previous, current - previous));
+    return cont;
+}
 } // namespace util
 } // namespace nutpp
 #endif // NUTPP_UTIL_STRINGOPS_H_

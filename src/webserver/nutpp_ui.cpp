@@ -29,16 +29,17 @@
 #include <atomic>
 #include <unistd.h>
 
-#include "Wt/Auth/PasswordService.h"
+#include <Wt/Auth/PasswordService.h>
 #include <Wt/WAnchor.h>
 #include <Wt/WBootstrapTheme.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WNavigationBar.h>
 #include <Wt/WOverlayLoadingIndicator.h>
 #include <Wt/WPopupMenu.h>
-#include <Wt/WPushButton.h>
 #include <Wt/WStackedWidget.h>
 #include <Wt/WText.h>
+
+#include <Wt/Http/Client.h>
 
 LOGNUTPP_LOGGER_WS;
 
@@ -63,7 +64,7 @@ private:
     // Logged in user identity.
     WT_USTRING auth_identity_;
     // Reference to the authentication widget.
-    nutpp::auth::AuthWidget *auth_widget_ = nullptr;
+    auth::AuthWidget *auth_widget_ = nullptr;
     // Reference to the main navigation bar.
     Wt::WNavigationBar *nav_bar_ = nullptr;
     // Popup widget for user account details.
@@ -128,7 +129,7 @@ NutppUI::NutppUI(const NutppRuntime &runtime)
     setTitle(Wt::WString::tr("nutpp.ws.app-title"));
 
     auto auth_widget
-        = std::make_unique<nutpp::auth::AuthWidget>(impl_->login_session_);
+        = std::make_unique<auth::AuthWidget>(impl_->login_session_);
     auth_widget->model()->addPasswordAuth(&auth::LoginSession::passwordAuth());
     auth_widget->model()->addOAuth(auth::LoginSession::oAuth());
     auth_widget->setRegistrationEnabled(true);
@@ -137,20 +138,37 @@ NutppUI::NutppUI(const NutppRuntime &runtime)
 
     // Handle user login/logout.
     impl_->login_session_.login().changed().connect([=]() {
+//FIXME: test done()
+//        auto client = addChild(std::make_unique<Wt::Http::Client>());
+//        client->setTimeout(std::chrono::seconds{15});
+//        client->setMaximumResponseSize(10 * 1024);
+//        client->done().connect([=](Wt::AsioWrapper::error_code err, const Wt::Http::Message& response) { LOGNUTPP_WARN("test ok"); });
+//        client->get("http://www.webtoolkit.eu/wt/blog/feed/");
+//        sleep(5);
+
         if (impl_->login_session_.login().loggedIn()) {
-            handleLoggedIn();
+            handleLoggedIn(false);
         } else {
-            LOGNUTPP_INFO("User " << impl_->auth_identity_ << " logged out");
-            root()->addWidget(std::make_unique<Wt::WText>(
-                                  Wt::WString::tr("nutpp.ws.logout-message")));
-            quit(Wt::WString::tr("nutpp.ws.restart-message"));
-            refresh();
+            auto msg_box = addChild(
+                std::make_unique<Wt::WMessageBox>(
+                    Wt::WString::tr("nutpp.auth.sign-out"),
+                    Wt::WString::tr("nutpp.auth.sign-out-message"),
+                    Wt::Icon::Information, Wt::StandardButton::Ok));
+
+            msg_box->buttonClicked().connect([=] {
+                LOGNUTPP_INFO("User " << impl_->auth_identity_ << " logged out");
+                removeChild(msg_box);
+                redirect("");
+                quit();
+            });
+
+            msg_box->show();
         }
     });
 
     // Handle automatic login (remember me).
     if (impl_->login_session_.login().loggedIn()) {
-        handleLoggedIn();
+        handleLoggedIn(true);
     }
 }
 
@@ -174,29 +192,26 @@ void NutppUI::refresh()
 }
 
 // Handles logged in.
-void NutppUI::handleLoggedIn()
+void NutppUI::handleLoggedIn(bool automatic)
 {
     const Wt::Auth::User &u = impl_->login_session_.login().user();
     impl_->auth_identity_ = u.identity(Wt::Auth::Identity::LoginName);
 
-    LOGNUTPP_INFO("User " << impl_->auth_identity_ << " logged in");
-    // Wt::Dbo::Transaction t(session_);
-    // dbo::ptr<User> user = session_.user();
-    // log("notice") << "(Favourite pet: " << user->favouritePet
-    // << ")";
+    const char *mode = automatic ? "automatically" : "manually";
+    LOGNUTPP_INFO("User " << impl_->auth_identity_ << " logged in " << mode);
 
-    // Mitigate session ID fixation attacks.
-    changeSessionId();
+    // Mitigate session ID fixation attacks, done by default on manual login.
+    if (automatic) {
+        changeSessionId();
+    }
+
+    // Create main page.
     createNavBar();
 }
 
 // Create resources.
 void NutppUI::createNavBar()
 {
-    // Don't need the auth widget anymore in the UI because
-    // the logout is triggered using a custom widget.
-    impl_->auth_widget_->hide();
-
     impl_->nav_bar_
         = root()->addWidget(std::make_unique<Wt::WNavigationBar>());
     impl_->nav_bar_->setResponsive(true);
@@ -266,60 +281,21 @@ void NutppUI::createNavBar()
     impl_->nav_bar_->addSearch(std::move(edit), Wt::AlignmentFlag::Right);
 
     // Create a popup widget for user account operations.
-    auto templ = std::make_unique<Wt::WTemplate>();
-    auto t = templ.get();
-    impl_->user_account_popup_
-        = std::make_unique<Wt::WPopupWidget>(std::move(templ));
+    impl_->user_account_popup_ = std::make_unique<Wt::WPopupWidget>(
+        root()->removeWidget(impl_->auth_widget_));
     impl_->user_account_popup_->setTransient(true);
 
-    t->setTemplateText(
-        Wt::WString::tr("nutpp.auth.template.logged-in"));
-
-    auto profile_templ = std::make_unique<Wt::WTemplate>(
-        "<a class=\"profile-pic-chg\" aria-label=\"Change profile picture\""
-        " href=\"\"><div title=\"" + Wt::WString::tr("nutpp.auth.profile-pic")
-        + "\"></div><span>" + Wt::WString::tr("nutpp.auth.profile-pic-change")
-        + "</span></a>");
-
-    t->bindWidget("user-profile-pic", std::move(profile_templ));
-    t->bindString("user-name", impl_->auth_identity_);
-    t->bindString("user-email", impl_->login_session_.login().user().email());
-
-    t->bindWidget(
-        "edit-account-button",
-        std::make_unique<Wt::WPushButton>(
-            Wt::WString::tr("nutpp.auth.edit-account")))
-                ->clicked().connect([=]() {
-                    impl_->user_account_popup_->hide();
-                });
-
-    t->bindWidget(
-        "add-account-button",
-        std::make_unique<Wt::WPushButton>(
-            Wt::WString::tr("nutpp.auth.add-account")))
-                ->clicked().connect([=]() {
-                    impl_->user_account_popup_->hide();
-                    impl_->auth_widget_->registerNewUser();
-                });
-
-    t->bindWidget(
-        "logout-button",
-        std::make_unique<Wt::WPushButton>(
-            Wt::WString::tr("nutpp.auth.sign-out")))
-                ->clicked().connect([=]() {
-                    impl_->user_account_popup_->hide();
-                    impl_->auth_widget_->model()->logout(
-                        impl_->auth_widget_->login());
-                });
-
-    //FIXME: not working
-    t->escapePressed().connect([=]() {
+    impl_->auth_widget_->loggedInViewClicked().connect([=]() {
         impl_->user_account_popup_->hide();
     });
 
     auto item = right_menu->addItem(
-        "images/default_user_profile_pic_32.png", "",
-        impl_->user_account_popup_.get(), &Wt::WWidget::show);
+        "", impl_->user_account_popup_.get(), &Wt::WWidget::show);
+    // Set the profile icon image as background to the menu item text element.
+    auto link = item->anchor();
+    link->setStyleClass("nutpp-navbar-auth");
+    link->widget(0)->setStyleClass(auth::AuthWidget::CSS_PROFILE_PIC_SM);
+    // Bind the popup widget.
     impl_->user_account_popup_->setAnchorWidget(
         item, Wt::Orientation::Vertical);
     impl_->user_account_popup_->hidden().connect([=]() {

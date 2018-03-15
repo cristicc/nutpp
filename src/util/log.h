@@ -56,6 +56,12 @@
 #define LOGNUTPP_LOGGER_STORAGE     LOGNUTPP_LOGGER("CORE.STORAGE")
 
 /**
+ * @brief Enables the usage of the @e Auth module logger
+ * in the source file where it is present.
+ */
+#define LOGNUTPP_LOGGER_AUTH        LOGNUTPP_LOGGER("CORE.AUTH")
+
+/**
  * @brief Inserts a new entry in the log file, on @e TRACE level.
  * Use this for the most detailed information possible.
  */

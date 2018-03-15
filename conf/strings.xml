@@ -5,8 +5,6 @@
 
 <message id="nutpp.ws.app-title">Nutpp Nutrition Utility</message>
 <message id="nutpp.ws.max-sessions-error">Max session number reached!</message>
-<message id="nutpp.ws.logout-message">Thank you for using Nutpp!</message>
-<message id="nutpp.ws.restart-message">The current session has been terminated. Proceed with login?</message>
 
 <message id="nutpp.lang.en">English</message>
 <message id="nutpp.lang.ro">Romanian</message>
@@ -20,7 +18,6 @@
 <message id="nutpp.nav.search-hint">Enter a search item</message>
 <message id="nutpp.nav.search-not-found">Nothing found for {1}.</message>
 
-
 <!-- Registration widget. -->
 
 <message id="nutpp.auth.language">Language</message>
@@ -33,6 +30,7 @@
 <message id="nutpp.auth.edit-account">My account</message>
 <message id="nutpp.auth.add-account">Add account</message>
 <message id="nutpp.auth.sign-out">Sign out</message>
+<message id="nutpp.auth.sign-out-message">Thank you for using Nutpp!</message>
 
 
 <!-- Authentication emails. -->

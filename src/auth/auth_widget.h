@@ -43,11 +43,34 @@ class LoginSession;
 class AuthWidget : public Wt::Auth::AuthWidget {
 public:
     /**
+     * Name of the CSS class for the large (64x64) profile picture.
+     */
+    static const char *CSS_PROFILE_PIC_LG;
+
+    /**
+     * Name of the CSS class for the small (32x32) profile picture.
+     */
+    static const char *CSS_PROFILE_PIC_SM;
+
+    /**
      * @brief Creates a class instance.
      * @param[in] A reference to a LoginSession instance.
      */
     AuthWidget(LoginSession &session);
 
+    /// Destructor.
+    ~AuthWidget();
+
+    /**
+     * @brief Signal that indicates the logged in view should
+     * be hidden.
+     *
+     * This signal is emitted as a result of a click on one of the
+     * LoggedIn view controls.
+     */
+    Wt::Signal<>& loggedInViewClicked() { return logged_in_clicked_; }
+
+protected:
     /**
      * @brief Creates a custom registration widget using
      * RegistrationView and UserDetailsModel.
@@ -55,8 +78,30 @@ public:
     virtual std::unique_ptr<Wt::WWidget> createRegistrationView(
         const Wt::Auth::Identity &id) override;
 
+    /**
+     * @brief Creates a widget to login using OAuth.
+     */
+    virtual void createOAuthLoginView() override;
+
+    /**
+     * @brief Creates a custom view shown when the user is logged in.
+     *
+     * The implementation renders the
+     * <tt>"nutpp.auth.template.logged-in"</tt> template.
+     */
+    virtual void createLoggedInView();
+
 private:
+    void fetchProfilePicture(Wt::Auth::OAuthProcess *oauth);
+    void setProfilePicture(const std::string &url);
+
+    Wt::Signal<> logged_in_clicked_;
+
     LoginSession &session_;
+
+    std::unique_ptr<Wt::WLink> profile_picture_sm_;
+    std::unique_ptr<Wt::WLink> profile_picture_lg_;
+    std::unique_ptr<Wt::Http::Client> http_client_;
 };
 } // namespace storage
 } // namespace nutpp

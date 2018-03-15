@@ -32,16 +32,12 @@
     height: 44px;
 }
 
-.navbar-default .navbar-right > li:last-child > a {
+.navbar-default .nutpp-navbar-auth {
     padding: 9px;
 }
 
-.navbar-default .navbar-right > li:last-child > a > .Wt-icon {
+.navbar-default .nutpp-auth-profile-pic-sm {
     border-radius: 50%;
-    height: 32px;
-    line-height: 32px;
-    width: 32px;
-    background-repeat: no-repeat;
     display: block;
 }
 
@@ -70,8 +66,26 @@
 }
 
 /*
- * Popup widget for user account operations.
+ * Nutpp defined authentication widgets.
  */
+
+.nutpp-auth-profile-pic-sm {
+    height: 32px;
+    line-height: 32px;
+    width: 32px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.nutpp-auth-profile-pic-lg {
+    height: 64px;
+    line-height: 64px;
+    width: 64px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
 
 .nutpp-auth-logged-in {
     font-size: 13px;
@@ -93,14 +107,6 @@
     display: inline-block;
     position: relative;
     vertical-align: top;
-}
-
-.nutpp-auth-logged-in .profile-pic-chg > div {
-    height: 64px;
-    line-height: 64px;
-    width: 64px;
-    background-image: url(../images/default_user_profile_pic_64.png);
-    background-repeat: no-repeat;
 }
 
 .nutpp-auth-logged-in .profile-pic-chg > span {

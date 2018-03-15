@@ -104,7 +104,7 @@ private:
     void refresh() override;
 
     // Handler for logged in user.
-    void handleLoggedIn();
+    void handleLoggedIn(bool automatic);
 
     // Create components.
     void createNavBar();
