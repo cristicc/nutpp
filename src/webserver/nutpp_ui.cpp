@@ -33,6 +33,7 @@
 #include <Wt/WAnchor.h>
 #include <Wt/WBootstrapTheme.h>
 #include <Wt/WLineEdit.h>
+#include <Wt/WLinkedCssStyleSheet.h>
 #include <Wt/WNavigationBar.h>
 #include <Wt/WOverlayLoadingIndicator.h>
 #include <Wt/WPopupMenu.h>
@@ -46,12 +47,55 @@ LOGNUTPP_LOGGER_WS;
 namespace nutpp {
 namespace webserver {
 /**
+ * @brief Replaces the default Bootstrap v3 theme with a 3rd party one:
+ * https://bootswatch.com/3/spacelab/bootstrap.css
+ *
+ * By default, the Bootstrap theme will use CSS resources that are shipped
+ * together with the Wt distribution, but it can be replaced with custom-built
+ * CSS by re-implementing styleSheets() method.
+ */
+class NutppTheme : public Wt::WBootstrapTheme {
+public:
+    // Forces the usage of Bootstrap v3.
+    NutppTheme()
+    {
+        setVersion(Wt::BootstrapVersion::v3);
+    }
+
+    /// Replace the default theme.
+    virtual std::vector<Wt::WLinkedCssStyleSheet> styleSheets() const override
+    {
+        std::vector<Wt::WLinkedCssStyleSheet> result;
+
+        result.push_back(
+            Wt::WLinkedCssStyleSheet(Wt::WLink("css/bootstrap.css")));
+
+        if (responsive() && wApp) {
+            Wt::WString v = wApp->metaHeader(
+                Wt::MetaHeaderType::Meta, "viewport");
+            if (v.empty()) {
+                wApp->addMetaHeader("viewport",
+                    "width=device-width, initial-scale=1");
+            }
+        }
+
+        result.push_back(
+            Wt::WLinkedCssStyleSheet(Wt::WLink("css/wt.css")));
+
+        return result;
+    }
+};
+
+/**
  * @brief Hides the implementation details from the NutppUI API.
  */
 class NutppUI::NutppUIImpl {
 public:
     // C-tor.
-    NutppUIImpl(const NutppRuntime &runtime);
+    NutppUIImpl(const NutppRuntime &runtime)
+        : db_model_(runtime.db_model_),
+        login_session_(runtime.db_model_)
+    {}
 
 private:
     // Counter used to limit max active sessions.
@@ -75,12 +119,6 @@ private:
 };
 
 std::atomic<int> NutppUI::NutppUIImpl::session_cnt = { 0 };
-
-// C-tor.
-NutppUI::NutppUIImpl::NutppUIImpl(const NutppRuntime &runtime)
-    : db_model_(runtime.db_model_),
-    login_session_(runtime.db_model_)
-{}
 
 // C-tor.
 NutppRuntime::NutppRuntime(
@@ -113,10 +151,9 @@ NutppUI::NutppUI(const NutppRuntime &runtime)
 
     LOGNUTPP_DEBUG("Creating app for session: " << sessionId());
 
-    auto theme = std::make_shared<Wt::WBootstrapTheme>();
-    theme->setVersion(Wt::BootstrapVersion::v3);
+    // Customize layout.
+    auto theme = std::make_shared<NutppTheme>();
     setTheme(theme);
-
     useStyleSheet("css/nutpp-ui.css");
     root()->addStyleClass("container");
     setLoadingIndicator(std::make_unique<Wt::WOverlayLoadingIndicator>());

@@ -18,24 +18,24 @@
  * Customize bootstrap navigation bar.
  */
 
-/*.navbar-default {
-    background-color: #438c59;
-    border-color: #275635;
-}*/
-
-.navbar-default .navbar-brand {
+.navbar-brand {
     padding: 3px;
 }
 
-.navbar-default .navbar-brand > img {
+.navbar-brand > img {
     height: 44px;
 }
 
-.navbar-default .nutpp-navbar-auth {
+.navbar-nav > li > a, .navbar-nav > li > a:hover {
+    padding-top: 16px;
+    padding-bottom: 14px;
+}
+
+.navbar-nav .nutpp-navbar-auth, .navbar-nav .nutpp-navbar-auth:hover {
     padding: 9px;
 }
 
-.navbar-default .nutpp-auth-profile-pic-sm {
+.navbar-nav .nutpp-auth-profile-pic-sm {
     border-radius: 50%;
     display: block;
 }
