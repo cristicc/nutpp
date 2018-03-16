@@ -43,14 +43,14 @@ class LoginSession;
 class AuthWidget : public Wt::Auth::AuthWidget {
 public:
     /**
-     * Name of the CSS class for the large (64x64) profile picture.
-     */
-    static const char *CSS_PROFILE_PIC_LG;
-
-    /**
      * Name of the CSS class for the small (32x32) profile picture.
      */
     static const char *CSS_PROFILE_PIC_SM;
+
+    /**
+     * Name of the CSS class for the large (64x64 or 96x96) profile picture.
+     */
+    static const char *CSS_PROFILE_PIC_LG;
 
     /**
      * @brief Creates a class instance.

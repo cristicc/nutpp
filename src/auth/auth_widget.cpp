@@ -37,8 +37,8 @@ LOGNUTPP_LOGGER_AUTH;
 namespace nutpp {
 namespace auth {
 // CSS
-const char *AuthWidget::CSS_PROFILE_PIC_LG = "nutpp-auth-profile-pic-lg";
 const char *AuthWidget::CSS_PROFILE_PIC_SM = "nutpp-auth-profile-pic-sm";
+const char *AuthWidget::CSS_PROFILE_PIC_LG = "nutpp-auth-profile-pic-lg";
 
 // C-tor.
 AuthWidget::AuthWidget(LoginSession &session)
@@ -140,11 +140,11 @@ void AuthWidget::createLoggedInView()
         + "</span></a>");
 
     wApp->styleSheet().addRule(
-        "." + std::string(CSS_PROFILE_PIC_LG),
-        "background-image: url('" + profile_picture_lg_->url() + "')");
-    wApp->styleSheet().addRule(
         "." + std::string(CSS_PROFILE_PIC_SM),
         "background-image: url('" + profile_picture_sm_->url() + "')");
+    wApp->styleSheet().addRule(
+        "." + std::string(CSS_PROFILE_PIC_LG),
+        "background-image: url('" + profile_picture_lg_->url() + "')");
 
     bindWidget("user-profile-pic", std::move(profile_templ));
     bindString(
@@ -288,6 +288,7 @@ void AuthWidget::fetchProfilePicture(Wt::Auth::OAuthProcess *oauth) {
 // Stores the received url.
 void AuthWidget::setProfilePicture(const std::string &url)
 {
+    //TODO: set url based on image size
     profile_picture_sm_->setUrl(url);
     profile_picture_lg_->setUrl(url);
 
