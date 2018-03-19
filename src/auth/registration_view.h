@@ -48,6 +48,11 @@ public:
     /// Destructor.
     ~RegistrationView();
 
+    /**
+     * @brief Specialization to update the user interface.
+     */
+    virtual void update() override;
+
 protected:
     /*
      * @brief Specialization to also validate the user details.

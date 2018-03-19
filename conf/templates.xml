@@ -155,10 +155,11 @@
     <div class="nutpp-auth-logged-in">
       <div class="modal-body">
         <div class="row">
-          <div class="col-sm-4">${user-profile-pic}</div>
-          <div class="col-sm-8">
-            <b>${user-name}</b><br/>${user-email}
-            <br/>${edit-account-button class="edit-acc"}
+          <div class="col-sm-4 profile-pic">${user-profile-pic}</div>
+          <div class="col-sm-8 profile-info">
+            <div><b>${user-name}</b></div>
+            <div>${user-email}</div>
+            ${edit-account-button class="edit-acc"}
           </div>
         </div>
       </div>

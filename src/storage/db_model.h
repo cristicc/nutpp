@@ -69,11 +69,12 @@ public:
      * all the necessary objects, including a default user account with
      * administrative role.
      *
+     * @param[out] users The no. of registered user accounts.
      * @param[in] force Enables a database reset by deleting all tables
      * followed by their re-creation.
      * @return @c false if errors occurred, or @c true otherwise.
      */
-    bool createSchema(bool force = false);
+    bool createSchema(int &users, bool force = false);
 
     /**
      * @brief Initializes a database session using a connection from the pool.
@@ -107,9 +108,6 @@ public:
 private:
     // Returns the no. of user accounts or -1 in case of errors.
     int getUserCount() const;
-
-    // Creates default admin account.
-    bool createDefaultUser();
 
     // Provides a connection pool for the application DB.
     std::unique_ptr<Wt::Dbo::SqlConnectionPool> conn_pool_;

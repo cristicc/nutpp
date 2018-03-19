@@ -46,7 +46,8 @@ int main(int /*argc*/, char ** /*argv*/)
     storage::DbModel model("test.db", 1);
 
     // Create DB.
-    if (!model.createSchema()) {
+    int users;
+    if (!model.createSchema(users)) {
         LOGNUTPP_FATAL("Database corrupted or not accessible");
         return 1;
     }

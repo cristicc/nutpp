@@ -59,6 +59,10 @@ std::unique_ptr<Wt::WWidget> AuthWidget::createRegistrationView(
     const Wt::Auth::Identity &id)
 {
     auto model = createRegistrationModel();
+    if (login().loggedIn()) {
+        model->setValue(Wt::Auth::RegistrationModel::LoginNameField,
+            login().user().identity(Wt::Auth::Identity::LoginName));
+    }
 
     if (id.isValid()) {
         model->registerIdentified(id);
@@ -132,19 +136,19 @@ void AuthWidget::createLoggedInView()
 {
     setTemplateText(tr("nutpp.auth.template.logged-in"));
 
-    auto profile_templ = std::make_unique<Wt::WTemplate>(
-        "<a class=\"profile-pic-chg\" aria-label=\"Change profile picture\""
-        " href=\"\"><div class=\"" + std::string(CSS_PROFILE_PIC_LG)
-        + "\" title=\"" + Wt::WString::tr("nutpp.auth.profile-pic")
-        + "\"></div><span>" + Wt::WString::tr("nutpp.auth.profile-pic-change")
-        + "</span></a>");
-
     wApp->styleSheet().addRule(
         "." + std::string(CSS_PROFILE_PIC_SM),
         "background-image: url('" + profile_picture_sm_->url() + "')");
     wApp->styleSheet().addRule(
         "." + std::string(CSS_PROFILE_PIC_LG),
         "background-image: url('" + profile_picture_lg_->url() + "')");
+
+    auto profile_templ = std::make_unique<Wt::WTemplate>(
+        "<a aria-label=\"Change profile picture\" href=\"\">"
+        "<div class=\"" + std::string(CSS_PROFILE_PIC_LG)
+        + "\" title=\"" + Wt::WString::tr("nutpp.auth.profile-pic")
+        + "\"></div><span>" + Wt::WString::tr("nutpp.auth.profile-pic-change")
+        + "</span></a>");
 
     bindWidget("user-profile-pic", std::move(profile_templ));
     bindString(

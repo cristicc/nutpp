@@ -78,7 +78,7 @@ bool DbModel::initialize(const std::string &db_file_path, int max_conn)
 }
 
 // Creates schema and default user.
-bool DbModel::createSchema(bool force)
+bool DbModel::createSchema(int &users, bool force)
 {
     dbo::Session s;
     if (!initSession(s)) {
@@ -91,27 +91,27 @@ bool DbModel::createSchema(bool force)
         } catch (const dbo::Exception &e) {}
     }
 
-    int count = getUserCount();
-    if (count > 0) {
+    users = getUserCount();
+    if (users > 0) {
         // Found at least one user, assume DB schema has been already created.
         return true;
     }
 
-    if (count < 0) {
+    if (users < 0) {
         // We got a failure when trying to count users, assume DB schema
         // has not been created yet.
         LOGNUTPP_INFO("Creating DB schema");
 
         try {
             s.createTables();
+            users = 0;
         } catch (const dbo::Exception &e) {
             LOGNUTPP_ERROR("Failed to create DB schema: " << e.what());
             return false;
         }
     }
 
-    // We have the schema, but no users, let's create the default one.
-    return createDefaultUser();
+    return true;
 }
 
 // Gets new session.
@@ -123,12 +123,15 @@ bool DbModel::initSession(dbo::Session &session, bool auth_only) const
 
         // Map authentication related classes to DB tables.
         session.mapClass<User>(User::kTableName);
+        session.mapClass<Patient>(Patient::kTableName);
         session.mapClass<AuthInfo>("auth_info");
         session.mapClass<AuthInfo::AuthIdentityType>("auth_identity");
         session.mapClass<AuthInfo::AuthTokenType>("auth_token");
 
         if (!auth_only) {
             // Map app specific classes to DB tables.
+            //TODO: check if this is even possible, otherwise get rid of
+            // auth_only parameter.
         }
 
         return true;
@@ -182,34 +185,6 @@ int DbModel::getUserCount() const
     } catch (const dbo::Exception &e) {}
 
     return -1;
-}
-
-// Creates default admin account.
-bool DbModel::createDefaultUser()
-{
-    LOGNUTPP_INFO("Creating default user account");
-
-    dbo::Session s;
-    if (!initSession(s)) {
-        return false;
-    }
-
-    try {
-        auto user = std::make_unique<storage::User>();
-
-        // FIXME: admin auth info
-// user->name = "Admin";
-// user->email = "admin@local";
-// user->passwd = "admin";
-        user->role = storage::UserRole::ADMIN;
-
-        s.add(std::move(user));
-    } catch (const dbo::Exception &e) {
-        LOGNUTPP_ERROR("Failed to create default user: " << e.what());
-        return false;
-    }
-
-    return saveSession(s);
 }
 } // namespace storage
 } // namespace nutpp

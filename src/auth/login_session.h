@@ -87,6 +87,13 @@ public:
     static void configureAuth();
 
     /**
+     * @brief Creates a default login user with admin privileges.
+     *
+     * The account has the name @e admin and the login password is @e admin.
+     */
+    static void createDefaultAccount(const storage::DbModel &db);
+
+    /**
      * @brief Gets access to the auth service.
      */
     static const Wt::Auth::AuthService &auth();

@@ -21,6 +21,7 @@
 #include "login_session.h"
 
 #include "storage/db_model.h"
+#include "util/log.h"
 
 #include <Wt/Auth/Dbo/AuthInfo.h>
 #include <Wt/Auth/AuthService.h>
@@ -30,6 +31,8 @@
 #include <Wt/Auth/PasswordService.h>
 #include <Wt/Auth/PasswordStrengthValidator.h>
 #include <Wt/Auth/PasswordVerifier.h>
+
+LOGNUTPP_LOGGER_AUTH;
 
 namespace nutpp {
 namespace auth {
@@ -65,6 +68,33 @@ void LoginSession::configureAuth()
 
     for (unsigned i = 0; i < nutppOAuthServices.size(); ++i) {
         nutppOAuthServices[i]->generateRedirectEndpoint();
+    }
+}
+
+void LoginSession::createDefaultAccount(const storage::DbModel &db)
+{
+    LOGNUTPP_INFO("Creating default user account");
+
+    try {
+        LoginSession ls(db);
+
+        std::unique_ptr<Wt::Auth::AbstractUserDatabase::Transaction> t(
+            ls.users().startTransaction());
+
+        Wt::Auth::User user = ls.users().registerNew();
+        user.setIdentity(Wt::Auth::Identity::LoginName, "admin");
+        user.setEmail("admin@nutpp.local");
+        LoginSession::passwordAuth().updatePassword(user, "admin");
+
+        Wt::Dbo::ptr<storage::User> nutpp_user = ls.user(user);
+        nutpp_user.modify()->role = storage::UserRole::ADMIN;
+        nutpp_user.modify()->language = "en";
+
+        if (t.get()) {
+            t->commit();
+        }
+    } catch (const Wt::Dbo::Exception &e) {
+        LOGNUTPP_ERROR("Failed to create default user: " << e.what());
     }
 }
 

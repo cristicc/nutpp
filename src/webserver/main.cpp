@@ -115,19 +115,23 @@ int main(int argc, char **argv)
         nutpp::registerSignals();
 
         // Initialize database.
+        int users;
         if (!db_model.initialize(
                 nutpp::util::sanitizeFilePath(
                     nutpp::webserver::readAppStringSetting("sqlite3Db"),
                     app_dir),
                 nutpp::webserver::readAppIntSetting("maxDbConnections"))
-            || !db_model.createSchema())
+            || !db_model.createSchema(users))
         {
             LOGNUTPP_FATAL("Database corrupted or not accessible");
             return 1;
         }
 
-        // Configure authentication services.
+        // Configure authentication services and create a default account.
         nutpp::auth::LoginSession::configureAuth();
+        if (users == 0) {
+            nutpp::auth::LoginSession::createDefaultAccount(db_model);
+        }
 
         // Set web contexts.
         server.addEntryPoint(

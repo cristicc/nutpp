@@ -23,9 +23,12 @@
 #include "login_session.h"
 #include "user_details_model.h"
 #include "util/model_ops.h"
+#include "util/string_ops.h"
 
 #include <Wt/WComboBox.h>
+#include <Wt/WContainerWidget.h>
 #include <Wt/WLineEdit.h>
+#include <Wt/WImage.h>
 
 namespace nutpp {
 namespace auth {
@@ -59,12 +62,28 @@ RegistrationView::RegistrationView(LoginSession &session,
                     combo_ptr->currentIndex(),
                     *details_model_->languageModel()));
         });
-
-    updateView(details_model_.get());
 }
 
 // Destructor in .cpp required by unique_ptr to avoid incomplete type errors.
 RegistrationView::~RegistrationView() = default;
+
+// Specialization.
+void RegistrationView::update()
+{
+    RegistrationWidget::update();
+    Wt::WContainerWidget *icons = resolve<Wt::WContainerWidget*>("icons");
+
+    // Change default paths to the OAuth icons.
+    for (int i = 0; i < icons->count(); i++) {
+        Wt::WImage *img = dynamic_cast<Wt::WImage *>(icons->widget(i));
+        if (img) {
+            img->setImageLink(
+                util::replaceAll(img->imageLink().url(), "css/", "images/"));
+        }
+    }
+
+    updateView(details_model_.get());
+}
 
 // Specialization.
 bool RegistrationView::validate()

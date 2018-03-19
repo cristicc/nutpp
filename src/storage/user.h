@@ -24,7 +24,8 @@
 #ifndef NUTPP_STORAGE_USER_H_
 #define NUTPP_STORAGE_USER_H_
 
-#include <string>
+#include "patient.h"
+
 #include <Wt/Auth/Dbo/AuthInfo.h>
 #include <Wt/Dbo/Types.h>
 
@@ -74,6 +75,9 @@ public:
     /// Wt standard authentication information.
     Wt::Dbo::weak_ptr<AuthInfo> auth_info;
 
+    /// A user may have one or more patients.
+    Wt::Dbo::collection<Wt::Dbo::ptr<Patient>> patients;
+
     /**
      * @brief Defines the User class persistence.
      * @param a Database object action.
@@ -84,6 +88,7 @@ public:
         Wt::Dbo::field(a, role, "role");
         Wt::Dbo::field(a, language, "language");
         Wt::Dbo::hasOne(a, auth_info, kTableName);
+        Wt::Dbo::hasMany(a, patients, Wt::Dbo::ManyToOne, "owner");
     }
 };
 } // namespace storage

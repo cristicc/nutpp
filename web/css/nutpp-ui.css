@@ -96,10 +96,27 @@
 }
 
 .nutpp-auth-logged-in .btn.edit-acc {
-    margin-top: 8px
+    margin-top: 15px
 }
 
-.nutpp-auth-logged-in .profile-pic-chg {
+.nutpp-auth-logged-in .profile-pic {
+    min-width: 96px;
+    max-width: 96px;
+    padding: 0px;
+    margin: 0px 5px 0px 15px;
+}
+
+.nutpp-auth-logged-in .profile-info {
+    padding-top: 5px;
+}
+
+@media (min-width: 768px) {
+    .nutpp-auth-logged-in .profile-info {
+        width: calc(100% - 120px);
+    }
+}
+
+.nutpp-auth-logged-in .profile-pic > div > a {
     border-radius: 50%;
     overflow: hidden;
     display: inline-block;
@@ -107,7 +124,7 @@
     vertical-align: top;
 }
 
-.nutpp-auth-logged-in .profile-pic-chg > span {
+.nutpp-auth-logged-in .profile-pic > div > a > span {
     color: #fff;
     background: rgba(0,0,0,.55);
     width: 96px;
