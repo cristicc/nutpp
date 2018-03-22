@@ -3,6 +3,7 @@
 #
 
 set(WEBSERVER_SRCS
+    email_validator.cpp
     main.cpp
     nutpp_ui.cpp
     patient_form_model.cpp

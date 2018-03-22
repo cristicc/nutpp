@@ -6,6 +6,8 @@
 <message id="nutpp.ws.app-title">Nutpp Nutrition Utility</message>
 <message id="nutpp.ws.max-sessions-error">Max session number reached!</message>
 
+<message id="nutpp.ws.email-invalid">Must be an email adress in the format 'a@b.c' and must not exceed 256 characters</message>
+
 <message id="nutpp.lang.en">English</message>
 <message id="nutpp.lang.ro">Romanian</message>
 <message id="nutpp.lang.de">German</message>
@@ -45,6 +47,7 @@
 <message id="nutpp.patient.gender-info">Choose the patient gender</message>
 <message id="nutpp.patient.phone">Phone no.</message>
 <message id="nutpp.patient.phone-info">Enter the patient phone number</message>
+<message id="nutpp.patient.phone-invalid">The patient phone number is invalid</message>
 <message id="nutpp.patient.note">Note</message>
 <message id="nutpp.patient.note-info">Provide any other relevant information</message>
 

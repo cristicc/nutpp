@@ -22,6 +22,8 @@
 
 #include "patient_form_model.h"
 
+#include <Wt/WDate.h>
+#include <Wt/WDateEdit.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WPushButton.h>
 
@@ -35,9 +37,24 @@ PatientFormView::PatientFormView()
     setFormWidget(PatientFormModel::kNameField,
                   std::make_unique<Wt::WLineEdit>());
     setFormWidget(PatientFormModel::kEmailField,
-                  std::make_unique<Wt::WLineEdit>());
-    setFormWidget(PatientFormModel::kBirthDateField,
-                  std::make_unique<Wt::WLineEdit>());
+                  std::make_unique<Wt::WDateEdit>());
+
+    //FIXME: missing calendar icon
+    auto date_edit = std::make_unique<Wt::WDateEdit>();
+    setFormWidget(
+        PatientFormModel::kBirthDateField,
+        std::move(date_edit),
+        [=, date_edit = date_edit.get()]() { // updateViewValue()
+            Wt::WDate date
+                = Wt::cpp17::any_cast<Wt::WDate>(
+                    model_->value(PatientFormModel::kBirthDateField));
+            date_edit->setDate(date);
+        },
+        [=, date_edit = date_edit.get()]() { // updateModelValue()
+            Wt::WDate date = date_edit->date();
+            model_->setValue(PatientFormModel::kBirthDateField, date);
+        });
+
     setFormWidget(PatientFormModel::kGenderField,
                   std::make_unique<Wt::WLineEdit>());
     setFormWidget(PatientFormModel::kPhoneNoField,
@@ -51,7 +68,15 @@ PatientFormView::PatientFormView()
 
     save->clicked().connect(
         [=]() {
-            // TODO: call model save
+            updateModel(model_.get());
+
+            if (model_->validate()) {
+                // model_->save();
+                // removeFromParent();
+                updateView(model_.get());
+            } else {
+                updateView(model_.get());
+            }
         });
 
     auto cancel = bindWidget(
