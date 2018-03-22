@@ -27,29 +27,30 @@
 
 namespace nutpp {
 namespace auth {
-const Wt::WFormModel::Field UserDetailsModel::LanguageField = "language";
-const std::string UserDetailsModel::kDefaultLanguage = "en";
+const Wt::WFormModel::Field UserDetailsModel::kLanguageField = "language";
 
-const std::vector<std::string> UserDetailsModel::languages = {
+const std::vector<std::string> UserDetailsModel::kLanguages = {
     { "en", "ro", "de" }
 };
+const std::string &UserDetailsModel::kDefaultLanguage
+    = UserDetailsModel::kLanguages[0];
 
 // C-tor.
 UserDetailsModel::UserDetailsModel(LoginSession &session)
     : Wt::WFormModel(),
     session_(session)
 {
-    addField(LanguageField, Wt::WString::tr("nutpp.auth.language-info"));
-    setValue(LanguageField, kDefaultLanguage);
+    addField(kLanguageField, Wt::WString::tr("nutpp.auth.language-info"));
+    setValue(kLanguageField, kDefaultLanguage);
 
     // Initialize language model.
     language_model_
-        = std::make_shared<Wt::WStandardItemModel>(languages.size(), 1);
+        = std::make_shared<Wt::WStandardItemModel>(kLanguages.size(), 1);
 
-    for (size_t i = 0; i < languages.size(); ++i) {
-        language_model_->setData(i, 0, languages[i], Wt::ItemDataRole::User);
+    for (size_t i = 0; i < kLanguages.size(); ++i) {
+        language_model_->setData(i, 0, kLanguages[i], Wt::ItemDataRole::User);
         language_model_->setData(
-            i, 0, Wt::WString::tr("nutpp.lang." + languages[i]),
+            i, 0, Wt::WString::tr("nutpp.lang." + kLanguages[i]),
             Wt::ItemDataRole::Display);
     }
 }
@@ -60,7 +61,7 @@ void UserDetailsModel::save(const Wt::Auth::User &auth_user)
     Wt::Dbo::ptr<storage::User> user = session_.user(auth_user);
     user.modify()->role = storage::UserRole::REGULAR;
     user.modify()->language
-        = Wt::cpp17::any_cast<std::string>(value(LanguageField));
+        = Wt::cpp17::any_cast<std::string>(value(kLanguageField));
 }
 
 // Getter.

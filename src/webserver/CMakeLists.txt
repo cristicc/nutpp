@@ -5,6 +5,9 @@
 set(WEBSERVER_SRCS
     main.cpp
     nutpp_ui.cpp
+    patient_form_model.cpp
+    patient_form_view.cpp
+    patient_list_view.cpp
     settings.cpp
 )
 

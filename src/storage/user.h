@@ -27,7 +27,6 @@
 #include "patient.h"
 
 #include <Wt/Auth/Dbo/AuthInfo.h>
-#include <Wt/Dbo/Types.h>
 
 namespace nutpp {
 namespace storage {
@@ -72,10 +71,10 @@ public:
     /// User preferred language.
     std::string language;
 
-    /// Wt standard authentication information.
+    /// Owns Wt standard authentication information.
     Wt::Dbo::weak_ptr<AuthInfo> auth_info;
 
-    /// A user may have one or more patients.
+    /// Owns zero or more patients.
     Wt::Dbo::collection<Wt::Dbo::ptr<Patient>> patients;
 
     /**

@@ -98,8 +98,8 @@ public:
      * modifications.
      *
      * @param[in,out] session The database session.
-     * @param[in] tableName If specified, only the objects of that table are
-     * reread.
+     * @param[in] table_name If specified, only the objects
+     * of that table are reread.
      * @return @c false if errors occurred, or @c true otherwise.
      */
     bool discardSession(Wt::Dbo::Session &session,

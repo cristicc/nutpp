@@ -41,25 +41,22 @@ RegistrationView::RegistrationView(LoginSession &session,
     details_model_ = std::make_unique<UserDetailsModel>(session);
 
     auto combo = std::make_unique<Wt::WComboBox>();
-    auto combo_ptr = combo.get();
-
     combo->setModel(details_model_->languageModel());
-
     setFormWidget(
-        UserDetailsModel::LanguageField,
+        UserDetailsModel::kLanguageField,
         std::move(combo),
-        [=] { // updateViewValue()
-            combo_ptr->setCurrentIndex(
+        [=, combo = combo.get()]() { // updateViewValue()
+            combo->setCurrentIndex(
                 util::getItemModelCurrentIndex<std::string>(
-                    UserDetailsModel::LanguageField,
+                    UserDetailsModel::kLanguageField,
                     *details_model_->languageModel(),
                     *details_model_));
         },
-        [=] { // updateModelValue()
+        [=, combo = combo.get()]() { // updateModelValue()
             details_model_->setValue(
-                UserDetailsModel::LanguageField,
+                UserDetailsModel::kLanguageField,
                 util::getItemModelValueAt<std::string>(
-                    combo_ptr->currentIndex(),
+                    combo->currentIndex(),
                     *details_model_->languageModel()));
         });
 }
@@ -71,14 +68,17 @@ RegistrationView::~RegistrationView() = default;
 void RegistrationView::update()
 {
     RegistrationWidget::update();
-    Wt::WContainerWidget *icons = resolve<Wt::WContainerWidget*>("icons");
 
     // Change default paths to the OAuth icons.
-    for (int i = 0; i < icons->count(); i++) {
-        Wt::WImage *img = dynamic_cast<Wt::WImage *>(icons->widget(i));
-        if (img) {
-            img->setImageLink(
-                util::replaceAll(img->imageLink().url(), "css/", "images/"));
+    Wt::WContainerWidget *icons = resolve<Wt::WContainerWidget *>("icons");
+    if (icons) {
+        for (int i = 0; i < icons->count(); i++) {
+            Wt::WImage *img = dynamic_cast<Wt::WImage *>(icons->widget(i));
+            if (img) {
+                img->setImageLink(
+                    util::replaceAll(img->imageLink().url(),
+                                     "css/", "images/"));
+            }
         }
     }
 

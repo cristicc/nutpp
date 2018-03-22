@@ -51,14 +51,12 @@
     <div class="col-sm-offset-2 col-sm-8 Wt-auth-login">
       <legend>${tr:Wt.Auth.login-form-title}</legend>
       <p>${tr:Wt.Auth.login-form-info}</p>
-
       <div class="form-horizontal">
         ${<if:passwords>}
           ${block:nutpp.mvc.field user-name Wt.Auth}
           ${block:nutpp.mvc.field password Wt.Auth}
           ${block:nutpp.mvc.checkbox remember-me Wt.Auth}
         ${</if:passwords>}
-
         <div class="panel panel-default">
           <div class="panel-body">
             <div class="form-group">
@@ -78,20 +76,18 @@
     </div>
   </message>
 
-  <!-- Replaces Wt.Auth.template.registration. -->
+  <!-- Extends Wt.Auth.template.registration. -->
   <message id="nutpp.auth.template.registration">
     <div class="Wt-auth-registration">
       <p class="lead">
         ${password-description}
       </p>
-
       <div class="form-horizontal">
         ${block:nutpp.mvc.field2 user-name Wt.Auth '${confirm-is-you class="btn-link"}'}
         ${block:nutpp.mvc.field choose-password Wt.Auth}
         ${block:nutpp.mvc.field repeat-password Wt.Auth}
         ${block:nutpp.mvc.field email Wt.Auth}
         ${block:nutpp.mvc.field language nutpp.auth}
-
         ${<if:oauth>}
           <p class="lead">
             ${oauth-description}
@@ -101,7 +97,6 @@
             <div class="col-sm-6">${icons}</div>
           </div>
         ${</if:oauth>}
-
         <div class="modal-footer">
           ${ok-button class="btn-primary"} ${cancel-button}
         </div>
@@ -116,7 +111,6 @@
         ${block:nutpp.mvc.field password Wt.Auth}
         ${block:nutpp.mvc.field choose-password Wt.Auth}
         ${block:nutpp.mvc.field repeat-password Wt.Auth}
-
         <div class="modal-footer">
           ${ok-button class="btn-primary"} ${cancel-button}
         </div>
@@ -129,7 +123,6 @@
       <div class="form-horizontal">
         ${block:nutpp.form.field email "${tr:Wt.Auth.email}"
             "${tr:Wt.Auth.email-info}" ""}
-
         <div class="modal-footer">
           ${send-button class="btn-primary"} ${cancel-button}
         </div>
@@ -142,7 +135,6 @@
       <div class="form-horizontal">
         ${block:nutpp.mvc.field user-name Wt.Auth}
         ${block:nutpp.mvc.field password Wt.Auth}
-
         <div class="modal-footer">
           ${ok-button class="btn-primary"} ${cancel-button}
         </div>
@@ -180,6 +172,33 @@
         ${title-link}
       </div>
       ${contents}
+    </div>
+  </message>
+
+  <!-- Form to add a new patient or edit an existing one. -->
+  <message id="nutpp.ws.template.edit-patient">
+    <div class="nutpp-edit-patient">
+      <div class="form-horizontal">
+        ${block:nutpp.mvc.field name nutpp.patient}
+        ${block:nutpp.mvc.field email nutpp.patient}
+        ${block:nutpp.mvc.field birth-date nutpp.patient}
+        ${block:nutpp.mvc.field gender nutpp.patient}
+        ${block:nutpp.mvc.field phone nutpp.patient}
+        ${block:nutpp.mvc.field note nutpp.patient}
+        <div class="modal-footer">
+          ${save-button class="btn-primary"} ${cancel-button}
+        </div>
+      </div>
+    </div>
+  </message>
+
+  <!-- Listing for existing patients. -->
+  <message id="nutpp.ws.template.list-patient">
+    <div class="nutpp-list-patient">
+      <div class="row">
+        <div class="col-sm-4">${add-pacient-button class="btn-primary"}</div>
+        <div class="col-sm-8">${page-control}</div>
+      </div>
     </div>
   </message>
 </messages>

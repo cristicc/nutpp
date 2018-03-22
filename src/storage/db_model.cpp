@@ -124,6 +124,7 @@ bool DbModel::initSession(dbo::Session &session, bool auth_only) const
         // Map authentication related classes to DB tables.
         session.mapClass<User>(User::kTableName);
         session.mapClass<Patient>(Patient::kTableName);
+        session.mapClass<PatientProgress>(PatientProgress::kTableName);
         session.mapClass<AuthInfo>("auth_info");
         session.mapClass<AuthInfo::AuthIdentityType>("auth_identity");
         session.mapClass<AuthInfo::AuthTokenType>("auth_token");

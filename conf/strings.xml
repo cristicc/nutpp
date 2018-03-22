@@ -32,6 +32,24 @@
 <message id="nutpp.auth.sign-out">Sign out</message>
 <message id="nutpp.auth.sign-out-message">Thank you for using Nutpp!</message>
 
+<!-- Patient widget. -->
+
+<message id="nutpp.patient.add-new">Add new patient</message>
+<message id="nutpp.patient.name">Name</message>
+<message id="nutpp.patient.name-info">Enter the name of the patient</message>
+<message id="nutpp.patient.email">Email</message>
+<message id="nutpp.patient.email-info">Enter the patient email address</message>
+<message id="nutpp.patient.birth-date">Birth date</message>
+<message id="nutpp.patient.birth-date-info">Choose the patient birth date</message>
+<message id="nutpp.patient.gender">Gender</message>
+<message id="nutpp.patient.gender-info">Choose the patient gender</message>
+<message id="nutpp.patient.phone">Phone no.</message>
+<message id="nutpp.patient.phone-info">Enter the patient phone number</message>
+<message id="nutpp.patient.note">Note</message>
+<message id="nutpp.patient.note-info">Provide any other relevant information</message>
+
+<message id="nutpp.patient.save">Save</message>
+
 
 <!-- Authentication emails. -->
 

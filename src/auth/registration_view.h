@@ -41,6 +41,7 @@ public:
     /**
      * @brief Creates a class instance.
      * @param[in] session The user authentication manager for current session.
+     * @param[in] auth_widget Reference to an existing authentication widget.
      */
     RegistrationView(LoginSession &session,
                      Wt::Auth::AuthWidget *auth_widget = nullptr);
@@ -54,14 +55,10 @@ public:
     virtual void update() override;
 
 protected:
-    /*
-     * @brief Specialization to also validate the user details.
-     */
+    /// Specialization to also validate the user details.
     virtual bool validate() override;
 
-    /**
-     * @brief Specialization to register user details.
-     */
+    /// Specialization to register user details.
     virtual void registerUserDetails(Wt::Auth::User &user) override;
 
 private:

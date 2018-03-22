@@ -20,7 +20,9 @@
 
 #include "nutpp_ui.h"
 
+#include "patient_list_view.h"
 #include "settings.h"
+
 #include "auth/auth_widget.h"
 #include "auth/login_session.h"
 #include "storage/db_model.h"
@@ -39,7 +41,7 @@
 #include <Wt/WPopupMenu.h>
 #include <Wt/WStackedWidget.h>
 #include <Wt/WText.h>
-
+// TODO: test only
 #include <Wt/Http/Client.h>
 
 LOGNUTPP_LOGGER_WS;
@@ -75,7 +77,7 @@ public:
                 Wt::MetaHeaderType::Meta, "viewport");
             if (v.empty()) {
                 wApp->addMetaHeader("viewport",
-                    "width=device-width, initial-scale=1");
+                                    "width=device-width, initial-scale=1");
             }
         }
 
@@ -91,10 +93,13 @@ public:
  */
 class NutppUI::NutppUIImpl {
 public:
-    // C-tor.
-    NutppUIImpl(const NutppRuntime &runtime)
-        : db_model_(runtime.db_model_),
-        login_session_(runtime.db_model_)
+    /**
+     * @brief Instantiates the implementation details.
+     * @param[in] db Reference to the database model.
+     */
+    NutppUIImpl(const storage::DbModel &db)
+        : db_model_(db),
+        login_session_(db)
     {}
 
 private:
@@ -120,18 +125,10 @@ private:
 
 std::atomic<int> NutppUI::NutppUIImpl::session_cnt = { 0 };
 
-// C-tor.
-NutppRuntime::NutppRuntime(
-    const Wt::WEnvironment &env,
-    const storage::DbModel &model)
-    : env_(env),
-    db_model_(model)
-{}
-
 // Creates web app.
-NutppUI::NutppUI(const NutppRuntime &runtime)
-    : WApplication(runtime.env_),
-    impl_(std::make_unique<NutppUI::NutppUIImpl>(runtime))
+NutppUI::NutppUI(const Wt::WEnvironment &env, const storage::DbModel &db)
+    : WApplication(env),
+    impl_(std::make_unique<NutppUI::NutppUIImpl>(db))
 {
     // Relaxed memory order constraint is fine since there is not data sync
     // involved in the usage of session_cnt.
@@ -174,34 +171,38 @@ NutppUI::NutppUI(const NutppRuntime &runtime)
     impl_->auth_widget_ = root()->addWidget(std::move(auth_widget));
 
     // Handle user login/logout.
-    impl_->login_session_.login().changed().connect([=]() {
-//FIXME: test done()
-//        auto client = addChild(std::make_unique<Wt::Http::Client>());
-//        client->setTimeout(std::chrono::seconds{15});
-//        client->setMaximumResponseSize(10 * 1024);
-//        client->done().connect([=](Wt::AsioWrapper::error_code err, const Wt::Http::Message& response) { LOGNUTPP_WARN("test ok"); });
-//        client->get("http://www.webtoolkit.eu/wt/blog/feed/");
-//        sleep(5);
+    impl_->login_session_.login().changed().connect(
+        [=]() {
+// FIXME: done() not called
+// auto client = addChild(std::make_unique<Wt::Http::Client>());
+// client->setTimeout(std::chrono::seconds{15});
+// client->setMaximumResponseSize(10 * 1024);
+// client->done().connect([=](Wt::AsioWrapper::error_code err, const
+// Wt::Http::Message& response) { LOGNUTPP_WARN("test ok"); });
+// client->get("http://www.webtoolkit.eu/wt/blog/feed/");
+// sleep(5);
 
-        if (impl_->login_session_.login().loggedIn()) {
-            handleLoggedIn(false);
-        } else {
-            auto msg_box = addChild(
-                std::make_unique<Wt::WMessageBox>(
-                    Wt::WString::tr("nutpp.auth.sign-out"),
-                    Wt::WString::tr("nutpp.auth.sign-out-message"),
-                    Wt::Icon::Information, Wt::StandardButton::Ok));
+            if (impl_->login_session_.login().loggedIn()) {
+                handleLoggedIn(false);
+            } else {
+                auto msg_box = addChild(
+                    std::make_unique<Wt::WMessageBox>(
+                        Wt::WString::tr("nutpp.auth.sign-out"),
+                        Wt::WString::tr("nutpp.auth.sign-out-message"),
+                        Wt::Icon::Information, Wt::StandardButton::Ok));
 
-            msg_box->buttonClicked().connect([=] {
-                LOGNUTPP_INFO("User " << impl_->auth_identity_ << " logged out");
-                removeChild(msg_box);
-                redirect("");
-                quit();
-            });
+                msg_box->buttonClicked().connect(
+                    [=]() {
+                        LOGNUTPP_INFO("User " << impl_->auth_identity_
+                                              << " logged out");
+                        removeChild(msg_box);
+                        redirect("");
+                        quit();
+                    });
 
-            msg_box->show();
-        }
-    });
+                msg_box->show();
+            }
+        });
 
     // Handle automatic login (remember me).
     if (impl_->login_session_.login().loggedIn()) {
@@ -265,7 +266,7 @@ void NutppUI::createNavBar()
         std::make_unique<Wt::WMenu>(contents_stack_left));
 
     left_menu->addItem(Wt::WString::tr("nutpp.nav.patients"),
-                       std::make_unique<Wt::WText>("Lista pacienti.."))
+                       std::make_unique<PatientListView>())
     ->setLink(Wt::WLink(Wt::LinkType::InternalPath, "/patients"));
 
     auto search_result_tmp
@@ -273,7 +274,8 @@ void NutppUI::createNavBar()
     auto search_result = search_result_tmp.get();
 
     left_menu->addItem(Wt::WString::tr("nutpp.nav.forms"),
-                       std::move(search_result_tmp));
+                       std::move(search_result_tmp))
+    ->setLink(Wt::WLink(Wt::LinkType::InternalPath, "/forms"));
 
     // Setup a Right-aligned menu.
     auto right_menu = impl_->nav_bar_->addMenu(
@@ -286,45 +288,45 @@ void NutppUI::createNavBar()
     popup->addSeparator();
     popup->addItem("About");
 
-    auto popup_tmp = popup.get();
-    popup->itemSelected().connect([=](Wt::WMenuItem *item) {
-        auto msg_box = popup_tmp->addChild(
-            std::make_unique<Wt::WMessageBox>(
-                "Help",
-                Wt::WString("<p>Showing Help: {1}</p>").arg(item->text()),
-                Wt::Icon::Information, Wt::StandardButton::Ok));
+    popup->itemSelected().connect(
+        [popup = popup.get()](Wt::WMenuItem *item) {
+            auto msg_box = popup->addChild(
+                std::make_unique<Wt::WMessageBox>(
+                    "Help",
+                    Wt::WString("<p>Showing Help: {1}</p>").arg(item->text()),
+                    Wt::Icon::Information, Wt::StandardButton::Ok));
 
-        msg_box->buttonClicked().connect([=] {
-            popup_tmp->removeChild(msg_box);
+            msg_box->buttonClicked().connect(
+                [=]() { popup->removeChild(msg_box); });
+
+            msg_box->show();
         });
 
-        msg_box->show();
-    });
-
     right_menu->addItem(Wt::WString::tr("nutpp.nav.help"))
-        ->setMenu(std::move(popup));
+    ->setMenu(std::move(popup));
 
     // Add a Search control.
     auto edit = std::make_unique<Wt::WLineEdit>();
     edit->setPlaceholderText(Wt::WString::tr("nutpp.nav.search-hint"));
 
-    auto edit_tmp = edit.get();
-    edit->enterPressed().connect([=] {
-        left_menu->select(0); // is the index of the "Patients"
-        search_result->setText(
-            Wt::WString::tr("nutpp.nav.search-not-found").arg(edit_tmp->text()));
-    });
+    edit->enterPressed().connect(
+        [=, edit = edit.get()]() {
+            left_menu->select(0); // is the index of the "Patients"
+            search_result->setText(
+                Wt::WString::tr("nutpp.nav.search-not-found").arg(
+                    edit->text()));
+        });
 
     impl_->nav_bar_->addSearch(std::move(edit), Wt::AlignmentFlag::Right);
 
     // Create a popup widget for user account operations.
+    // FIXME: crash on registering new identity for current login
     impl_->user_account_popup_ = std::make_unique<Wt::WPopupWidget>(
         root()->removeWidget(impl_->auth_widget_));
     impl_->user_account_popup_->setTransient(true);
 
-    impl_->auth_widget_->loggedInViewClicked().connect([=]() {
-        impl_->user_account_popup_->hide();
-    });
+    impl_->auth_widget_->loggedInViewClicked().connect(
+        [=]() { impl_->user_account_popup_->hide(); });
 
     auto item = right_menu->addItem(
         "", impl_->user_account_popup_.get(), &Wt::WWidget::show);
@@ -335,9 +337,8 @@ void NutppUI::createNavBar()
     // Bind the popup widget.
     impl_->user_account_popup_->setAnchorWidget(
         item, Wt::Orientation::Vertical);
-    impl_->user_account_popup_->hidden().connect([=]() {
-        right_menu->select(nullptr);
-    });
+    impl_->user_account_popup_->hidden().connect(
+        [=]() { right_menu->select(nullptr); });
 }
 } // namespace webserver
 } // namespace nutpp

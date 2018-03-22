@@ -24,14 +24,14 @@
 #ifndef NUTPP_STORAGE_PATIENT_H_
 #define NUTPP_STORAGE_PATIENT_H_
 
-#include <Wt/Dbo/Types.h>
+#include "patient_progress.h"
+
 #include <Wt/WDateTime.h>
 
 namespace nutpp {
 namespace storage {
 // Fwd decl.
 class User;
-
 /**
  * @brief Class mapping the "patient" database table.
  */
@@ -46,12 +46,17 @@ public:
     std::string email;
     /// Patient birth date.
     Wt::WDateTime birth_date;
-    /// Patient sex (m/f).
-    std::string sex;
+    /// Patient gender (m/f).
+    std::string gender;
     /// Patient phone no.
     std::string phone_no;
+    /// Patient note.
+    std::string note;
 
-    /// The user that owns the patient.
+    /// Owns zero or more progress indicators.
+    Wt::Dbo::collection<Wt::Dbo::ptr<PatientProgress>> progress_inds;
+
+    /// Owned by a user account.
     Wt::Dbo::ptr<User> owner;
 
     /**
@@ -64,8 +69,10 @@ public:
         Wt::Dbo::field(a, name, "name");
         Wt::Dbo::field(a, email, "email");
         Wt::Dbo::field(a, birth_date, "birth_date");
-        Wt::Dbo::field(a, sex, "sex");
+        Wt::Dbo::field(a, gender, "gender");
         Wt::Dbo::field(a, phone_no, "phone_no");
+        Wt::Dbo::field(a, note, "note");
+        Wt::Dbo::hasMany(a, progress_inds, Wt::Dbo::ManyToOne, kTableName);
         Wt::Dbo::belongsTo(a, owner, "owner");
     }
 };

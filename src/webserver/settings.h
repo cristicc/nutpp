@@ -32,7 +32,8 @@ namespace webserver {
  * @brief Reads a string setting from the Web server configuration.
  *
  * @param[in] name The name of the setting.
- * @param[in] defaultValue The value to be used if the setting is not available.
+ * @param[in] default_value The value to be used if the setting
+ * is not available.
  *
  * @return The string value read.
  */
@@ -57,7 +58,7 @@ std::string silentReadAppStringSetting(const char *name);
  * @brief Reads an integer setting from the application configuration.
  *
  * @param[in] name The name of the setting.
- * @param[in] defaultValue The value to be used if the setting is not available.
+ * @param[in] default_value The value to be used if the setting is not available.
  *
  * @return The integer value read.
  */
@@ -67,7 +68,7 @@ int readAppIntSetting(const char *name, int default_value = 0);
  * @brief Reads a boolean setting from the application configuration.
  *
  * @param[in] name The name of the setting.
- * @param[in] defaultValue The value to be used if the setting is not available.
+ * @param[in] default_value The value to be used if the setting is not available.
  *
  * @return The boolean value read.
  */

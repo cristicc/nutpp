@@ -54,7 +54,7 @@ public:
 
     /**
      * @brief Creates a class instance.
-     * @param[in] A reference to a LoginSession instance.
+     * @param[in] session A reference to a LoginSession instance.
      */
     AuthWidget(LoginSession &session);
 

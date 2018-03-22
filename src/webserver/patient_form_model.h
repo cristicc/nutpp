@@ -18,51 +18,59 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * @file
- * @brief Model for custom user details.
+ * @brief Model for patient form.
  */
 
-#ifndef NUTPP_AUTH_USERDETAILSMODEL_H_
-#define NUTPP_AUTH_USERDETAILSMODEL_H_
+#ifndef NUTPP_AUTH_PATIENTFORMMODEL_H_
+#define NUTPP_AUTH_PATIENTFORMMODEL_H_
 
 #include <Wt/WFormModel.h>
 
 namespace nutpp {
-namespace auth {
-// Fwd declaration.
-class LoginSession;
+namespace webserver {
 
 /**
- * @brief A model to handle custom user details.
+ * @brief A model for PatientFormView.
  */
-class UserDetailsModel : public Wt::WFormModel {
+class PatientFormModel : public Wt::WFormModel {
 public:
-    /// User language.
-    static const Field kLanguageField;
+    /// Patient name.
+    static const Field kNameField;
+    /// Patient email.
+    static const Field kEmailField;
+    /// Patient birth date.
+    static const Field kBirthDateField;
+    /// Patient gender (m/f).
+    static const Field kGenderField;
+    /// Patient phone no.
+    static const Field kPhoneNoField;
+    /// Patient note.
+    static const Field kNoteField;
+
+    /// Physical activity.
+    static const Field kActivityField;
 
     /**
      * @brief Instantiates the model.
-     * @param[in] session A reference to a LoginSession instance.
      */
-    UserDetailsModel(LoginSession &session);
+    PatientFormModel();
 
     /**
-     * @brief Stores the user details.
-     * @param[in] auth_user The authenticated user.
+     * @brief Stores the user details in database.
      */
-    void save(const Wt::Auth::User &auth_user);
+    void save();
 
     /**
      * @brief Gets access to language model.
      */
-    std::shared_ptr<Wt::WAbstractItemModel> languageModel();
+    std::shared_ptr<Wt::WAbstractItemModel> activityModel();
 
 private:
-    static const std::vector<std::string> kLanguages;
-    static const std::string &kDefaultLanguage;
+    static const std::vector<std::string> kActivities;
+    static const std::string &kDefaultActivity;
 
-    LoginSession &session_;
-    std::shared_ptr<Wt::WStandardItemModel> language_model_;
+    std::shared_ptr<Wt::WStandardItemModel> activity_model_;
 };
 } // namespace auth
 } // namespace nutpp
-#endif // NUTPP_AUTH_USERDETAILSMODEL_H_
+#endif // NUTPP_AUTH_PATIENTFORMMODEL_H_

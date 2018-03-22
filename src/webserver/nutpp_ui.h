@@ -57,26 +57,6 @@ class DbModel;
  * @brief Namespace containing the sources for the webserver component.
  */
 namespace webserver {
-// TODO: move this to a separate file and class, with getters.
-
-/**
- * @brief Holds information related to the application runtime environment.
- */
-struct NutppRuntime {
-    /**
-     * @brief Creates a runtime instance.
-     */
-    NutppRuntime(
-        const Wt::WEnvironment &env,
-        const storage::DbModel &model);
-
-    /// Reference to the Wt application environment.
-    const Wt::WEnvironment &env_;
-
-    /// Reference to the database model that includes a connection pool.
-    const storage::DbModel &db_model_;
-};
-
 /**
  * @brief Represents an application instance for a single Web session.
  *
@@ -88,9 +68,10 @@ public:
     /**
      * @brief Creates an application instance for the current session.
      *
-     * @param[in] runtime Application runtime.
+     * @param[in] env Wt environment.
+     * @param[in] db Database model.
      */
-    NutppUI(const NutppRuntime &runtime);
+    NutppUI(const Wt::WEnvironment &env, const storage::DbModel &db);
     ~NutppUI();
 
     /**

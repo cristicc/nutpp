@@ -138,7 +138,7 @@ int main(int argc, char **argv)
             Wt::EntryPointType::Application,
             [&](const Wt::WEnvironment &env) {
                 return std::make_unique<nutpp::webserver::NutppUI>(
-                    nutpp::webserver::NutppRuntime(env, db_model));
+                    env, db_model);
             },
             nutpp::webserver::readAppStringSetting("deploymentURI"));
 
