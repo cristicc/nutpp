@@ -18,30 +18,52 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "email_validator.h"
+#include "db_session.h"
+
+#include "db_model.h"
+
+namespace dbo = Wt::Dbo;
 
 namespace nutpp {
-namespace webserver {
-// C-tor.
-EmailValidator::EmailValidator()
-    : Wt::WRegExpValidator("([^.@]+)(\\.[^.@]+)*@([^.@]+\\.)+([^.@]+)")
+namespace storage {
+// Constructor.
+DbSession::DbSession(const DbModel &db, bool create_trans)
 {
-    setInvalidNoMatchText(Wt::WString::tr("nutpp.ws.email-invalid"));
-}
+    db.initSession(session_);
 
-// Performs validation.
-Wt::WValidator::Result EmailValidator::validate(const WT_USTRING &input) const
-{
-    Wt::WValidator::Result result = Wt::WRegExpValidator::validate(input);
-
-    if (result.state() == Wt::ValidationState::Valid
-        && input.toUTF8().length() > 256)
-    {
-        result = Wt::WValidator::Result(
-            Wt::ValidationState::Invalid, invalidNoMatchText());
+    if (create_trans) {
+        createTransaction();
     }
-
-    return result;
 }
-} // namespace webserver
+
+// Creates transaction.
+void DbSession::createTransaction()
+{
+    if (!trans_) {
+        trans_ = std::make_unique<Wt::Dbo::Transaction>(session_);
+    }
+}
+
+// Commits transaction.
+bool DbSession::commit()
+{
+    createTransaction();
+    return trans_->commit();
+}
+
+// Roll-backs active transaction.
+void DbSession::rollback()
+{
+    if (trans_) {
+        trans_->rollback();
+    }
+}
+
+// Discards db session.
+void DbSession::discard(const char *table_name)
+{
+    rollback();
+    session_.rereadAll(table_name);
+}
+} // namespace storage
 } // namespace nutpp

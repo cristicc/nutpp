@@ -68,7 +68,7 @@ public:
      * This signal is emitted as a result of a click on one of the
      * LoggedIn view controls.
      */
-    Wt::Signal<>& loggedInViewClicked() { return logged_in_clicked_; }
+    Wt::Signal<> &loggedInViewClicked() { return logged_in_clicked_; }
 
 protected:
     /**
@@ -92,6 +92,8 @@ protected:
     virtual void createLoggedInView();
 
 private:
+    void oAuthDone(Wt::Auth::OAuthProcess *oauth,
+                   const Wt::Auth::Identity &identity);
     void fetchProfilePicture(Wt::Auth::OAuthProcess *oauth);
     void setProfilePicture(const std::string &url);
 

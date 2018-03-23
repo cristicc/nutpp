@@ -58,13 +58,12 @@ public:
         log4cplus::LogLevel console_log_level = kDefaultConsoleLogLevel);
 
     /// Copy constructor not allowed.
-    LogInitializer(LogInitializer const &) = delete;
+    LogInitializer(const LogInitializer &) = delete;
     /// Move constructor not allowed.
     LogInitializer(LogInitializer &&) = delete;
     /// Assignment not allowed.
-    LogInitializer &operator=(LogInitializer const &) = delete;
-
-    /// Move assignment allowed.
+    LogInitializer &operator=(const LogInitializer &) = delete;
+    /// Move assignment not allowed.
     LogInitializer &operator=(LogInitializer &&) = delete;
 
     /// Destructor.

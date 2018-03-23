@@ -6,6 +6,7 @@ set(LIBRARY_NAME ${STORAGE_COMPONENT})
 
 set(LIBRARY_SRCS
     db_model.cpp
+    db_session.cpp
 )
 
 set(LIBRARY_LIBS

@@ -21,11 +21,14 @@
 #include "patient_form_view.h"
 
 #include "patient_form_model.h"
+#include "util/model_ops.h"
 
+#include <Wt/WComboBox.h>
 #include <Wt/WDate.h>
 #include <Wt/WDateEdit.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WPushButton.h>
+#include <Wt/WTextArea.h>
 
 namespace nutpp {
 namespace webserver {
@@ -37,9 +40,8 @@ PatientFormView::PatientFormView()
     setFormWidget(PatientFormModel::kNameField,
                   std::make_unique<Wt::WLineEdit>());
     setFormWidget(PatientFormModel::kEmailField,
-                  std::make_unique<Wt::WDateEdit>());
+                  std::make_unique<Wt::WLineEdit>());
 
-    //FIXME: missing calendar icon
     auto date_edit = std::make_unique<Wt::WDateEdit>();
     setFormWidget(
         PatientFormModel::kBirthDateField,
@@ -55,12 +57,33 @@ PatientFormView::PatientFormView()
             model_->setValue(PatientFormModel::kBirthDateField, date);
         });
 
-    setFormWidget(PatientFormModel::kGenderField,
-                  std::make_unique<Wt::WLineEdit>());
+    auto combo = std::make_unique<Wt::WComboBox>();
+    combo->setModel(model_->genderModel());
+    setFormWidget(
+        PatientFormModel::kGenderField,
+        std::move(combo),
+        [=, combo = combo.get()]() { // updateViewValue()
+            combo->setCurrentIndex(
+                util::getItemModelCurrentIndex<std::string>(
+                    PatientFormModel::kGenderField,
+                    *model_->genderModel(),
+                    *model_));
+        },
+        [=, combo = combo.get()]() { // updateModelValue()
+            model_->setValue(
+                PatientFormModel::kGenderField,
+                util::getItemModelValueAt<std::string>(
+                    combo->currentIndex(),
+                    *model_->genderModel()));
+        });
+
     setFormWidget(PatientFormModel::kPhoneNoField,
                   std::make_unique<Wt::WLineEdit>());
-    setFormWidget(PatientFormModel::kNoteField,
-                  std::make_unique<Wt::WLineEdit>());
+
+    auto area = std::make_unique<Wt::WTextArea>();
+    area->setColumns(25);
+    area->setRows(5);
+    setFormWidget(PatientFormModel::kNoteField, std::move(area));
 
     auto save = bindWidget(
         "save-button",
@@ -70,12 +93,15 @@ PatientFormView::PatientFormView()
         [=]() {
             updateModel(model_.get());
 
-            if (model_->validate()) {
-                // model_->save();
-                // removeFromParent();
+            if (!model_->validate()) {
                 updateView(model_.get());
-            } else {
-                updateView(model_.get());
+                return;
+            }
+
+            bool result = model_->save();
+            removeFromParent();
+            if (!result) {
+                //TODO: show error
             }
         });
 

@@ -33,23 +33,26 @@
  * @warning To be used only after the NutppUI instance has been created,
  * so NOT during the execution of the NutppUI constructor.
  */
-#define NUTPP_APP   static_cast<nutpp::webserver::NutppUI *>(wApp)
+#define NUTPP_APP static_cast<nutpp::webserver::NutppUI *>(wApp)
 
 /**
- * @brief Macro to access the nutpp::webserver::NutppUI instance
+ * @brief Macro to access the nutpp::auth::LoginSession instance
  * for the current session.
  *
  * @warning To be used only after the NutppUI instance has been created,
  * so NOT during the execution of the NutppUI constructor.
  */
-#define NUTPP_DB    NUTPP_APP->getDbModel()
+#define NUTPP_LOGIN NUTPP_APP->getLoginSession()
 
 /**
  * @brief Namespace for the @e Nutpp application.
  */
 namespace nutpp {
+namespace auth {
+class LoginSession;
+} // namespace auth
+
 namespace storage {
-// Fwd declaration.
 class DbModel;
 } // namespace storage
 
@@ -72,13 +75,12 @@ public:
      * @param[in] db Database model.
      */
     NutppUI(const Wt::WEnvironment &env, const storage::DbModel &db);
+
+    /// Destructor.
     ~NutppUI();
 
-    /**
-     * @brief Gets access to the DB model instance.
-     * @return The DB model instance shared between all web sessions.
-     */
-    const storage::DbModel &getDbModel();
+    /// Gets access to the login session instance.
+    auth::LoginSession &getLoginSession();
 
 private:
     // Specialization to handle application refresh
@@ -91,8 +93,8 @@ private:
     void createNavBar();
 
     // Hide implementation details.
-    class NutppUIImpl;
-    std::unique_ptr<NutppUIImpl> impl_;
+    class Impl;
+    std::unique_ptr<Impl> impl_;
 };
 } // namespace webserver
 } // namespace nutpp

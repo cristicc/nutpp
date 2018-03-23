@@ -64,11 +64,10 @@ public:
         setVersion(Wt::BootstrapVersion::v3);
     }
 
-    /// Replace the default theme.
+    /// Replace the Wt provided bootstrap.css.
     virtual std::vector<Wt::WLinkedCssStyleSheet> styleSheets() const override
     {
         std::vector<Wt::WLinkedCssStyleSheet> result;
-
         result.push_back(
             Wt::WLinkedCssStyleSheet(Wt::WLink("css/bootstrap.css")));
 
@@ -81,8 +80,11 @@ public:
             }
         }
 
+        // Use Wt provided wt.css.
+        std::string theme_dir
+            = resourcesUrl() + std::to_string(static_cast<int>(version()));
         result.push_back(
-            Wt::WLinkedCssStyleSheet(Wt::WLink("css/wt.css")));
+            Wt::WLinkedCssStyleSheet(Wt::WLink(theme_dir + "/wt.css")));
 
         return result;
     }
@@ -91,18 +93,21 @@ public:
 /**
  * @brief Hides the implementation details from the NutppUI API.
  */
-class NutppUI::NutppUIImpl {
+class NutppUI::Impl {
 public:
     /**
      * @brief Instantiates the implementation details.
      * @param[in] db Reference to the database model.
      */
-    NutppUIImpl(const storage::DbModel &db)
+    Impl(const storage::DbModel &db)
         : db_model_(db),
         login_session_(db)
     {}
 
 private:
+    // Grants access to all resources.
+    friend class NutppUI;
+
     // Counter used to limit max active sessions.
     static std::atomic<int> session_cnt;
 
@@ -118,17 +123,14 @@ private:
     Wt::WNavigationBar *nav_bar_ = nullptr;
     // Popup widget for user account details.
     std::unique_ptr<Wt::WPopupWidget> user_account_popup_;
-
-    // Grants access to all resources.
-    friend class NutppUI;
 };
 
-std::atomic<int> NutppUI::NutppUIImpl::session_cnt = { 0 };
+std::atomic<int> NutppUI::Impl::session_cnt = { 0 };
 
 // Creates web app.
 NutppUI::NutppUI(const Wt::WEnvironment &env, const storage::DbModel &db)
     : WApplication(env),
-    impl_(std::make_unique<NutppUI::NutppUIImpl>(db))
+    impl_(std::make_unique<NutppUI::Impl>(db))
 {
     // Relaxed memory order constraint is fine since there is not data sync
     // involved in the usage of session_cnt.
@@ -217,10 +219,10 @@ NutppUI::~NutppUI()
     impl_->session_cnt.fetch_sub(1, std::memory_order_relaxed);
 }
 
-// Gets access to db model.
-const storage::DbModel &NutppUI::getDbModel()
+// Gets access to loggin session.
+auth::LoginSession &NutppUI::getLoginSession()
 {
-    return impl_->db_model_;
+    return impl_->login_session_;
 }
 
 // Refreshes web app.

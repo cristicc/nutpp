@@ -21,12 +21,18 @@
 #include "patient_form_model.h"
 
 #include "email_validator.h"
+#include "nutpp_ui.h"
+#include "auth/login_session.h"
+#include "storage/db_session.h"
 #include "storage/patient.h"
+#include "util/log.h"
 
 #include <Wt/WDateValidator.h>
 #include <Wt/WLengthValidator.h>
 #include <Wt/WRegExpValidator.h>
 #include <Wt/WStandardItemModel.h>
+
+LOGNUTPP_LOGGER_WS;
 
 namespace nutpp {
 namespace webserver {
@@ -42,9 +48,7 @@ std::shared_ptr<Wt::WValidator> createNameValidator()
 // Email validator.
 std::shared_ptr<Wt::WValidator> createEmailValidator()
 {
-    auto v = std::make_shared<EmailValidator>();
-    v->setMandatory(true);
-    return v;
+    return std::make_shared<EmailValidator>();
 }
 
 // Birth date validator.
@@ -99,6 +103,8 @@ const std::string &PatientFormModel::kDefaultActivity
 PatientFormModel::PatientFormModel()
     : Wt::WFormModel()
 {
+    initializeModels();
+
     // Add model fields.
     addField(kNameField, Wt::WString::tr("nutpp.patient.name-info"));
     addField(kEmailField, Wt::WString::tr("nutpp.patient.email-info"));
@@ -119,9 +125,64 @@ PatientFormModel::PatientFormModel()
 
     // Set default values.
     setValue(kBirthDateField, Wt::WDate());
+    setValue(kGenderField, std::string(""));
     setValue(kActivityField, kDefaultActivity);
+}
 
-    // Initialize activity model.
+// Persistence.
+bool PatientFormModel::save()
+{
+    auto patient = std::make_unique<storage::Patient>();
+    patient->name = valueText(kNameField).toUTF8();
+    patient->email = valueText(kEmailField).toUTF8();
+    patient->birth_date
+        = Wt::cpp17::any_cast<Wt::WDate>(value(kBirthDateField));
+    patient->gender = valueText(kGenderField).toUTF8();
+    patient->phone_no = valueText(kPhoneNoField).toUTF8();
+    patient->note = valueText(kNoteField).toUTF8();
+    patient->owner = NUTPP_LOGIN.user();
+
+    try {
+        NUTPP_LOGIN.dbSession().getDboSession().add(std::move(patient));
+        return NUTPP_LOGIN.dbSession().commit();
+    } catch (const std::exception &e) {
+        LOGNUTPP_ERROR("Failed to save patient: " << e.what());
+    }
+
+    return false;
+}
+
+// Getter.
+std::shared_ptr<Wt::WAbstractItemModel> PatientFormModel::genderModel()
+{
+    return gender_model_;
+}
+
+// Getter.
+std::shared_ptr<Wt::WAbstractItemModel> PatientFormModel::activityModel()
+{
+    return activity_model_;
+}
+
+// Init models.
+void PatientFormModel::initializeModels()
+{
+    // Gender model.
+    static const std::vector<std::string> genders = { "", "m", "f" };
+
+    gender_model_
+        = std::make_shared<Wt::WStandardItemModel>(genders.size(), 1);
+
+    for (size_t i = 0; i < genders.size(); ++i) {
+        gender_model_->setData(i, 0, genders[i], Wt::ItemDataRole::User);
+        gender_model_->setData(
+            i, 0,
+            Wt::WString::tr("nutpp.patient.gender."
+                            + (i > 0 ? genders[i] : "n")),
+            Wt::ItemDataRole::Display);
+    }
+
+    // Activity model.
     activity_model_
         = std::make_shared<Wt::WStandardItemModel>(kActivities.size(), 1);
 
@@ -131,21 +192,6 @@ PatientFormModel::PatientFormModel()
             i, 0, Wt::WString::tr("nutpp.lang." + kActivities[i]),
             Wt::ItemDataRole::Display);
     }
-}
-
-// Persistence.
-void PatientFormModel::save()
-{
-// Wt::Dbo::ptr<storage::User> user = session_.user(auth_user);
-// user.modify()->role = storage::UserRole::REGULAR;
-// user.modify()->language
-// = Wt::cpp17::any_cast<std::string>(value(LanguageField));
-}
-
-// Getter.
-std::shared_ptr<Wt::WAbstractItemModel> PatientFormModel::activityModel()
-{
-    return activity_model_;
 }
 } // namespace auth
 } // namespace nutpp

@@ -57,18 +57,23 @@ public:
 
     /**
      * @brief Stores the user details in database.
+     * @return @c true if success, @c false otherwise.
      */
-    void save();
+    bool save();
 
-    /**
-     * @brief Gets access to language model.
-     */
+    /// Gets access to gender model.
+    std::shared_ptr<Wt::WAbstractItemModel> genderModel();
+
+    /// Gets access to activity model.
     std::shared_ptr<Wt::WAbstractItemModel> activityModel();
 
 private:
     static const std::vector<std::string> kActivities;
     static const std::string &kDefaultActivity;
 
+    void initializeModels();
+
+    std::shared_ptr<Wt::WStandardItemModel> gender_model_;
     std::shared_ptr<Wt::WStandardItemModel> activity_model_;
 };
 } // namespace auth

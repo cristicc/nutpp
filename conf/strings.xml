@@ -51,6 +51,9 @@
 <message id="nutpp.patient.note">Note</message>
 <message id="nutpp.patient.note-info">Provide any other relevant information</message>
 
+<message id="nutpp.patient.gender.n">Select gender</message>
+<message id="nutpp.patient.gender.m">Male</message>
+<message id="nutpp.patient.gender.f">Female</message>
 <message id="nutpp.patient.save">Save</message>
 
 

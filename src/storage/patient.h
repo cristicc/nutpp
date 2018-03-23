@@ -26,7 +26,7 @@
 
 #include "patient_progress.h"
 
-#include <Wt/WDateTime.h>
+#include <Wt/WDate.h>
 
 namespace nutpp {
 namespace storage {
@@ -45,7 +45,7 @@ public:
     /// Patient email.
     std::string email;
     /// Patient birth date.
-    Wt::WDateTime birth_date;
+    Wt::WDate birth_date;
     /// Patient gender (m/f).
     std::string gender;
     /// Patient phone no.

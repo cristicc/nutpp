@@ -36,6 +36,42 @@ LOGNUTPP_LOGGER_AUTH;
 
 namespace nutpp {
 namespace auth {
+// JSON parsing utilities based on Wt/Auth/OidcService.C.
+namespace {
+// Parses json.
+std::string parseClaims(const Wt::Json::Object &claims)
+{
+    // TODO: fetch language
+    // claims.get("locale").orIfNull("")
+    return claims.get("picture").orIfNull("");
+}
+
+// Parses auth token.
+bool parseIdToken(const std::string &id_token, std::string &result)
+{
+    std::vector<std::string> parts;
+    util::split(id_token, ".", parts);
+
+    if (parts.size() != 3) {
+        LOGNUTPP_ERROR("Malformed id_token: '" << id_token << "'");
+        return false;
+    }
+
+    Wt::Json::Object payload_json;
+    Wt::Json::ParseError err;
+
+    bool ok = Wt::Json::parse(
+        Wt::Utils::base64Decode(parts[1]), payload_json, err, false);
+    if (!ok) {
+        LOGNUTPP_ERROR("Failed to parse id_token: '" << err.what());
+        return false;
+    }
+
+    result = parseClaims(payload_json);
+    return !result.empty();
+}
+} // namespace
+
 // CSS
 const char *AuthWidget::CSS_PROFILE_PIC_SM = "nutpp-auth-profile-pic-sm";
 const char *AuthWidget::CSS_PROFILE_PIC_LG = "nutpp-auth-profile-pic-lg";
@@ -61,14 +97,14 @@ std::unique_ptr<Wt::WWidget> AuthWidget::createRegistrationView(
     auto model = createRegistrationModel();
     if (login().loggedIn()) {
         model->setValue(Wt::Auth::RegistrationModel::LoginNameField,
-            login().user().identity(Wt::Auth::Identity::LoginName));
+                        login().user().identity(Wt::Auth::Identity::LoginName));
     }
 
     if (id.isValid()) {
         model->registerIdentified(id);
     }
 
-    //FIXME: get rid of session_ attribute and pass only the necessary info
+    // FIXME: get rid of session_ attribute and pass only the necessary info
     auto view = std::make_unique<RegistrationView>(session_, this);
     view->setModel(std::move(model));
     return std::move(view);
@@ -91,42 +127,7 @@ void AuthWidget::createOAuthLoginView()
                 std::make_unique<Wt::Auth::OAuthWidget>(*service));
             w->setImageLink("images/oauth-" + service->name() + ".png");
 
-            w->authenticated().connect([=](
-                Wt::Auth::OAuthProcess *oauth,
-                const Wt::Auth::Identity& identity)
-            {
-                if (identity.isValid()) {
-                    LOGNUTPP_INFO(
-                        "OAuth " << oauth->service().name()
-                        << " identity confirmed: " << identity.id()
-                        << ", " << identity.name() << ", " << identity.email());
-
-                    fetchProfilePicture(oauth);
-
-                    std::unique_ptr<Wt::Auth::AbstractUserDatabase::Transaction>
-                        t(model()->users().startTransaction());
-
-                    Wt::Auth::User user
-                        = model()->baseAuth()->identifyUser(
-                            identity, model()->users());
-
-                    if (user.isValid()) {
-                        model()->loginUser(login(), user);
-                    } else {
-                        registerNewUser(identity);
-                    }
-
-                    if (t.get()) {
-                        //FIXME: handle db errors
-                        t->commit();
-                    }
-                } else {
-                    LOGNUTPP_ERROR(
-                        "OAuth " << oauth->service().name()
-                        << " identity not confirmed: " << oauth->error());
-                    displayError(oauth->error());
-                }
-            });
+            w->authenticated().connect(this, &AuthWidget::oAuthDone);
         }
     }
 }
@@ -160,69 +161,82 @@ void AuthWidget::createLoggedInView()
         "edit-account-button",
         std::make_unique<Wt::WPushButton>(
             Wt::WString::tr("nutpp.auth.edit-account")))
-                ->clicked().connect([=]() {
-                    logged_in_clicked_.emit();
-                });
+    ->clicked().connect(
+        [=]() { logged_in_clicked_.emit(); });
 
     bindWidget(
         "add-account-button",
         std::make_unique<Wt::WPushButton>(
             Wt::WString::tr("nutpp.auth.add-account")))
-                ->clicked().connect([=]() {
-                    logged_in_clicked_.emit();
-                    registerNewUser();
-                });
+    ->clicked().connect(
+        [=]() {
+            logged_in_clicked_.emit();
+            registerNewUser();
+        });
 
     bindWidget(
         "logout-button",
         std::make_unique<Wt::WPushButton>(
             Wt::WString::tr("nutpp.auth.sign-out")))
-                ->clicked().connect([=]() {
-                    logged_in_clicked_.emit();
-                    model()->logout(login());
-                });
+    ->clicked().connect(
+        [=]() {
+            logged_in_clicked_.emit();
+            model()->logout(login());
+        });
 
-    //FIXME: not working
-    escapePressed().connect([=]() {
-        logged_in_clicked_.emit();
-    });
+    // FIXME: not working
+    escapePressed().connect(
+        [=]() {
+            logged_in_clicked_.emit();
+        });
 }
 
-// JSON parsing utilities based on Wt/Auth/OidcService.C.
-namespace {
-    std::string parseClaims(const Wt::Json::Object& claims)
-    {
-        //TODO: fetch language
-        //claims.get("locale").orIfNull("")
-        return claims.get("picture").orIfNull("");
-    }
+// Handle oAuth.
+void AuthWidget::oAuthDone(
+    Wt::Auth::OAuthProcess *oauth,
+    const Wt::Auth::Identity &identity)
+{
+    if (identity.isValid()) {
+        LOGNUTPP_INFO(
+            "OAuth " << oauth->service().name()
+                     << " identity confirmed: " << identity.id()
+                     << ", " << identity.name() << ", "
+                     << identity.email());
 
-    bool parseIdToken(const std::string& id_token, std::string &result) {
-        std::vector <std::string> parts;
-        util::split(id_token, ".", parts);
+        fetchProfilePicture(oauth);
 
-        if (parts.size() != 3) {
-            LOGNUTPP_ERROR("Malformed id_token: '" << id_token << "'");
-            return false;
+        try {
+            std::unique_ptr<Wt::Auth::AbstractUserDatabase::Transaction>
+            t(model()->users().startTransaction());
+
+            Wt::Auth::User user = model()->baseAuth()->identifyUser(
+                identity, model()->users());
+
+            if (user.isValid()) {
+                model()->loginUser(login(), user);
+            } else {
+                registerNewUser(identity);
+            }
+
+            if (t) {
+                t->commit();
+            }
+        } catch (const std::exception &e) {
+            LOGNUTPP_ERROR("Failed to register new user: "
+                           << e.what());
         }
-
-        Wt::Json::Object payload_json;
-        Wt::Json::ParseError err;
-
-        bool ok = Wt::Json::parse(
-            Wt::Utils::base64Decode(parts[1]), payload_json, err, false);
-        if (!ok) {
-            LOGNUTPP_ERROR("Failed to parse id_token: '" << err.what());
-            return false;
-        }
-
-        result = parseClaims(payload_json);
-        return !result.empty();
+    } else {
+        LOGNUTPP_ERROR(
+            "OAuth " << oauth->service().name()
+                     << " identity not confirmed: "
+                     << oauth->error());
+        displayError(oauth->error());
     }
-} // namespace
+}
 
 // Fetches the url of the profile image.
-void AuthWidget::fetchProfilePicture(Wt::Auth::OAuthProcess *oauth) {
+void AuthWidget::fetchProfilePicture(Wt::Auth::OAuthProcess *oauth)
+{
     auto &token = oauth->token();
 
     if (!token.idToken().empty()) {
@@ -233,26 +247,27 @@ void AuthWidget::fetchProfilePicture(Wt::Auth::OAuthProcess *oauth) {
         }
     }
 
-    //FIXME: done() signal never called
+    // FIXME: done() signal never called
     http_client_ = std::make_unique<Wt::Http::Client>();
     http_client_->setTimeout(std::chrono::seconds(10));
     http_client_->setMaximumResponseSize(10 * 1024);
 
     http_client_->done().connect(
-        [=](Wt::AsioWrapper::error_code err, const Wt::Http::Message& response)
-        {
+        [=](Wt::AsioWrapper::error_code err,
+            const Wt::Http::Message &response) {
             Wt::WApplication::instance()->resumeRendering();
 
             if (err) {
                 LOGNUTPP_WARN("User info request failed: " << err.message());
-                //authenticated().emit(Identity::Invalid);
+                // authenticated().emit(Identity::Invalid);
                 return;
             }
 
             LOGNUTPP_TRACE("User info request body: " << response.body());
 
             if (response.status() != 200) {
-                LOGNUTPP_WARN("User info request returned: " << response.status());
+                LOGNUTPP_WARN("User info request returned: "
+                              << response.status());
                 return;
             }
 
@@ -261,17 +276,16 @@ void AuthWidget::fetchProfilePicture(Wt::Auth::OAuthProcess *oauth) {
             bool ok = Wt::Json::parse(response.body(), user_info, e);
 
             if (ok) {
-                //authenticated().emit(parseClaims(userInfo));
+                // authenticated().emit(parseClaims(userInfo));
                 std::string result = parseClaims(user_info);
                 if (!result.empty()) {
                     setProfilePicture(result);
                 }
             } else {
                 LOGNUTPP_WARN("Failed to parse user info: '"
-                               << response.body() << "'");
+                              << response.body() << "'");
             }
-        }
-    );
+        });
 
     std::vector<Wt::Http::Message::Header> headers;
     headers.push_back(
@@ -292,7 +306,7 @@ void AuthWidget::fetchProfilePicture(Wt::Auth::OAuthProcess *oauth) {
 // Stores the received url.
 void AuthWidget::setProfilePicture(const std::string &url)
 {
-    //TODO: set url based on image size
+    // TODO: set url based on image size
     profile_picture_sm_->setUrl(url);
     profile_picture_lg_->setUrl(url);
 

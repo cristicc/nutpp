@@ -21,19 +21,22 @@
  * @brief Database model.
  */
 
-#ifndef NUTPP_STORAGE_DB_MODEL_H_
-#define NUTPP_STORAGE_DB_MODEL_H_
+#ifndef NUTPP_STORAGE_DBMODEL_H_
+#define NUTPP_STORAGE_DBMODEL_H_
 
+#include <memory>
 #include <string>
-#include <Wt/Dbo/Session.h>
+
+namespace Wt { namespace Dbo {
+class Session;
+class SqlConnectionPool;
+} } // namespace wt
 
 namespace nutpp {
 /**
  * @brief Namespace containing the sources for the data persistence component.
  */
 namespace storage {
-// FIXME: some methods could be static
-
 /**
  * @brief Implements a model for database persistence.
  */
@@ -55,6 +58,18 @@ public:
     /// Destructor.
     ~DbModel();
 
+    /// Copy constructor not allowed.
+    DbModel(const DbModel &) = delete;
+
+    /// Move constructor not allowed.
+    DbModel(DbModel &&) = delete;
+
+    /// Assignment not allowed.
+    DbModel &operator=(const DbModel &) = delete;
+
+    /// Move assignment not allowed.
+    DbModel &operator=(DbModel &&) = delete;
+
     /**
      * @brief Initialized the current DB model instance.
      * @param[in] db_file_path Path to a sqlite3 file.
@@ -72,38 +87,20 @@ public:
      * @param[out] users The no. of registered user accounts.
      * @param[in] force Enables a database reset by deleting all tables
      * followed by their re-creation.
+     *
      * @return @c false if errors occurred, or @c true otherwise.
      */
     bool createSchema(int &users, bool force = false);
 
+protected:
+    friend class DbSession;
+
     /**
      * @brief Initializes a database session using a connection from the pool.
      * @param[in,out] session The uninitialized database session.
-     * @param[in] auth_only Only maps the classes relevant for authentication.
      * @return @c false if errors occurred, or @c true otherwise.
      */
-    bool initSession(Wt::Dbo::Session &session, bool auth_only = false) const;
-
-    /**
-     * @brief Saves the given database session.
-     * @param[in,out] session The database session.
-     * @return @c false if errors occurred, or @c true otherwise.
-     */
-    bool saveSession(Wt::Dbo::Session &session) const;
-
-    /**
-     * @brief Discards the given session.
-     *
-     * Rereads all objects from the database, possibly discarding unflushed
-     * modifications.
-     *
-     * @param[in,out] session The database session.
-     * @param[in] table_name If specified, only the objects
-     * of that table are reread.
-     * @return @c false if errors occurred, or @c true otherwise.
-     */
-    bool discardSession(Wt::Dbo::Session &session,
-                        const char *table_name = nullptr) const;
+    bool initSession(Wt::Dbo::Session &session) const;
 
 private:
     // Returns the no. of user accounts or -1 in case of errors.
@@ -114,4 +111,4 @@ private:
 };
 } // namespace storage
 } // namespace nutpp
-#endif // NUTPP_STORAGE_DB_MODEL_H_
+#endif // NUTPP_STORAGE_DBMODEL_H_

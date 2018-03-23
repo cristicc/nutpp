@@ -32,8 +32,8 @@
 
 namespace nutpp {
 namespace storage {
-// Fwd declaration.
 class DbModel;
+class DbSession;
 } // namespace storage
 
 namespace auth {
@@ -93,19 +93,13 @@ public:
      */
     static void createDefaultAccount(const storage::DbModel &db);
 
-    /**
-     * @brief Gets access to the auth service.
-     */
+    /// Gets access to the auth service.
     static const Wt::Auth::AuthService &auth();
 
-    /**
-     * @brief Gets access to the password auth service.
-     */
+    /// Gets access to the password auth service.
     static const Wt::Auth::PasswordService &passwordAuth();
 
-    /**
-     * @brief Gets access to the OAuth services.
-     */
+    /// Gets access to the OAuth services.
     static const std::vector<const Wt::Auth::OAuthService *> oAuth();
 
     /**
@@ -115,32 +109,31 @@ public:
      */
     LoginSession(const storage::DbModel &db);
 
+    /// Destructor.
+    ~LoginSession();
+
     /**
      * @brief Gets access to the authentication user database.
      * @return A reference to the authentication user database.
      */
     Wt::Auth::AbstractUserDatabase &users();
 
-    /**
-     * @brief Fetches the persisted details of the authenticated user.
-     */
+    /// Fetches the persisted details of the authenticated user.
     Wt::Dbo::ptr<storage::User> user();
 
-    /**
-     * @brief Fetches the persisted details for a user.
-     */
+    /// Fetches the persisted details for a user.
     Wt::Dbo::ptr<storage::User> user(const Wt::Auth::User &user);
 
-    /**
-     * @brief Gets access to the login state manager.
-     * @return A reference to the login manager instance.
-     */
+    /// Gets access to the login state manager.
     Wt::Auth::Login &login() { return login_; }
 
+    /// Gets access to the database session.
+    storage::DbSession &dbSession() { return *db_session_; }
+
 private:
+    std::unique_ptr<storage::DbSession> db_session_;
     std::unique_ptr<UserDatabase> users_;
     Wt::Auth::Login login_;
-    Wt::Dbo::Session db_session_;
 };
 } // namespace auth
 } // namespace nutpp

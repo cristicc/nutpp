@@ -20,11 +20,11 @@
 
 #include "db_model.h"
 
+#include "db_session.h"
 #include "user.h"
 #include "util/log.h"
 
 #include <Wt/Dbo/backend/Sqlite3.h>
-#include <Wt/Dbo/Exception.h>
 #include <Wt/Dbo/FixedSqlConnectionPool.h>
 
 LOGNUTPP_LOGGER_STORAGE;
@@ -69,7 +69,7 @@ bool DbModel::initialize(const std::string &db_file_path, int max_conn)
             std::move(sqlite3_conn), max_conn);
 
         return true;
-    } catch (const dbo::Exception &e) {
+    } catch (const std::exception &e) {
         LOGNUTPP_ERROR("Failed to initialize DB '"
                        << db_file_path << "': " << e.what());
     }
@@ -80,15 +80,12 @@ bool DbModel::initialize(const std::string &db_file_path, int max_conn)
 // Creates schema and default user.
 bool DbModel::createSchema(int &users, bool force)
 {
-    dbo::Session s;
-    if (!initSession(s)) {
-        return false;
-    }
+    DbSession s(*this, false);
 
     if (force) {
         try {
-            s.dropTables();
-        } catch (const dbo::Exception &e) {}
+            s.getDboSession().dropTables();
+        } catch (const std::exception &e) {}
     }
 
     users = getUserCount();
@@ -103,9 +100,9 @@ bool DbModel::createSchema(int &users, bool force)
         LOGNUTPP_INFO("Creating DB schema");
 
         try {
-            s.createTables();
+            s.getDboSession().createTables();
             users = 0;
-        } catch (const dbo::Exception &e) {
+        } catch (const std::exception &e) {
             LOGNUTPP_ERROR("Failed to create DB schema: " << e.what());
             return false;
         }
@@ -115,7 +112,7 @@ bool DbModel::createSchema(int &users, bool force)
 }
 
 // Gets new session.
-bool DbModel::initSession(dbo::Session &session, bool auth_only) const
+bool DbModel::initSession(dbo::Session &session) const
 {
     try {
         // Enable the DB session to use the shared connection pool.
@@ -129,61 +126,25 @@ bool DbModel::initSession(dbo::Session &session, bool auth_only) const
         session.mapClass<AuthInfo::AuthIdentityType>("auth_identity");
         session.mapClass<AuthInfo::AuthTokenType>("auth_token");
 
-        if (!auth_only) {
-            // Map app specific classes to DB tables.
-            //TODO: check if this is even possible, otherwise get rid of
-            // auth_only parameter.
-        }
-
         return true;
-    } catch (const dbo::Exception &e) {
+    } catch (const std::exception &e) {
         LOGNUTPP_ERROR("Failed to create new DB session: " << e.what());
     }
 
     return false;
 }
 
-// Saves session.
-bool DbModel::saveSession(dbo::Session &session) const
-{
-    try {
-        dbo::Transaction t(session);
-
-        return t.commit();
-    } catch (const dbo::Exception &e) {
-        LOGNUTPP_ERROR("Failed to save DB session: " << e.what());
-    }
-
-    return false;
-}
-
-// Discards session.
-bool DbModel::discardSession(
-    dbo::Session &session, const char *table_name) const
-{
-    try {
-        session.rereadAll(table_name);
-    } catch (const dbo::Exception &e) {
-        LOGNUTPP_ERROR("Failed to discard DB session: " << e.what());
-        return false;
-    }
-
-    return true;
-}
-
 // Counts users.
 int DbModel::getUserCount() const
 {
-    dbo::Session s;
-    if (!initSession(s)) {
-        return false;
-    }
+    DbSession s(*this);
 
-    dbo::Transaction t(s);
     try {
-        return s.query<int>(
+        return s.getDboSession().query<int>(
             std::string("select count(1) from ") + storage::User::kTableName);
-    } catch (const dbo::Exception &e) {}
+    } catch (const std::exception &e) {
+        LOGNUTPP_ERROR("Failed to get user count: " << e.what());
+    }
 
     return -1;
 }

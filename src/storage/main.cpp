@@ -20,6 +20,7 @@
 
 #include "db_model.h"
 
+#include "db_session.h"
 #include "user.h"
 #include "util/log.h"
 #include "util/log_initializer.h"
@@ -52,26 +53,31 @@ int main(int /*argc*/, char ** /*argv*/)
         return 1;
     }
 
-    const storage::DbModel &cmodel = model;
+    storage::DbSession s1(model);
+    LOGNUTPP_DEBUG("DB SQL: " << s1.getDboSession().tableCreationSql());
 
-    dbo::Session s1;
-    cmodel.initSession(s1);
+    // Add a few users.
+    try {
+        for (int i = 0; i < 2; i++) {
+            auto user = std::make_unique<storage::User>();
+            user->language = "ro";
+            s1.getDboSession().add(std::move(user));
+        }
 
-    LOGNUTPP_DEBUG("DB SQL: " << s1.tableCreationSql());
-
-    // Save db.
-    cmodel.saveSession(s1);
+        s1.commit();
+    } catch (const std::exception &e) {
+        LOGNUTPP_ERROR("Failed to add users: " << e.what());
+    }
 
     // Verify
-    dbo::Session s2;
-    cmodel.initSession(s2);
-    dbo::Transaction t(s2);
-    int count = s2.query<int>(
-        std::string("select count(1) from ") + storage::User::kTableName);
-    LOGNUTPP_INFO("Total users: " << count);
-
-    // Discard changes.
-    // cmodel.discardSession(session);
+    try {
+        storage::DbSession s2(model);
+        int count = s2.getDboSession().query<int>(
+            std::string("select count(1) from ") + storage::User::kTableName);
+        LOGNUTPP_INFO("Total users: " << count);
+    } catch (const std::exception &e) {
+        LOGNUTPP_ERROR("Failed to verify total users: " << e.what());
+    }
 
     return 0;
 }
