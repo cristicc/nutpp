@@ -52,9 +52,9 @@ done
 # Deploy default configuration.
 [ -d ${SRV_PATH}/web ] || {
     mkdir -p ${SRV_PATH}/web
-    ln -s ${RUN_PATH}/../web/css ${SRV_PATH}/web/
-    ln -s ${RUN_PATH}/../web/images ${SRV_PATH}/web/
-    ln -s ${RUN_PATH}/../web/favicon.ico ${SRV_PATH}/web/
+    for webres in ${RUN_PATH}/../web/*; do
+        ln -s ${webres} ${SRV_PATH}/web/
+    done
     ln -s ${DIST_PATH}/share/Wt/resources ${SRV_PATH}/web/
 }
 

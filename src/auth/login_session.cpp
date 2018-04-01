@@ -129,8 +129,7 @@ Wt::Dbo::ptr<storage::User> LoginSession::user(const Wt::Auth::User &auth_user)
 
     if (!user) {
         try {
-            user = db_session_->getDboSession().add(
-                std::make_unique<storage::User>());
+            user = db_session_->add(std::make_unique<storage::User>());
             auth_info.modify()->setUser(user);
         } catch (const std::exception &e) {
             LOGNUTPP_ERROR("Failed to create auth user: " << e.what());

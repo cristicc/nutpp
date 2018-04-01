@@ -33,9 +33,9 @@
 namespace nutpp {
 namespace webserver {
 // C-tor.
-PatientFormView::PatientFormView()
+PatientFormView::PatientFormView(const Wt::Dbo::ptr<storage::Patient> &patient)
     : Wt::WTemplateFormView(tr("nutpp.ws.template.edit-patient")),
-    model_(std::make_unique<PatientFormModel>())
+    model_(std::make_unique<PatientFormModel>(patient))
 {
     setFormWidget(PatientFormModel::kNameField,
                   std::make_unique<Wt::WLineEdit>());
@@ -47,9 +47,8 @@ PatientFormView::PatientFormView()
         PatientFormModel::kBirthDateField,
         std::move(date_edit),
         [=, date_edit = date_edit.get()]() { // updateViewValue()
-            Wt::WDate date
-                = Wt::cpp17::any_cast<Wt::WDate>(
-                    model_->value(PatientFormModel::kBirthDateField));
+            Wt::WDate date = Wt::cpp17::any_cast<Wt::WDate>(
+                model_->value(PatientFormModel::kBirthDateField));
             date_edit->setDate(date);
         },
         [=, date_edit = date_edit.get()]() { // updateModelValue()
@@ -99,10 +98,14 @@ PatientFormView::PatientFormView()
             }
 
             bool result = model_->save();
-            removeFromParent();
-            if (!result) {
-                //TODO: show error
+
+            if (result) {
+                saved_.emit();
+            } else {
+                // TODO: show error
             }
+
+            removeFromParent();
         });
 
     auto cancel = bindWidget(

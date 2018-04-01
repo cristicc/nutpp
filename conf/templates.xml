@@ -197,8 +197,43 @@
     <div class="nutpp-list-patient">
       <div class="row">
         <div class="col-sm-4">${add-pacient-button class="btn-primary"}</div>
-        <div class="col-sm-8">${page-control}</div>
+        <div class="col-sm-8">${nav-bar}</div>
+      </div>
+      <div class="row">
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>${tr:nutpp.patient.name}</th>
+                <th>${tr:nutpp.patient.email}</th>
+                <th>${tr:nutpp.patient.phone}</th>
+                <th>${tr:nutpp.patient.last-activity}</th>
+                <th style="width: 80px">${tr:nutpp.patient.actions}</th>
+              </tr>
+            </thead>
+            <tbody>${contents}</tbody>
+          </table>
+        </div>
       </div>
     </div>
+  </message>
+
+  <!-- An item in the patients list. -->
+  <message id="nutpp.ws.template.list-patient-item">
+    <tr>
+      <th scope="row">${index}</th>
+      <td><a role="button">${name}</a></td>
+      <td>${email}</td>
+      <td>${phone}</td>
+      <td>${last_activity}</td>
+      <td>
+        <span role="button" title="${tr:nutpp.patient.view}" aria-label="${tr:nutpp.patient.view}">${view-button}</span>
+        <span role="button" title="${tr:nutpp.patient.edit}" aria-label="${tr:nutpp.patient.edit}">${edit-button}</span>
+        <span role="button" title="${tr:nutpp.patient.delete}" aria-label="${tr:nutpp.patient.delete}">${delete-button}</span>
+      </td>
+    </tr>
   </message>
 </messages>

@@ -61,7 +61,7 @@ int main(int /*argc*/, char ** /*argv*/)
         for (int i = 0; i < 2; i++) {
             auto user = std::make_unique<storage::User>();
             user->language = "ro";
-            s1.getDboSession().add(std::move(user));
+            s1.add(std::move(user));
         }
 
         s1.commit();

@@ -39,6 +39,9 @@ class User;
  */
 using AuthInfo = Wt::Auth::Dbo::AuthInfo<User>;
 
+/// Alias for a list of storage::Patient.
+using Patients = Wt::Dbo::collection<Wt::Dbo::ptr<Patient>>;
+
 /**
  * @brief Enum class representing the types of user accounts recognized
  * by the system.
@@ -75,7 +78,7 @@ public:
     Wt::Dbo::weak_ptr<AuthInfo> auth_info;
 
     /// Owns zero or more patients.
-    Wt::Dbo::collection<Wt::Dbo::ptr<Patient>> patients;
+    Patients patients;
 
     /**
      * @brief Defines the User class persistence.

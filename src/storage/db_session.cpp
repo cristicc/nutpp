@@ -19,36 +19,54 @@
  */
 
 #include "db_session.h"
-
 #include "db_model.h"
-
-namespace dbo = Wt::Dbo;
 
 namespace nutpp {
 namespace storage {
 // Constructor.
-DbSession::DbSession(const DbModel &db, bool create_trans)
+DbSession::DbSession(const DbModel &db, bool start_trans)
+    : owned_session_(std::make_unique<Wt::Dbo::Session>()),
+      session_(*owned_session_)
 {
     db.initSession(session_);
 
-    if (create_trans) {
-        createTransaction();
+    if (start_trans) {
+        startTransaction();
     }
 }
 
-// Creates transaction.
-void DbSession::createTransaction()
+// Creates internal transaction.
+void DbSession::startTransaction()
 {
     if (!trans_) {
-        trans_ = std::make_unique<Wt::Dbo::Transaction>(session_);
+        trans_ = createTransaction();
     }
+}
+
+// Destroys internal transaction.
+void DbSession::stopTransaction()
+{
+    if (trans_) {
+        trans_.reset();
+    }
+}
+
+// Creates external transaction.
+std::unique_ptr<Wt::Dbo::Transaction> DbSession::createTransaction()
+{
+    return std::make_unique<Wt::Dbo::Transaction>(session_);
 }
 
 // Commits transaction.
 bool DbSession::commit()
 {
-    createTransaction();
-    return trans_->commit();
+    if (trans_) {
+        return trans_->commit();
+    }
+
+    // The internal transaction was not started, use a temporary one.
+    auto t = createTransaction();
+    return t->commit();
 }
 
 // Roll-backs active transaction.

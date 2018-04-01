@@ -50,8 +50,12 @@ public:
     std::string gender;
     /// Patient phone no.
     std::string phone_no;
-    /// Patient note.
+    /// Some info.
     std::string note;
+    /// Profile image.
+    //TODO: blob for profile_image in a separate table shared with User
+    /// Date of last changes.
+    Wt::WDateTime modif_time;
 
     /// Owns zero or more progress indicators.
     Wt::Dbo::collection<Wt::Dbo::ptr<PatientProgress>> progress_inds;
@@ -72,6 +76,7 @@ public:
         Wt::Dbo::field(a, gender, "gender");
         Wt::Dbo::field(a, phone_no, "phone_no");
         Wt::Dbo::field(a, note, "note");
+        Wt::Dbo::field(a, modif_time, "modif_time");
         Wt::Dbo::hasMany(a, progress_inds, Wt::Dbo::ManyToOne, kTableName);
         Wt::Dbo::belongsTo(a, owner, "owner");
     }

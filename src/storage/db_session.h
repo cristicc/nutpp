@@ -31,10 +31,7 @@ namespace storage {
 class DbModel;
 
 /**
- * @brief Wraps a @c Wt::Dbo::Session instance.
- *
- * The class is able to automatically create a transaction
- * associated to the database session.
+ * @brief Wraper over @c Wt::Dbo::Session and @c Wt::Dbo::Transaction.
  */
 class DbSession {
 public:
@@ -55,26 +52,62 @@ public:
      * from the given model.
      *
      * @param[in] db The database model containing the connection pool.
-     * @param[in] create_trans Automatically create a transaction after
-     * initializing the session.
+     * @param[in] start_trans Automatically starts the internally managed
+     * transaction after initializing the session.
+     *
+     * @sa startTransaction()
      */
-    DbSession(const DbModel &db, bool create_trans = true);
+    DbSession(const DbModel &db, bool start_trans = true);
 
     /**
-     * @brief Creates a transaction.
+     * Instantiates the class using the session of a persisted database object.
      *
-     * Does nothing if a transaction has been already created.
+     * @param[in] db_obj The persisted database object.
+     * @param[in] start_trans Automatically starts the internally managed
+     * transaction.
      */
-    void createTransaction();
+    template<class C> DbSession(const Wt::Dbo::ptr<C> &db_obj,
+                                bool start_trans = true);
 
     /**
-     * @brief Commits the active transaction.
+     * @brief Starts the internally managed transaction.
      *
-     * Automatically creates a new transaction if none has been initialized
-     * in order to flush any changes done on the database session.
+     * Does nothing if the internal transaction has been already started.
+     */
+    void startTransaction();
+
+    /**
+     * @brief Stops the internally managed transaction.
+     *
+     * Any changes made during the transaction will be committed automatically.
+     * Does nothing if the internal transaction has not been already started.
+     */
+    void stopTransaction();
+
+    /**
+     * @brief Creates a user transaction not managed internally.
+     * @return A transaction instance owned by the caller.
+     */
+    std::unique_ptr<Wt::Dbo::Transaction> createTransaction();
+
+    /**
+     * @brief Wrapper for @c Wt::Dbo::Session::add(std::unique_ptr<C>).
+     */
+    template<class C> Wt::Dbo::ptr<C> add(std::unique_ptr<C> obj);
+
+    /**
+     * @brief Wrapper for @c Wt::Dbo::Session::add(Wt::Dbo::ptr<C>).
+     */
+    template<class C> Wt::Dbo::ptr<C> add(Wt::Dbo::ptr<C> &obj);
+
+    /**
+     * @brief Commits the internally managed transaction.
+     *
+     * Automatically starts a temporary transaction if the internal managed
+     * transaction has not been started in order to flush any changes done
+     * on the database during the current session.
      *
      * @return @c true if the transaction was flushed to the database.
-     * @sa createTransaction()
      */
     bool commit();
 
@@ -100,9 +133,37 @@ public:
     Wt::Dbo::Session &getDboSession() { return session_; }
 
 private:
-    Wt::Dbo::Session session_;
+    // Session object owned by this class.
+    std::unique_ptr<Wt::Dbo::Session> owned_session_;
+    // Transaction object owned by this class.
     std::unique_ptr<Wt::Dbo::Transaction> trans_;
+    // Reference to owned_session_ or to a session obtained from a DB object.
+    Wt::Dbo::Session &session_;
 };
+
+// Constructor.
+template<class C>
+DbSession::DbSession(const Wt::Dbo::ptr<C> &db_obj, bool start_trans)
+    : session_(*db_obj.session())
+{
+    if (start_trans) {
+        startTransaction();
+    }
+}
+
+// Wrapper.
+template<class C>
+Wt::Dbo::ptr<C> DbSession::add(std::unique_ptr<C> obj)
+{
+    return session_.add(std::move(obj));
+}
+
+// Wrapper.
+template<class C>
+Wt::Dbo::ptr<C> DbSession::add(Wt::Dbo::ptr<C> &obj)
+{
+    return session_.add(obj);
+}
 } // namespace storage
 } // namespace nutpp
 #endif // NUTPP_STORAGE_DBSESSION_H_

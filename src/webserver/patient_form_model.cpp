@@ -24,7 +24,6 @@
 #include "nutpp_ui.h"
 #include "auth/login_session.h"
 #include "storage/db_session.h"
-#include "storage/patient.h"
 #include "util/log.h"
 
 #include <Wt/WDateValidator.h>
@@ -63,9 +62,7 @@ std::shared_ptr<Wt::WValidator> createBirthDateValidator()
 // Gender validator.
 std::shared_ptr<Wt::WValidator> createGenderValidator()
 {
-    auto v = std::make_shared<Wt::WLengthValidator>(1, 1);
-    v->setMandatory(true);
-    return v;
+    return std::make_shared<Wt::WValidator>(true);
 }
 
 // Phone validator.
@@ -100,8 +97,9 @@ const std::string &PatientFormModel::kDefaultActivity
     = PatientFormModel::kActivities[0];
 
 // C-tor.
-PatientFormModel::PatientFormModel()
-    : Wt::WFormModel()
+PatientFormModel::PatientFormModel(const Wt::Dbo::ptr<storage::Patient> &patient)
+    : Wt::WFormModel(),
+    patient_(patient)
 {
     initializeModels();
 
@@ -113,6 +111,7 @@ PatientFormModel::PatientFormModel()
     addField(kPhoneNoField, Wt::WString::tr("nutpp.patient.phone-info"));
     addField(kNoteField, Wt::WString::tr("nutpp.patient.note-info"));
 
+    // TODO: move to patient progress model
     addField(kActivityField, Wt::WString::tr("nutpp.auth.activity-info"));
 
     // Add validators.
@@ -123,28 +122,51 @@ PatientFormModel::PatientFormModel()
     setValidator(kPhoneNoField, createPhoneNoValidator());
     setValidator(kNoteField, createNoteValidator());
 
-    // Set default values.
-    setValue(kBirthDateField, Wt::WDate());
-    setValue(kGenderField, std::string(""));
-    setValue(kActivityField, kDefaultActivity);
+    if (patient_.isTransient()) {
+        // New patient, use default values.
+        setValue(kBirthDateField, Wt::WDate());
+        setValue(kGenderField, std::string(""));
+        setValue(kActivityField, kDefaultActivity);
+    } else {
+        // Load patient data from DB.
+        try {
+            storage::DbSession s(patient_);
+            setValue(kNameField, patient->name);
+            setValue(kEmailField, patient->email);
+            setValue(kBirthDateField, patient->birth_date);
+            setValue(kGenderField, patient->gender);
+            setValue(kPhoneNoField, patient->phone_no);
+            setValue(kNoteField, patient->note);
+        } catch (const std::exception &e) {
+            LOGNUTPP_ERROR("Failed to access patient data: " << e.what());
+        }
+    }
 }
 
 // Persistence.
 bool PatientFormModel::save()
 {
-    auto patient = std::make_unique<storage::Patient>();
-    patient->name = valueText(kNameField).toUTF8();
-    patient->email = valueText(kEmailField).toUTF8();
-    patient->birth_date
-        = Wt::cpp17::any_cast<Wt::WDate>(value(kBirthDateField));
-    patient->gender = valueText(kGenderField).toUTF8();
-    patient->phone_no = valueText(kPhoneNoField).toUTF8();
-    patient->note = valueText(kNoteField).toUTF8();
-    patient->owner = NUTPP_LOGIN.user();
-
     try {
-        NUTPP_LOGIN.dbSession().getDboSession().add(std::move(patient));
-        return NUTPP_LOGIN.dbSession().commit();
+        auto &s = NUTPP_LOGIN.dbSession();
+        auto t = s.createTransaction();
+
+        if (patient_.isTransient()) {
+            // Adding new patient.
+            s.add(patient_);
+        }
+
+        auto patient = patient_.modify();
+        patient->name = valueText(kNameField).toUTF8();
+        patient->email = valueText(kEmailField).toUTF8();
+        patient->birth_date
+            = Wt::cpp17::any_cast<Wt::WDate>(value(kBirthDateField));
+        patient->gender = valueText(kGenderField).toUTF8();
+        patient->phone_no = valueText(kPhoneNoField).toUTF8();
+        patient->note = valueText(kNoteField).toUTF8();
+        patient->modif_time = Wt::WDateTime::currentDateTime();
+        patient->owner = NUTPP_LOGIN.user();
+
+        return t->commit();
     } catch (const std::exception &e) {
         LOGNUTPP_ERROR("Failed to save patient: " << e.what());
     }

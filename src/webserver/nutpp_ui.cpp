@@ -26,6 +26,7 @@
 #include "auth/auth_widget.h"
 #include "auth/login_session.h"
 #include "storage/db_model.h"
+#include "storage/db_session.h"
 #include "util/log.h"
 
 #include <atomic>
@@ -234,11 +235,24 @@ void NutppUI::refresh()
 // Handles logged in.
 void NutppUI::handleLoggedIn(bool automatic)
 {
-    const Wt::Auth::User &u = impl_->login_session_.login().user();
-    impl_->auth_identity_ = u.identity(Wt::Auth::Identity::LoginName);
+    try {
+        Wt::Dbo::ptr<storage::User> user = impl_->login_session_.user();
+        storage::DbSession s(user);
 
-    const char *mode = automatic ? "automatically" : "manually";
-    LOGNUTPP_INFO("User " << impl_->auth_identity_ << " logged in " << mode);
+        impl_->auth_identity_ = impl_->login_session_.login().user().identity(
+            Wt::Auth::Identity::LoginName);
+
+        setLocale(user->language);
+
+        LOGNUTPP_INFO("User " << impl_->auth_identity_ << " logged in "
+                              << (automatic ? "automatically" : "manually"));
+        LOGNUTPP_DEBUG("Current locale: "
+                       << Wt::WLocale::currentLocale().name());
+    } catch (const std::exception &e) {
+        LOGNUTPP_ERROR("Failed to access logged in user info: " << e.what());
+        quit();
+        return;
+    }
 
     // Mitigate session ID fixation attacks, done by default on manual login.
     if (automatic) {

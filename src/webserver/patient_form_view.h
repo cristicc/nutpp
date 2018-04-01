@@ -25,6 +25,7 @@
 #define NUTPP_WEBSERVER_PATIENTFORMVIEW_H_
 
 #include <Wt/WTemplateFormView.h>
+#include "storage/patient.h"
 
 namespace nutpp {
 namespace webserver {
@@ -36,14 +37,21 @@ class PatientFormModel;
  */
 class PatientFormView : public Wt::WTemplateFormView {
 public:
-    /// Constructor.
-    PatientFormView();
+    /**
+     * @brief Instantiates the form.
+     * @param[in] patient Database object holding patient data.
+     */
+    PatientFormView(const Wt::Dbo::ptr<storage::Patient> &patient);
 
     /// Destructor.
     ~PatientFormView();
 
+    /// User saved event.
+    Wt::Signal<> &saved() { return saved_; }
+
 private:
     std::unique_ptr<PatientFormModel> model_;
+    Wt::Signal<> saved_;
 };
 } // namespace webserver
 } // namespace nutpp

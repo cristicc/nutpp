@@ -25,6 +25,7 @@
 #define NUTPP_AUTH_PATIENTFORMMODEL_H_
 
 #include <Wt/WFormModel.h>
+#include "storage/patient.h"
 
 namespace nutpp {
 namespace webserver {
@@ -52,8 +53,9 @@ public:
 
     /**
      * @brief Instantiates the model.
+     * @param[in] patient Database object holding patient data.
      */
-    PatientFormModel();
+    PatientFormModel(const Wt::Dbo::ptr<storage::Patient> &patient);
 
     /**
      * @brief Stores the user details in database.
@@ -75,6 +77,7 @@ private:
 
     std::shared_ptr<Wt::WStandardItemModel> gender_model_;
     std::shared_ptr<Wt::WStandardItemModel> activity_model_;
+    Wt::Dbo::ptr<storage::Patient> patient_;
 };
 } // namespace auth
 } // namespace nutpp
