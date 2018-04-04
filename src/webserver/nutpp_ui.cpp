@@ -275,23 +275,24 @@ void NutppUI::createNavBar()
     title_link->setImage(std::make_unique<Wt::WImage>("favicon.ico"));
 
     // Setup a Left-aligned menu.
-    Wt::WStackedWidget *contents_stack_left
+    auto contents_stack
         = root()->addWidget(std::make_unique<Wt::WStackedWidget>());
 
     auto left_menu = impl_->nav_bar_->addMenu(
-        std::make_unique<Wt::WMenu>(contents_stack_left));
+        std::make_unique<Wt::WMenu>(contents_stack));
 
+    left_menu->setInternalPathEnabled("/");
     left_menu->addItem(Wt::WString::tr("nutpp.nav.patients"),
                        std::make_unique<PatientListView>())
-    ->setLink(Wt::WLink(Wt::LinkType::InternalPath, "/patients"));
+    ->setPathComponent("patients");
 
-    auto search_result_tmp
-        = std::make_unique<Wt::WText>("Lista formulare..");
-    auto search_result = search_result_tmp.get();
+    left_menu->addItem(Wt::WString::tr("nutpp.nav.nutrients"),
+                       std::make_unique<Wt::WText>("my nutrients"))
+    ->setPathComponent("nutrients");
 
-    left_menu->addItem(Wt::WString::tr("nutpp.nav.forms"),
-                       std::move(search_result_tmp))
-    ->setLink(Wt::WLink(Wt::LinkType::InternalPath, "/forms"));
+    left_menu->addItem(Wt::WString::tr("nutpp.nav.recipes"),
+                       std::make_unique<Wt::WText>("my recipes"))
+    ->setPathComponent("recipes");
 
     // Setup a Right-aligned menu.
     auto right_menu = impl_->nav_bar_->addMenu(
@@ -325,12 +326,22 @@ void NutppUI::createNavBar()
     auto edit = std::make_unique<Wt::WLineEdit>();
     edit->setPlaceholderText(Wt::WString::tr("nutpp.nav.search-hint"));
 
-    edit->enterPressed().connect(
+    edit->textInput().connect(
         [=, edit = edit.get()]() {
-            left_menu->select(0); // is the index of the "Patients"
-            search_result->setText(
-                Wt::WString::tr("nutpp.nav.search-not-found").arg(
-                    edit->text()));
+            if (left_menu->currentIndex() != 0
+                && left_menu->currentIndex() != 1)
+            {
+                left_menu->select(0);   // select Patients list
+            }
+
+            auto widget = dynamic_cast<Wt::WContainerWidget *>(
+                contents_stack->currentWidget());
+            if (widget && widget->count()) {
+                auto list = dynamic_cast<PatientListView *>(widget->widget(0));
+                if (list) {
+                    list->filter(edit->text().toUTF8());
+                }
+            }
         });
 
     impl_->nav_bar_->addSearch(std::move(edit), Wt::AlignmentFlag::Right);

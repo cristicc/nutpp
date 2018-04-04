@@ -124,13 +124,11 @@ PagingBar::PagingBar(PatientListView *view)
 // Update.
 void PagingBar::update()
 {
-    first_button_->setDisabled(view_->currentPage() == 0);
-    prev_button_->setDisabled(view_->currentPage() == 0);
+    first_button_->setDisabled(view_->currentPage() < 1);
+    prev_button_->setDisabled(view_->currentPage() < 1);
 
-    next_button_->setDisabled(view_->currentPage()
-                              == view_->pageCount() - 1);
-    last_button_->setDisabled(view_->currentPage()
-                              == view_->pageCount() - 1);
+    next_button_->setDisabled(view_->currentPage() == view_->pageCount() - 1);
+    last_button_->setDisabled(view_->currentPage() == view_->pageCount() - 1);
 
     current_->setText(
         Wt::WString::tr("Wt.WAbstractItemView.PageIOfN")
@@ -227,7 +225,7 @@ PatientListView::PatientListView()
 // Load/reload data.
 void PatientListView::loadPatients()
 {
-    LOGNUTPP_DEBUG("Loading patients");
+    LOGNUTPP_DEBUG("Loading patients using filter '" << search_filter_ << "'");
 
     // Previous container will be removed if set.
     auto list
@@ -236,7 +234,11 @@ void PatientListView::loadPatients()
     try {
         auto t = NUTPP_LOGIN.dbSession().createTransaction();
 
-        storage::Patients patients = NUTPP_LOGIN.user()->patients.find();
+        storage::Patients patients
+            = search_filter_.empty() ? NUTPP_LOGIN.user()->patients.find()
+              : NUTPP_LOGIN.user()->patients.find()
+              .where("name LIKE ?").bind("%" + search_filter_ + "%");
+
         total_pages_ = std::ceil(
             static_cast<float>(patients.size()) / page_size_);
         if (crt_page_ >= total_pages_) {
@@ -262,7 +264,7 @@ void PatientListView::loadPatients()
             item->actionClicked().connect(
                 [=](PatientListItem::Action op) {
                     if (op == PatientListItem::Action::VIEW) {
-                        // TODO: viewPatient(patient);
+                        viewPatient(patient);
                     } else if (op == PatientListItem::Action::EDIT) {
                         editPatient(patient);
                     } else if (op == PatientListItem::Action::DELETE) {
@@ -276,6 +278,14 @@ void PatientListView::loadPatients()
 
     // Update nav bar.
     page_changed_.emit();
+}
+
+// Change search filter.
+void PatientListView::filter(std::string search)
+{
+    search_filter_ = search;
+    crt_page_ = 0;
+    loadPatients();
 }
 
 // Page count.
@@ -312,6 +322,10 @@ void PatientListView::render(Wt::WFlags<Wt::RenderFlag> flags)
 
     WTemplateFormView::render(flags);
 }
+
+// View detailed pacient info.
+void PatientListView::viewPatient(const Wt::Dbo::ptr<storage::Patient> &patient)
+{}
 
 // Show patient editor.
 void PatientListView::editPatient(const Wt::Dbo::ptr<storage::Patient> &patient)

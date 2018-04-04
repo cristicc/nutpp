@@ -40,6 +40,13 @@ public:
     /// Loads/reloads patients from database.
     void loadPatients();
 
+    /**
+     * Set/reset search filter for patient names.
+     *
+     * @param[in] search Show only the items matching the filter.
+     */
+    void filter(std::string search = "");
+
     /// Returns the number of pages currently shown.
     int pageCount() const;
 
@@ -67,12 +74,14 @@ protected:
     virtual void render(Wt::WFlags<Wt::RenderFlag> flags) override;
 
 private:
+    void viewPatient(const Wt::Dbo::ptr<storage::Patient> &patient);
     void editPatient(const Wt::Dbo::ptr<storage::Patient> &patient);
     void deletePatient(const Wt::Dbo::ptr<storage::Patient> &patient);
 
-    static const int kDefaultPageSize = 1;
+    static const int kDefaultPageSize = 2;
+    std::string search_filter_;
     int page_size_;
-    int crt_page_;
+    int crt_page_;  // Zero-based page index.
     int total_pages_;
     std::unique_ptr<Wt::WDialog> dialog_;
     std::unique_ptr<Wt::WMessageBox> msgbox_;

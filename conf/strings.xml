@@ -15,7 +15,8 @@
 <!-- Navigation bar. -->
 
 <message id="nutpp.nav.patients">Patients</message>
-<message id="nutpp.nav.forms">Forms</message>
+<message id="nutpp.nav.recipes">My Recipes</message>
+<message id="nutpp.nav.nutrients">My Nutrients</message>
 <message id="nutpp.nav.help">Help</message>
 <message id="nutpp.nav.search-hint">Enter a search item</message>
 <message id="nutpp.nav.search-not-found">Nothing found for {1}.</message>
