@@ -53,7 +53,6 @@
 
 <message id="nutpp.patient.last-activity">Last activity</message>
 
-<message id="nutpp.patient.gender.n">Select gender</message>
 <message id="nutpp.patient.gender.m">Male</message>
 <message id="nutpp.patient.gender.f">Female</message>
 
@@ -64,6 +63,10 @@
 <message id="nutpp.patient.edit">Edit patient</message>
 <message id="nutpp.patient.delete">Delete patient</message>
 <message id="nutpp.patient.delete-confirm">Are you sure you want to delete the patient?</message>
+
+<!-- Panels in the patient view. -->
+<message id="nutpp.panel.nutrition-plans">Nutrition plans</message>
+<message id="nutpp.panel.progress-indicators">Progress indicators</message>
 
 
 <!-- Authentication emails. -->

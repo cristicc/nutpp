@@ -21,6 +21,7 @@
 #include "nutpp_ui.h"
 
 #include "patient_list_view.h"
+#include "patient_view.h"
 #include "settings.h"
 
 #include "auth/auth_widget.h"
@@ -281,9 +282,17 @@ void NutppUI::createNavBar()
     auto left_menu = impl_->nav_bar_->addMenu(
         std::make_unique<Wt::WMenu>(contents_stack));
 
+    auto pview = contents_stack->addWidget(std::make_unique<PatientView>());
+    auto plist = std::make_unique<PatientListView>();
+    plist->viewItemClicked().connect(
+        [=](const Wt::Dbo::ptr<storage::Patient> &p) {
+            pview->showPatient(p);
+            contents_stack->setCurrentWidget(pview);
+        }
+    );
+
     left_menu->setInternalPathEnabled("/");
-    left_menu->addItem(Wt::WString::tr("nutpp.nav.patients"),
-                       std::make_unique<PatientListView>())
+    left_menu->addItem(Wt::WString::tr("nutpp.nav.patients"), std::move(plist))
     ->setPathComponent("patients");
 
     left_menu->addItem(Wt::WString::tr("nutpp.nav.nutrients"),

@@ -22,6 +22,7 @@
 
 #include "nutpp_ui.h"
 #include "patient_form_view.h"
+#include "patient_view.h"
 #include "auth/login_session.h"
 #include "storage/db_session.h"
 #include "util/log.h"
@@ -207,6 +208,7 @@ PatientListView::PatientListView()
     crt_page_(0),
     total_pages_(0)
 {
+    addFunction("tr", &WTemplate::Functions::tr);
     setTemplateText(tr("nutpp.ws.template.list-patient"));
 
     auto but = bindWidget(
@@ -264,7 +266,7 @@ void PatientListView::loadPatients()
             item->actionClicked().connect(
                 [=](PatientListItem::Action op) {
                     if (op == PatientListItem::Action::VIEW) {
-                        viewPatient(patient);
+                        view_item_clicked_.emit(patient);
                     } else if (op == PatientListItem::Action::EDIT) {
                         editPatient(patient);
                     } else if (op == PatientListItem::Action::DELETE) {
@@ -320,12 +322,8 @@ void PatientListView::render(Wt::WFlags<Wt::RenderFlag> flags)
         loadPatients();
     }
 
-    WTemplateFormView::render(flags);
+    WTemplate::render(flags);
 }
-
-// View detailed pacient info.
-void PatientListView::viewPatient(const Wt::Dbo::ptr<storage::Patient> &patient)
-{}
 
 // Show patient editor.
 void PatientListView::editPatient(const Wt::Dbo::ptr<storage::Patient> &patient)

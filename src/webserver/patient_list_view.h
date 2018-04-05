@@ -24,7 +24,7 @@
 #ifndef NUTPP_WEBSERVER_PATIENTLISTVIEW_H_
 #define NUTPP_WEBSERVER_PATIENTLISTVIEW_H_
 
-#include <Wt/WTemplateFormView.h>
+#include <Wt/WTemplate.h>
 #include "storage/patient.h"
 
 namespace nutpp {
@@ -32,7 +32,7 @@ namespace webserver {
 /**
  * @brief Widget to edit patient information.
  */
-class PatientListView : public Wt::WTemplateFormView {
+class PatientListView : public Wt::WTemplate {
 public:
     /// Constructor.
     PatientListView();
@@ -69,12 +69,17 @@ public:
      */
     Wt::Signal<> &pageChanged() { return page_changed_; }
 
+    /// Signal emitted when the view icon was clicked on an item in the list.
+    Wt::Signal<const Wt::Dbo::ptr<storage::Patient> &> &viewItemClicked()
+    {
+        return view_item_clicked_;
+    }
+
 protected:
     /// Delay loading patients until rendering time.
     virtual void render(Wt::WFlags<Wt::RenderFlag> flags) override;
 
 private:
-    void viewPatient(const Wt::Dbo::ptr<storage::Patient> &patient);
     void editPatient(const Wt::Dbo::ptr<storage::Patient> &patient);
     void deletePatient(const Wt::Dbo::ptr<storage::Patient> &patient);
 
@@ -86,6 +91,7 @@ private:
     std::unique_ptr<Wt::WDialog> dialog_;
     std::unique_ptr<Wt::WMessageBox> msgbox_;
     Wt::Signal<> page_changed_;
+    Wt::Signal<const Wt::Dbo::ptr<storage::Patient> &> view_item_clicked_;
 };
 } // namespace webserver
 } // namespace nutpp

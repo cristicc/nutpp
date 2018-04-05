@@ -36,7 +36,6 @@ LOGNUTPP_LOGGER_WS;
 namespace nutpp {
 namespace webserver {
 namespace {
-// Name validator.
 std::shared_ptr<Wt::WValidator> createNameValidator()
 {
     auto v = std::make_shared<Wt::WLengthValidator>(2, 50);
@@ -44,13 +43,11 @@ std::shared_ptr<Wt::WValidator> createNameValidator()
     return v;
 }
 
-// Email validator.
 std::shared_ptr<Wt::WValidator> createEmailValidator()
 {
     return std::make_shared<EmailValidator>();
 }
 
-// Birth date validator.
 std::shared_ptr<Wt::WValidator> createBirthDateValidator()
 {
     auto v = std::make_shared<Wt::WDateValidator>(
@@ -59,13 +56,11 @@ std::shared_ptr<Wt::WValidator> createBirthDateValidator()
     return v;
 }
 
-// Gender validator.
 std::shared_ptr<Wt::WValidator> createGenderValidator()
 {
     return std::make_shared<Wt::WValidator>(true);
 }
 
-// Phone validator.
 std::shared_ptr<Wt::WValidator> createPhoneNoValidator()
 {
     auto v = std::make_shared<Wt::WRegExpValidator>("[0-9+(). ext-]{3,20}");
@@ -74,7 +69,6 @@ std::shared_ptr<Wt::WValidator> createPhoneNoValidator()
     return v;
 }
 
-// Note validator.
 std::shared_ptr<Wt::WValidator> createNoteValidator()
 {
     return std::make_shared<Wt::WLengthValidator>(0, 1024);
@@ -96,7 +90,6 @@ const std::vector<std::string> PatientFormModel::kActivities = {
 const std::string &PatientFormModel::kDefaultActivity
     = PatientFormModel::kActivities[0];
 
-// C-tor.
 PatientFormModel::PatientFormModel(const Wt::Dbo::ptr<storage::Patient> &patient)
     : Wt::WFormModel(),
     patient_(patient)
@@ -143,7 +136,6 @@ PatientFormModel::PatientFormModel(const Wt::Dbo::ptr<storage::Patient> &patient
     }
 }
 
-// Persistence.
 bool PatientFormModel::save()
 {
     try {
@@ -174,19 +166,16 @@ bool PatientFormModel::save()
     return false;
 }
 
-// Getter.
 std::shared_ptr<Wt::WAbstractItemModel> PatientFormModel::genderModel()
 {
     return gender_model_;
 }
 
-// Getter.
 std::shared_ptr<Wt::WAbstractItemModel> PatientFormModel::activityModel()
 {
     return activity_model_;
 }
 
-// Init models.
 void PatientFormModel::initializeModels()
 {
     // Gender model.
@@ -199,8 +188,8 @@ void PatientFormModel::initializeModels()
         gender_model_->setData(i, 0, genders[i], Wt::ItemDataRole::User);
         gender_model_->setData(
             i, 0,
-            Wt::WString::tr("nutpp.patient.gender."
-                            + (i > 0 ? genders[i] : "n")),
+            (i > 0
+             ? Wt::WString::tr("nutpp.patient.gender." + genders[i]) : ""),
             Wt::ItemDataRole::Display);
     }
 

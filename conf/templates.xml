@@ -236,4 +236,51 @@
       </td>
     </tr>
   </message>
+
+  <!-- Page to display detailed patient information. -->
+  <message id="nutpp.ws.template.view-patient">
+    <div class="nutpp-view-patient">
+      <div class="row">
+        <div class="col-sm-4">
+            ${patient-profile-panel}
+            ${nutrition-plans-panel}
+        </div>
+        <div class="col-sm-8">${progress-indicators-panel}</div>
+      </div>
+    </div>
+  </message>
+
+  <!-- Widget to display the patient profile. -->
+  <message id="nutpp.ws.template.patient-profile-panel">
+    <div class="panel panel-success nutpp-patient-profile-panel">
+      <div class="panel-heading">
+        <div class="row">
+          <div class="col-sm-4 profile-pic">${profile-pic}</div>
+          <div class="col-sm-8 profile-info">
+            <div><b>${name}</b></div>
+            <div>${email}</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div>${contents}</div>
+      </div>
+    </div>
+  </message>
+
+  <!-- Widget to display the nutrition plans. -->
+  <message id="nutpp.ws.template.nutrition-plans-panel">
+    <div class="panel panel-success nutpp-nutrition-plans-panel">
+      <div class="panel-heading">${tr:nutpp.panel.nutrition-plans}</div>
+      <div class="panel-body">${contents}</div>
+    </div>
+  </message>
+
+  <!-- Widget to display the progress indicators. -->
+  <message id="nutpp.ws.template.progress-indicators-panel">
+    <div class="panel panel-success nutpp-progress-indicators-panel">
+      <div class="panel-heading">${tr:nutpp.panel.progress-indicators}</div>
+      <div class="panel-body">${contents}</div>
+    </div>
+  </message>
 </messages>

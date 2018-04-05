@@ -147,3 +147,8 @@
 .nutpp-list-patient span[role=button] {
     margin-right: 4px;
 }
+
+.nutpp-patient-profile-panel {
+    font-size: 12px;
+    word-wrap: break-word;
+}

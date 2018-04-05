@@ -9,6 +9,7 @@ set(WEBSERVER_SRCS
     patient_form_model.cpp
     patient_form_view.cpp
     patient_list_view.cpp
+    patient_view.cpp
     settings.cpp
 )
 
